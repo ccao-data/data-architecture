@@ -1,0 +1,60 @@
+models:
+  - name: default.vw_pin_exe
+    description: '{{ doc("view_vw_pin_exe") }}'
+
+    columns:
+      - name: exe_disabled
+        description: '{{ doc("shared_column_exe_disabled") }}'
+      - name: exe_freeze
+        description: '{{ doc("shared_column_exe_freeze") }}'
+      - name: exe_homeowner
+        description: '{{ doc("shared_column_exe_homeowner") }}'
+      - name: exe_longtime_homeowner
+        description: '{{ doc("shared_column_exe_longtime_homeowner") }}'
+      - name: exe_muni_built
+        description: '{{ doc("shared_column_exe_muni_built") }}'
+      - name: exe_senior
+        description: '{{ doc("shared_column_exe_senior") }}'
+      - name: exe_vet_dis_100
+        description: '{{ doc("shared_column_exe_vet_dis_100") }}'
+      - name: exe_vet_dis_50_69
+        description: '{{ doc("shared_column_exe_vet_dis_50_69") }}'
+      - name: exe_vet_dis_ge70
+        description: '{{ doc("shared_column_exe_vet_dis_ge70") }}'
+      - name: exe_vet_dis_lt50
+        description: '{{ doc("shared_column_exe_vet_dis_lt50") }}'
+      - name: exe_vet_returning
+        description: '{{ doc("shared_column_exe_vet_returning") }}'
+      - name: exe_wwii
+        description: '{{ doc("shared_column_exe_wwii") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
+
+    data_tests:
+      - row_count:
+          name: default_vw_pin_exe_matches_iasworld_exdet
+          equals: >
+            (
+              SELECT COUNT(DISTINCT(det.parid, det.taxyr))
+              FROM {{ source('iasworld', 'exdet') }} AS det
+              INNER JOIN {{ source('iasworld', 'excode') }} AS code
+                ON det.excode = code.excode
+                AND det.taxyr = code.taxyr
+                AND code.cur = 'Y'
+                AND code.deactivat IS NULL
+              WHERE det.cur = 'Y'
+                AND det.deactivat IS NULL
+            )
+          meta:
+            description: vw_pin_exe row count should equal iasworld exdet row count
+      - unique_combination_of_columns:
+          name: default_vw_pin_exe_unique_by_pin_year
+          combination_of_columns:
+            - pin
+            - year
+          config:
+            error_if: ">10"
+          meta:
+            description: vw_pin_exe should be unique by pin and year

@@ -1077,6 +1077,73 @@ percentage of fair cash value at which a property is assessed for taxing
 purposes. See `ccao.class_dict` for more information
 {% enddocs %}
 
+## disabled_persons_exemption_amount
+
+{% docs shared_column_exe_disabled %}
+Homestead exemption for persons with disabilities (35 ILCS 200/15-168). Value
+in EAV. Defined as exemption code(s):
+- `C-DP: DISABLED PERSONS - COOP`
+- `DP: DISABLED PERSON HOMESTD EX`
+Pre-2024 codes:
+- `DPHE: DISABLED PERSON HOMESTD EX`
+{% enddocs %}
+
+## disabled_veteran_50_to_69_exemption_amount
+
+{% docs shared_column_exe_vet_dis_50_69 %}
+Veterans with disabilities exemption for specially-adapted housing 50-69%
+(35 ILCS 200/15-165). Value in EAV. Defined as exemption code(s):
+- `C-DV2: DISABLED VETERAN 50-69% - COOP`
+- `DV2: DISABLED VETERAN 50-69%`
+Pre-2024 codes:
+- `DV-2: DISABLED VETERAN  50-69%`
+{% enddocs %}
+
+## disabled_veteran_70_or_greater_exemption_amount
+
+{% docs shared_column_exe_vet_dis_ge70 %}
+Veterans with disabilities exemption for specially-adapted housing 70% or
+greater (35 ILCS 200/15-165). Value in EAV. Defined as exemption
+code(s):
+- `DV3: DISABLED VETERAN 70% OR GREATER`
+- `DV3-M: DV3 MULTI-UNIT`
+Pre-2024 codes:
+- `DV-3: DISABLED VETERAN 70-100%`
+{% enddocs %}
+
+## disabled_veteran_100_exemption_amount
+
+{% docs shared_column_exe_vet_dis_100 %}
+Veterans with disabilities exemption for specially-adapted housing 100%, totally
+and permanently disabled (35 ILCS 200/15-165). Value in EAV.
+Defined as exemption code(s):
+- `DV4: DISABLED VETERAN 100%, TOTALLY AND PERMANENTLY DISABLED`
+Pre-2024 codes:
+- `DV-4: DISABLED VETERAN 100%, TOTALLY AND PERMANENTLY DISABLED`
+{% enddocs %}
+
+## disabled_veteran_less_than_50_exemption_amount
+
+{% docs shared_column_exe_vet_dis_lt50 %}
+Veterans with disabilities exemption for specially-adapted housing less than 50%
+exemption (35 ILCS 200/15-165). Value in EAV. Defined as exemption code(s):
+- `C-DV1: DISABLED VETERAN 30-49% - COOP`
+- `DV1: DISABLED VETERAN 30-49%`
+Pre-2024 codes:
+- `C-DV0: DISABLED VETERAN 30-49% - COOP`
+- `DV-1: DISABLED VETERAN 30-49%`
+- `DV0: DISABLED VETERAN 1-29%`
+{% enddocs %}
+
+## homestead_exemption_amount
+
+{% docs shared_column_exe_homeowner %}
+General homestead exemption (35 ILCS 200/15-175). Value in EAV. Defined as
+exemption code(s):
+- `C-HO: GENERAL HOMESTEAD EXEMPTION - COOP`
+- `HO: GENERAL HOMESTEAD EXEMPTION`
+{% enddocs %}
+
 ## is_active_exe_homeowner
 
 {% docs shared_column_is_active_exe_homeowner %}
@@ -1113,10 +1180,30 @@ Detected either by valuations, CDU, or unit number/proration rate heuristics.
 Only applies to condo classes (299 and 399).
 {% enddocs %}
 
+## longtime_homeowner_exemption_amount
+
+{% docs shared_column_exe_longtime_homeowner %}
+Long-time occupant homestead exemption (35 ILCS 200/15-177). Value in EAV.
+Defined as exemption code(s):
+- `C-LT: LONG-TIME HOMEOWNER - COOP`
+- `LT: LONG-TIME HOMEOWNER`
+Pre-2024 codes:
+- `LT1: LONG-TIME HOMEOWNER`
+- `LT2: LONG-TIME HOMEOWNER`
+{% enddocs %}
+
 ## modeling_group
 
 {% docs shared_column_modeling_group %}
 Modeling group, one of: `SF`, `MF`, `CONDO`, or `BB`
+{% enddocs %}
+
+## municipality_built_exemption_amount
+
+{% docs shared_column_exe_muni_built %}
+ Special homestead exemption for certain municipality-built homes
+ (35 ILCS 200/15-174.5). Value in EAV. Defined as exemption code(s):
+- `MUNI: MUNICIPALITY-BUILT GRADUAL EXEMPTION`
 {% enddocs %}
 
 ## nbhd_code
@@ -1165,6 +1252,40 @@ First 10 digits of a PIN.
 
 Useful for identifying individual condominium buildings since the last 4
 digits of a PIN identifies individual units
+{% enddocs %}
+
+## returning_veteran_exemption_amount
+
+{% docs shared_column_exe_vet_returning %}
+Returning veterans' homestead exemption (35 ILCS 200/15-167). Value in EAV.
+Defined as exemption code(s):
+- `C-RTV: RETURNING VETERAN - COOP`
+- `RTV: RETURNING VETERANS`
+Pre-2024 codes:
+- `RDV1: RETURNING VETERANS`
+- `RDV2: RETURNING VETERANS`
+- `RV1: RETURNING VETERANS`
+{% enddocs %}
+
+## senior_freeze_exemption_amount
+
+{% docs shared_column_exe_freeze %}
+Low-Income Senior Citizens Assessment Freeze Homestead Exemption
+(35 ILCS 200/15-172). Value in EAV. Defined as exemption code(s):
+- `C-SF: SENIOR FREEZE - COOP`
+- `SF: SENIOR FREEZE`
+{% enddocs %}
+
+## senior_homestead_exemption_amount
+
+{% docs shared_column_exe_senior %}
+Senior citizens homestead exemption (35 ILCS 200/15-170). Value in EAV. Defined
+as exemption code(s):
+- `C-SR: SENIOR HOMESTEAD - COOP`
+- `SR: SENIOR HOMESTEAD`
+Pre-2024 codes:
+- `SCHE: SENIOR CITIZENS HOMESTEAD EX`
+- `SC: SENIOR HOMESTEAD`
 {% enddocs %}
 
 ## tax_code
@@ -1220,6 +1341,14 @@ Triads are the "unit of yearly work" for the Cook County property system:
 one triad is reassessed every 3 years on a rotating cycle. Each triad is made
 up of townships. The possible triad names are: `North`, `South`,
 or `City` (Chicago)
+{% enddocs %}
+
+## wwii_veteran_exemption_amount
+
+{% docs shared_column_exe_wwii %}
+Homestead exemption for veterans of World War II (35 ILCS 200/15-169).
+Value in EAV. Defined as exemption code(s):
+- `WW2: WORLD WAR 2 VETERAN 100%`
 {% enddocs %}
 
 ## year

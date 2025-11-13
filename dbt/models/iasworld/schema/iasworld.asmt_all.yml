@@ -184,6 +184,8 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: taxyr should not be null
+          - name: tot13
+            description: Taxable AV
           - name: tot30
             description: HIE AV Amount
             data_tests:
@@ -196,12 +198,14 @@ sources:
           - name: tot32
             description: Value After HIE
             data_tests:
-                - expression_is_true:
-                    name: iasword_asmt_all_32_equals_29_minus_30_minus_31
-                    expression: = tot29 - tot30 - tot31 OR tot32 < 1
-                    config: *unique-conditions
-                    meta:
-                      description: TOT32 (Value After HIE) should be TOT29 - TOT30 - TOT31
+              - expression_is_true:
+                  name: iasword_asmt_all_32_equals_29_minus_30_minus_31
+                  expression: = tot29 - tot30 - tot31 OR tot32 < 1
+                  config: *unique-conditions
+                  meta:
+                    description: TOT32 (Value After HIE) should be TOT29 - TOT30 - TOT31
+          - name: tot51
+            description: Equalized AV
           - name: tottax
             description: Total tax
           - name: trans_id
