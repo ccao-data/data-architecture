@@ -545,7 +545,7 @@ cct_as_cofe_dtl <- map_dfr(files_cct_as_cofe_dtl$Key, \(f) {
     col_types = cols(
       pin = col_character(),
       tax_year = col_character(),
-      key_action_no = col_character(),
+      key_action_no = col_integer(),
       coe_type = col_character(),
       coe_status = col_character(),
       coe_reason = col_character(),
