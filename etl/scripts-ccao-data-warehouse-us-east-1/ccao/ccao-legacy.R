@@ -378,8 +378,8 @@ cct_as_cofe_hdr <- map_dfr(files_cct_as_cofe_hdr$Key, \(f) {
       tax_year = c(29, 32),
       tax_type = c(34, 34),
       certificate_number = c(36, 42),
-      date_issued = c(59, 66),
-      control_number = c(59, 66),
+      date_issued = c(44, 51),
+      control_number = c(53, 57),
       certificate_issued_by = c(59, 66),
       segment_counter = c(68, 69)
     ),
@@ -399,6 +399,11 @@ cct_as_cofe_hdr <- map_dfr(files_cct_as_cofe_hdr$Key, \(f) {
   ) %>%
     mutate(
       year = tax_year,
+      # Parse MMDDYYYY date columns
+      across(
+        starts_with("date_"),
+        \(x) lubridate::mdy(na_if(x, "00000000"))
+      ),
       source_file = {{ f }}
     )
 })
@@ -649,7 +654,9 @@ cct_as_cofe_dtl <- map_dfr(files_cct_as_cofe_dtl$Key, \(f) {
       across(
         c(
           starts_with("applicant_"),
-          "update_id", "d_o_number", "will_call_name"
+          "update_id",
+          "d_o_number",
+          "will_call_name"
         ),
         \(x) str_trim(str_squish(x))
       ),
@@ -678,11 +685,19 @@ cct_as_cofe_dtl <- map_dfr(files_cct_as_cofe_dtl$Key, \(f) {
       ),
       # Zip code truncation
       across(ends_with("_zip"), \(x) str_sub(x, 1, 5)),
-      # Numeric scaling for percentages
+      # Numeric scaling for percentages and doubles
       across(contains("exe_homeowner_proration"), \(x) x / 1000000),
       across(
         c(contains("exe_homeowner_occ_factor"), "interest_percent", "tax_rate"),
         \(x) x / 1000
+      ),
+      across(
+        c(
+          "amount_due", "amount_paid", "recommended_exe_tax_amount",
+          "adjudicated_adjusted_tax_amount", "amount_of_credit",
+          "refund_amount", "interest_amount"
+        ),
+        \(x) x / 100
       ),
       source_file = f
     ) %>%
