@@ -98,7 +98,6 @@ FROM {{ ref('default.vw_pin_sale') }} AS vps
 LEFT JOIN
     {{ ref('default.vw_pin_universe') }} AS vpu
     ON vps.pin = vpu.pin AND vps.year = vpu.year
-    AND vpu.lat IS NOT NULL AND vpu.lon IS NOT NULL
 LEFT JOIN
     {{ ref('ccao.class_dict') }} AS cls
     ON vps.class = cls.class_code
@@ -123,3 +122,4 @@ LEFT JOIN {{ ref('sale.deed_type') }} AS deeds
     ON vps.deed_type = deeds.deed_num
 WHERE vps.year >= '2020'
     AND cls.modeling_group IN ('SF', 'CONDO', 'MF')
+    AND vpu.lat IS NOT NULL AND vpu.lon IS NOT NULL
