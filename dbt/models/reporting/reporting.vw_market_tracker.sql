@@ -120,5 +120,5 @@ LEFT JOIN
 LEFT JOIN models ON vps.doc_no = models.doc_no
 LEFT JOIN {{ ref('sale.deed_type') }} AS deeds
     ON vps.deed_type = deeds.deed_num
-WHERE vps.year BETWEEN '2020' AND '2024'
+WHERE vps.year >= '2020'
     AND cls.modeling_group IN ('SF', 'CONDO', 'MF')
