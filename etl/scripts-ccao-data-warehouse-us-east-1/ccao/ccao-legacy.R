@@ -394,7 +394,7 @@ cct_as_cofe_hdr <- map_dfr(files_cct_as_cofe_hdr$Key, \(f) {
       date_issued = col_character(),
       control_number = col_character(),
       certificate_issued_by = col_character(),
-      segment_counter = col_character()
+      segment_counter = col_integer()
     )
   ) %>%
     mutate(
