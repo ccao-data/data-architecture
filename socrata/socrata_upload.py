@@ -29,11 +29,12 @@ session.auth = (
     str(os.getenv("SOCRATA_PASSWORD")),
 )
 
+Retry.DEFAULT_ALLOWED_METHODS = frozenset(
+    ["HEAD", "GET", "PUT", "DELETE", "OPTIONS", "TRACE", "POST"]
+)
+
 retries = Retry(
-    total=5,
-    backoff_factor=0.1,
-    status_forcelist=[500, 502, 503, 504],
-    allowed_methods=None,
+    total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
 )
 
 session.mount(
