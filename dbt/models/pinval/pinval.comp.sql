@@ -1,3 +1,18 @@
+-- The queries that constitute this model are expensive, so we materialize the
+-- model as a table. We expect that the DAG will rebuild this table every time
+-- we update the seeds that determine which model runs form the basis of
+-- reports. That happens very rarely, so in theory we might worry about
+-- staleness with regard to this table, but we don't expect the underlying
+-- data to change at all unless we change the seed, so it should be fine
+{{
+    config(
+        materialized='table',
+        partitioned_by=['assessment_year'],
+        bucketed_by=['pin'],
+        bucket_count=1
+    )
+}}
+
 WITH runs_to_include AS (
     SELECT
         meta.run_id,
@@ -105,13 +120,13 @@ SELECT
     elem_sd.name AS loc_school_elementary_district_name,
     sec_sd.name AS loc_school_secondary_district_name,
     train.model_predictor_all_name,
-    train.assessment_year,
     CASE
         WHEN sy.min_year = sy.max_year THEN CAST(sy.min_year AS VARCHAR)
         ELSE CAST(sy.min_year AS VARCHAR)
             || ' and '
             || CAST(sy.max_year AS VARCHAR)
-    END AS sale_year_range
+    END AS sale_year_range,
+    train.assessment_year
 FROM pivoted_comp AS pc
 LEFT JOIN training_data AS train
 -- Join on year rather than run ID because `model.training_data` is

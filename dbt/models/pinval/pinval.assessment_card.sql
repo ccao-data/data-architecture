@@ -1,13 +1,23 @@
--- Grab the relevant `card` type model runs from our source of truth table
-WITH eligible_card_runs AS (
-    SELECT run_id
-    FROM {{ ref('pinval.model_run') }}
-    WHERE type = 'card'
-),
+-- The queries that constitute this model are expensive, so we materialize the
+-- model as a table. We expect that the DAG will rebuild this table every time
+-- we update the seeds that determine which model runs form the basis of
+-- reports. That happens very rarely, so in theory we might worry about
+-- staleness with regard to this table, but we don't expect the underlying
+-- data to change at all unless we change the seed, so it should be fine
+{{
+    config(
+        materialized='table',
+        partitioned_by=['assessment_year', 'meta_township_code'],
+        bucketed_by=['meta_pin'],
+        bucket_count=1
+    )
+}}
 
 -- Get some metadata for the model runs that we want to use as the basis for
--- PINVAL reports
-runs_to_include AS (
+-- PINVAL reports. PINVAL reports are indexed according to "card" runs,
+-- which is to say, the model runs that provide characteristics and values
+-- for the reports
+WITH card_runs_to_include AS (
     SELECT
         model_run.run_id,
         model_run.model_predictor_all_name,
@@ -17,8 +27,9 @@ runs_to_include AS (
         SUBSTRING(final.run_id, 1, 10) AS final_model_run_date,
         final.township_code_coverage
     FROM {{ source('model', 'metadata') }} AS model_run
-    INNER JOIN eligible_card_runs AS card_runs
+    INNER JOIN {{ ref('pinval.model_run') }} AS card_runs
         ON model_run.run_id = card_runs.run_id
+        AND card_runs.type = 'card'
     INNER JOIN {{ ref('model.final_model') }} AS final
         ON model_run.run_id = final.run_id
 ),
@@ -51,7 +62,7 @@ pin_universe AS (
                 -- all final models in a year
                 OVER (PARTITION BY assessment_data_year ORDER BY run_id DESC)
                 AS row_num
-        FROM runs_to_include
+        FROM card_runs_to_include
     ) AS run
     -- We use prior year characteristics for model predictors, so we need to
     -- pull parcel information based on the model's data year, not its
@@ -74,7 +85,7 @@ assessment_card AS (
         SELECT
             run.*,
             t.township_code
-        FROM runs_to_include AS run
+        FROM card_runs_to_include AS run
         -- Handle the use of different model runs for different towns
         CROSS JOIN UNNEST(run.township_code_coverage) AS t (township_code)
     ) AS run
@@ -218,13 +229,11 @@ SELECT
     -- reports
     COALESCE(ac.meta_pin, uni.pin) AS meta_pin,
     ac.meta_card_num,
-    COALESCE(ac.township_code, uni.township_code) AS meta_township_code,
     COALESCE(twn.township_name, uni.township_name) AS meta_township_name,
     COALESCE(ac.meta_nbhd_code, uni.nbhd_code) AS meta_nbhd_code,
     LOWER(uni.triad_name) AS meta_triad_name,
     COALESCE(ac.char_class, uni.class) AS char_class,
     COALESCE(card_cd.class_desc, pin_cd.class_desc) AS char_class_desc,
-    COALESCE(ac.assessment_year, uni.assessment_year) AS assessment_year,
     COALESCE(ac.assessment_triad, uni.assessment_triad)
         AS assessment_triad_name,
     ac.run_id,
@@ -336,7 +345,10 @@ SELECT
     card_agg.is_frankencard,
     card_agg.combined_bldg_sf,
     elem_sd.name AS school_elementary_district_name,
-    sec_sd.name AS school_secondary_district_name
+    sec_sd.name AS school_secondary_district_name,
+    -- These attributes must appear last, since we use them as partition keys
+    COALESCE(ac.assessment_year, uni.assessment_year) AS assessment_year,
+    COALESCE(ac.township_code, uni.township_code) AS meta_township_code
 FROM pin_universe AS uni
 FULL OUTER JOIN assessment_card AS ac
     ON uni.pin = ac.meta_pin
