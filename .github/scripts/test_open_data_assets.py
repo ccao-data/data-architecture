@@ -29,7 +29,10 @@ from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
 # Configure retries for requests to the open data portal API since it has a
-# tendency to return 500 errors under load
+# tendency to return 500 errors under load. We need to do this via a custom
+# `Retry` instance because `requests` does not retry connection errors or
+# requests where data has made it to the server unless you use a custom
+# `Retry` instance to override that behavior
 retries = Retry(
     total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
 )
