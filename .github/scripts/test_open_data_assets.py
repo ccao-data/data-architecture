@@ -25,6 +25,20 @@ import typing
 import agate
 import requests
 from dbt.cli.main import dbtRunner
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
+
+# Set default allowed methods for retries to include POST, since the Socrata API
+# uses idempotent POST requests
+Retry.DEFAULT_ALLOWED_METHODS = frozenset(
+    ["HEAD", "GET", "PUT", "DELETE", "OPTIONS", "TRACE", "POST"]
+)
+
+# Configure retries for requests to the open data portal API since it has a
+# tendency to return 500 errors under load
+retries = Retry(
+    total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
+)
 
 # API URL and params that we can use to grab counts by year for each asset
 ASSET_API_URL = "https://datacatalog.cookcountyil.gov/resource/{asset_id}.json"
@@ -32,6 +46,9 @@ ASSET_API_QUERY = "SELECT COUNT(*),{year_field} GROUP BY {year_field}"
 DEFAULT_YEAR_FIELD = "year"
 DBT = dbtRunner()
 REQUESTS = requests.Session()
+REQUESTS.mount(
+    "https://datacatalog.cookcountyil.gov", HTTPAdapter(max_retries=retries)
+)
 
 # Data for the most recent two years are permitted to be slightly different,
 # according to this buffer value. This is because we expect some level of

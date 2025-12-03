@@ -29,10 +29,14 @@ session.auth = (
     str(os.getenv("SOCRATA_PASSWORD")),
 )
 
+# Set default allowed methods for retries to include POST, since the Socrata API
+# uses idempotent POST requests
 Retry.DEFAULT_ALLOWED_METHODS = frozenset(
     ["HEAD", "GET", "PUT", "DELETE", "OPTIONS", "TRACE", "POST"]
 )
 
+# Configure retries for requests to the open data portal API since it has a
+# tendency to return 500 errors under load
 retries = Retry(
     total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
 )
