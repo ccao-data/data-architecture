@@ -30,7 +30,10 @@ session.auth = (
 )
 
 retries = Retry(
-    total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504]
+    total=5,
+    backoff_factor=0.1,
+    status_forcelist=[500, 502, 503, 504],
+    allowed_methods=None,
 )
 
 session.mount(
