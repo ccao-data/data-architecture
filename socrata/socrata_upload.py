@@ -13,6 +13,8 @@ import requests
 from dbt.cli.main import dbtRunner
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +27,24 @@ session.headers.update({"X-App-Token": str(os.getenv("SOCRATA_APP_TOKEN"))})
 session.auth = (
     str(os.getenv("SOCRATA_USERNAME")),
     str(os.getenv("SOCRATA_PASSWORD")),
+)
+
+# Configure retries for requests to the open data portal API since it has a
+# tendency to return 500 errors under load. We need to do this via a custom
+# `Retry` instance because `requests` does not retry connection errors or
+# requests where data has made it to the server unless you use a custom
+# `Retry` instance to override that behavior
+retries = Retry(
+    total=5,
+    backoff_factor=0.1,
+    status_forcelist=[500, 502, 503, 504],
+    # Set default allowed methods for retries to include POST, since the Socrata API
+    # uses idempotent POST requests
+    allowed_methods=Retry.DEFAULT_ALLOWED_METHODS | {"POST"},
+)
+
+session.mount(
+    "https://datacatalog.cookcountyil.gov", HTTPAdapter(max_retries=retries)
 )
 
 # Connect to Athena
