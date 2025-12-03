@@ -28,12 +28,6 @@ from dbt.cli.main import dbtRunner
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
-# Set default allowed methods for retries to include POST, since the Socrata API
-# uses idempotent POST requests
-Retry.DEFAULT_ALLOWED_METHODS = frozenset(
-    ["HEAD", "GET", "PUT", "DELETE", "OPTIONS", "TRACE", "POST"]
-)
-
 # Configure retries for requests to the open data portal API since it has a
 # tendency to return 500 errors under load
 retries = Retry(
