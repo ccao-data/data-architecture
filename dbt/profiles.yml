@@ -12,7 +12,7 @@ athena:
       # "database" here corresponds to a Glue data catalog
       database: awsdatacatalog
       spark_work_group: primary-spark-staging
-      threads: 16
+      threads: 8
       num_retries: 1
     ci:
       type: athena
@@ -23,7 +23,7 @@ athena:
       schema: z_static_unused_dbt_stub_database
       database: awsdatacatalog
       spark_work_group: primary-spark-staging
-      threads: 16
+      threads: 8
       num_retries: 1
     prod:
       type: athena
@@ -34,5 +34,5 @@ athena:
       schema: default
       database: awsdatacatalog
       spark_work_group: primary-spark
-      threads: 16
+      threads: 8
       num_retries: 1
