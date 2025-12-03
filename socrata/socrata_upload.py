@@ -40,7 +40,7 @@ retries = Retry(
     status_forcelist=[500, 502, 503, 504],
     # Set default allowed methods for retries to include POST, since the Socrata API
     # uses idempotent POST requests
-    allowed_methods=Retry.DEFAULT_ALLOWED_METHODS | {"POST"}
+    allowed_methods=Retry.DEFAULT_ALLOWED_METHODS | {"POST"},
 )
 
 session.mount(
