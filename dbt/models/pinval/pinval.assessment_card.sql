@@ -1,9 +1,10 @@
 -- The queries that constitute this model are expensive, so we materialize the
 -- model as a table. We expect that the DAG will rebuild this table every time
--- we update the seeds that determine which model runs form the basis of
--- reports. That happens very rarely, so in theory we might worry about
+-- we update the seed that determines which model runs form the basis of
+-- reports. That happens very rarely. In theory we might worry about
 -- staleness with regard to this table, but we don't expect the underlying
 -- data to change at all unless we change the seed, so it should be fine.
+-- We also have tests on the seed to ensure it is up to date with this table.
 --
 -- Partition this table by assessment year and township code, which are the
 -- two main filters we use in the code that consumes this table. We don't use
@@ -19,9 +20,7 @@
 }}
 
 -- Get some metadata for the model runs that we want to use as the basis for
--- PINVAL reports. PINVAL reports are indexed according to "card" runs,
--- which is to say, the model runs that provide characteristics and values
--- for the reports
+-- the characteristics and values in our reports
 WITH card_runs_to_include AS (
     SELECT
         model_run.run_id,
