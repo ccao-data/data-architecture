@@ -3,7 +3,12 @@
 -- we update the seeds that determine which model runs form the basis of
 -- reports. That happens very rarely, so in theory we might worry about
 -- staleness with regard to this table, but we don't expect the underlying
--- data to change at all unless we change the seed, so it should be fine
+-- data to change at all unless we change the seed, so it should be fine.
+--
+-- Partition this table by assessment year and township code, which are the
+-- two main filters we use in the code that consumes this table. We don't use
+-- run ID here because card values and SHAPs can have different run IDs per
+-- assessment year, so assessment year ties the various runs together
 {{
     config(
         materialized='table',
@@ -237,6 +242,7 @@ SELECT
     COALESCE(ac.assessment_triad, uni.assessment_triad)
         AS assessment_triad_name,
     ac.run_id,
+    shap.run_id AS shap_run_id,
     ac.model_predictor_all_name,
     ac.final_model_run_date,
     -- Three possible reasons we would decline to build a PINVAL report for a

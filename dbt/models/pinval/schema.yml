@@ -51,13 +51,6 @@ models:
       - name: is_frankencard
         description: '{{ doc("column_pinval_is_frankencard") }}'
         data_tests:
-          - accepted_values:
-              name: pinval_assessment_card_is_frankencard_false_when_not_small_multicard
-              values:
-                - FALSE
-              quote: false
-              config:
-                where: not is_parcel_small_multicard
           - count_is_consistent:
               name: pinval_assessment_card_is_frankencard_contains_both_values_when_small_multicard
               group_column: run_id, meta_pin
@@ -65,6 +58,13 @@ models:
               max_value: 2
               config:
                 where: is_parcel_small_multicard
+          - accepted_values:
+              name: pinval_assessment_card_is_frankencard_false_when_not_small_multicard
+              values:
+                - FALSE
+              quote: false
+              config:
+                where: not is_parcel_small_multicard
       - name: is_report_eligible
         description: '{{ doc("column_pinval_is_report_eligible") }}'
         data_tests:
@@ -152,6 +152,13 @@ models:
         data_tests:
           - not_null:
               name: pinval_assessment_card_shap_char_bldg_sf_not_null
+              config:
+                where: is_report_eligible
+      - name: shap_run_id
+        description: '{{ doc("column_pinval_assessment_card_shap_run_id") }}'
+        data_tests:
+          - not_null:
+              name: pinval_assessment_card_shap_run_id_not_null_when_report_eligible
               config:
                 where: is_report_eligible
 
