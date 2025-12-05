@@ -22,11 +22,11 @@ SELECT
     pin_sale.sale_date,
     p_uni.triad_code,
     p_uni.class
-FROM {{ source('sale', 'flag') }} AS flag
-LEFT JOIN {{ source('sale', 'group_mean') }} AS group_mean
+FROM {{ source('z_dev_miwagne_sale', 'flag') }} AS flag
+LEFT JOIN {{ source('z_dev_miwagne_sale', 'group_mean') }} AS group_mean
     ON flag.run_id = group_mean.run_id
     AND flag."group" = group_mean."group"
-LEFT JOIN {{ source('sale', 'parameter') }} AS param
+LEFT JOIN {{ source('z_dev_miwagne_sale', 'parameter') }} AS param
     ON flag.run_id = param.run_id
 LEFT JOIN {{ ref('default.vw_pin_sale') }} AS pin_sale
     ON flag.meta_sale_document_num = pin_sale.doc_no
