@@ -22,8 +22,8 @@ SELECT
     pin_sale.sale_date,
     p_uni.triad_code,
     p_uni.class
-FROM {{ source('z_dev_miwagne_sale', 'flag') }} AS flag
-LEFT JOIN {{ source('z_dev_miwagne_sale', 'group_mean') }} AS group_mean
+FROM 'z_dev_miwagne_sale', 'flag' AS flag
+LEFT JOIN 'z_dev_miwagne_sale', 'group_mean' AS group_mean
     ON flag.run_id = group_mean.run_id
     AND flag."group" = group_mean."group"
 LEFT JOIN 'z_dev_miwagne_sale', 'parameter' AS param
