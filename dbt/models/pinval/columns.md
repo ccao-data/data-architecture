@@ -19,6 +19,21 @@ in that assessment year. For PINs that are _not_ in the assessment triad, this
 column will be null.
 {% enddocs %}
 
+## assessment_card_shap_run_id
+
+{% docs column_pinval_assessment_card_shap_run_id %}
+Run ID for the model run associated with this card's SHAPs.
+
+For PINs that are in the assessment triad for a given assessment year,
+this column will correspond to the model run ID that generated SHAPs for
+the assessment year. For PINs that are _not_ in the assessment triad, this
+column will be null.
+
+We do not actually expect to use this column in any downstream data consumers.
+Instead, it is present for the purpose of testing the integrity of this table,
+specifically to ensure that the table is correctly populated with SHAP runs.
+{% enddocs %}
+
 ## char_class
 
 {% docs column_pinval_char_class %}
