@@ -24,6 +24,12 @@ sources:
       - name: cc_pifdb_piexemptre_sted
         description: '{{ doc("table_cc_pifdb_piexemptre_sted") }}'
 
+      - name: ccao.cct_as_cofe_dtl
+        description: '{{ doc("table_cct_as_cofe_dtl") }}'
+
+      - name: ccao.cct_as_cofe_hdr
+        description: '{{ doc("table_cct_as_cofe_hdr") }}'
+
       - name: dtbl_modelvals
         description: '{{ doc("table_dtbl_modelvals") }}'
         columns:
