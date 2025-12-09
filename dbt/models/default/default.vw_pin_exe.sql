@@ -38,6 +38,15 @@ WITH long AS (
         END AS ptax_exe,
         CAST(det.apother AS INT) AS exemption_amount
     FROM {{ source('iasworld', 'exdet') }} AS det
+    -- Ensure only approved exemptions are pulled
+    INNER JOIN {{ source('iasworld', 'exadmn') }} AS admn
+        ON det.parid = admn.parid
+        AND det.caseno = admn.caseno
+        AND det.taxyr = admn.taxyr
+        AND det.excode = admn.excode
+        AND admn.cur = 'Y'
+        AND admn.deactivat IS NULL
+        AND admn.exstat = 'A'
     -- Ensure we are only pulling valid exemption codes
     INNER JOIN {{ source('iasworld', 'excode') }} AS code
         ON det.excode = code.excode
