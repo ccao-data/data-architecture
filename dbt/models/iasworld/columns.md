@@ -741,6 +741,10 @@ fields. Possible values include:
 - `CCAOVALUE` = CCAO mailed values (pre-appeal)
 - `CCAOFINAL` = CCAO certified values (after Assessor appeals)
 - `BORVALUE` = BoR certified values (after Board of Review appeals)
+- `FINALEAV` = Final equalized assessed values. This `procname` is new to us,
+  so we don't know much about it yet, but we know it should be present for all
+  PINs in an assessment year once second installment bills have mailed for that
+  year.
 {% enddocs %}
 
 ## prodamage
