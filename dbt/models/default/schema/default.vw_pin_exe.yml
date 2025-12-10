@@ -56,7 +56,7 @@ models:
                 AND det.deactivat IS NULL
             )
           meta:
-            description: vw_pin_exe row count should equal iasworld exdet row count
+            description: check that vw_pin_exe row count is equal to constiuent iasworld tables after pivot
       - unique_combination_of_columns:
           name: default_vw_pin_exe_unique_by_pin_year
           combination_of_columns:
