@@ -21,6 +21,8 @@ models:
         description: '{{ doc("shared_column_appeal_change") }}'
       - name: class
         description: '{{ doc("shared_column_class") }}'
+      - name: hearing_type
+        description: '{{ doc("shared_column_hearing_type") }}'
       - name: mailed_bldg
         description: '{{ doc("shared_column_mailed_bldg") }}'
       - name: mailed_land
@@ -59,6 +61,8 @@ models:
         description: '{{ doc("shared_column_appeal_reason") }}'
       - name: status
         description: '{{ doc("shared_column_appeal_status") }}'
+      - name: subkey
+        description: '{{ doc("shared_column_subkey") }}'
       - name: township_code
         description: '{{ doc("shared_column_township_code") }}'
       - name: year
@@ -70,10 +74,12 @@ models:
           # The exact row count is too complex to compute, so approximate it
           above: 2400000
       - unique_combination_of_columns:
-          name: default_vw_pin_appeal_unique_by_14_digit_pin_year_caseno
+          name: default_vw_pin_appeal_unique_by_14_digit_pin_year_caseno_hearing_type_subkey
           combination_of_columns:
             - case_no
+            - hearing_type
             - pin
+            - subkey
             - year
 
 unit_tests:

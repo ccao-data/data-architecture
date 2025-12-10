@@ -9,6 +9,8 @@ WITH reasons AS (
         htpar.parid,
         htpar.taxyr,
         htpar.caseno,
+        htpar.heartyp,
+        htpar.subkey,
         htpar.user38,
         htpar.user19,
         htpar.user20,
@@ -83,6 +85,8 @@ SELECT
     vwpv.certified_land,
     vwpv.certified_tot,
     reasons.caseno AS case_no,
+    reasons.heartyp AS hearing_type,
+    reasons.subkey,
     CASE
         WHEN reasons.user38 = 'CC'
             OR (
