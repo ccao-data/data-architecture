@@ -13,11 +13,7 @@ WITH asmt AS (
             AS certified_taxable_av,
         ARBITRARY(CASE WHEN procname = 'BORVALUE' THEN tot13 END)
             AS board_taxable_av,
-        ARBITRARY(CASE WHEN procname = 'CCAOVALUE' THEN tot51 END)
-            AS mailed_eav,
-        ARBITRARY(CASE WHEN procname = 'CCAOFINAL' THEN tot51 END)
-            AS certified_eav,
-        ARBITRARY(CASE WHEN procname = 'BORVALUE' THEN tot51 END) AS board_eav
+        ARBITRARY(CASE WHEN procname = 'FINALEAV' THEN tot51 END) AS final_eav
     FROM {{ source('iasworld', 'asmt_all') }}
     WHERE rolltype != 'RR'
         AND deactivat IS NULL
@@ -46,11 +42,9 @@ SELECT
     wide.exe_vet_returning,
     wide.exe_wwii,
     asmt.mailed_taxable_av,
-    asmt.mailed_eav,
     asmt.certified_taxable_av,
-    asmt.certified_eav,
     asmt.board_taxable_av,
-    asmt.board_eav
+    asmt.final_eav
 FROM asmt
 LEFT JOIN {{ ref('default.vw_pin_exe') }} AS wide
     ON asmt.pin = wide.pin
