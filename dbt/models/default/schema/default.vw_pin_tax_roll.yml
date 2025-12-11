@@ -6,7 +6,7 @@ models:
       - name: board_taxable_av
         description: Board of Review taxable AV
       - name: certified_taxable_av
-        description: Assessor Certified Taxable AV
+        description: Assessor Certified taxable AV
       - name: exe_disabled
         description: '{{ doc("shared_column_exe_disabled") }}'
       - name: exe_freeze
@@ -32,9 +32,9 @@ models:
       - name: exe_wwii
         description: '{{ doc("shared_column_exe_wwii") }}'
       - name: final_eav
-        description: Final equalized assessed value.
+        description: Final equalized AV
       - name: mailed_taxable_av
-        description: Mailed Taxable AV
+        description: Mailed taxable AV
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: year
