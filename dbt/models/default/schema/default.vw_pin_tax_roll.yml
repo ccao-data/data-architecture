@@ -3,14 +3,10 @@ models:
     description: '{{ doc("view_vw_pin_tax_roll") }}'
 
     columns:
-      - name: board_eav
-        description: Board of Review certified EAV
       - name: board_taxable_av
         description: Board of Review taxable AV
-      - name: certified_eav
-        description: Assessor certified EAV
       - name: certified_taxable_av
-        description: Assessor Certified Taxable AV
+        description: Assessor certified taxable AV
       - name: exe_disabled
         description: '{{ doc("shared_column_exe_disabled") }}'
       - name: exe_freeze
@@ -35,10 +31,10 @@ models:
         description: '{{ doc("shared_column_exe_vet_returning") }}'
       - name: exe_wwii
         description: '{{ doc("shared_column_exe_wwii") }}'
-      - name: mailed_eav
-        description: Mailed EAV
+      - name: final_eav
+        description: Final equalized AV
       - name: mailed_taxable_av
-        description: Mailed Taxable AV
+        description: Mailed taxable AV
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: year
@@ -53,7 +49,7 @@ models:
               FROM {{ source('iasworld', 'asmt_all') }}
               WHERE rolltype != 'RR'
                 AND deactivat IS NULL
-                AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+                AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE', 'FINALEAV')
                 AND valclass IS NULL
                 -- Class 999 are test pins
                 AND class NOT IN ('999')
