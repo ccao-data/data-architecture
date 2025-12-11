@@ -32,7 +32,7 @@ models:
       - name: exe_wwii
         description: '{{ doc("shared_column_exe_wwii") }}'
       - name: final_eav
-        description: Final EAV
+        description: Final equalized assessed value.
       - name: mailed_taxable_av
         description: Mailed Taxable AV
       - name: pin
