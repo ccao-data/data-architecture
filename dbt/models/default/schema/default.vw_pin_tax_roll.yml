@@ -3,12 +3,8 @@ models:
     description: '{{ doc("view_vw_pin_tax_roll") }}'
 
     columns:
-      - name: board_eav
-        description: Board of Review certified EAV
       - name: board_taxable_av
         description: Board of Review taxable AV
-      - name: certified_eav
-        description: Assessor certified EAV
       - name: certified_taxable_av
         description: Assessor Certified Taxable AV
       - name: exe_disabled
@@ -35,8 +31,8 @@ models:
         description: '{{ doc("shared_column_exe_vet_returning") }}'
       - name: exe_wwii
         description: '{{ doc("shared_column_exe_wwii") }}'
-      - name: mailed_eav
-        description: Mailed EAV
+      - name: final_eav
+        description: Final EAV
       - name: mailed_taxable_av
         description: Mailed Taxable AV
       - name: pin
