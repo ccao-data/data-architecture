@@ -44,11 +44,19 @@ models:
                 AND det.taxyr = code.taxyr
                 AND code.cur = 'Y'
                 AND code.deactivat IS NULL
+              INNER JOIN {{ source('iasworld', 'exadmn') }} AS admn
+                ON det.parid = admn.parid
+                AND det.caseno = admn.caseno
+                AND det.taxyr = admn.taxyr
+                AND det.excode = admn.excode
+                AND admn.cur = 'Y'
+                AND admn.deactivat IS NULL
+                AND admn.exstat = 'A'
               WHERE det.cur = 'Y'
                 AND det.deactivat IS NULL
             )
           meta:
-            description: vw_pin_exe row count should equal iasworld exdet row count
+            description: check that vw_pin_exe row count is equal to constituent iasworld tables after pivot
       - unique_combination_of_columns:
           name: default_vw_pin_exe_unique_by_pin_year
           combination_of_columns:
