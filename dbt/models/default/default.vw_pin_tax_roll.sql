@@ -17,7 +17,7 @@ WITH asmt AS (
     FROM {{ source('iasworld', 'asmt_all') }}
     WHERE rolltype != 'RR'
         AND deactivat IS NULL
-        AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+        AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE', 'FINALEAV')
         AND valclass IS NULL
         -- Class 999 are test pins
         AND class NOT IN ('999')
