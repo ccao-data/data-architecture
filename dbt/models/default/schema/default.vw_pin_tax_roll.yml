@@ -6,7 +6,7 @@ models:
       - name: board_taxable_av
         description: Board of Review taxable AV
       - name: certified_taxable_av
-        description: Assessor Certified taxable AV
+        description: Assessor certified taxable AV
       - name: exe_disabled
         description: '{{ doc("shared_column_exe_disabled") }}'
       - name: exe_freeze
