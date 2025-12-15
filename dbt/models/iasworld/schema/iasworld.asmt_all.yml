@@ -205,7 +205,7 @@ sources:
                   meta:
                     description: TOT32 (Value After HIE) should be TOT29 - TOT30 - TOT31
           - name: tot51
-            description: Equalized AV
+            description: Equalized assessed value. Only guaranteed to be correct when `procname = 'FINALEAV'`.
           - name: tottax
             description: Total tax
           - name: trans_id
