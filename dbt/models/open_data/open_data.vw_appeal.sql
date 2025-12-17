@@ -2,7 +2,7 @@
 -- Some columns from the feeder view may not be present in this view.
 
 SELECT
-    pin || year || case_no AS row_id,
+    pin || year || case_no || hearing_type || subkey AS row_id,
     pin,
     class,
     township_code,
@@ -15,6 +15,8 @@ SELECT
     certified_tot,
     case_no,
     appeal_type,
+    hearing_type,
+    subkey,
     change,
     reason_code1,
     reason_desc1,
