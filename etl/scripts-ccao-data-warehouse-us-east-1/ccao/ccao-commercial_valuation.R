@@ -38,7 +38,8 @@ char_cols <- c(
   "permit/partial/demovaluereason",
   "townregion",
   "year",
-  "taxdist"
+  "taxdist",
+  "taxpayer"
 )
 
 # Declare known integer columns
@@ -105,18 +106,19 @@ renames <- c(
   "(^total)(.*ap.*)" = "tot_apts",
   "(^total)(.*units.*)|^#of.*" = "tot_units",
   "unit2" = "unit",
-  "^v.*|%vac" = "vacancy"
+  "^v.*|%vac" = "vacancy",
+  "br$" = "brunits"
 )
 
 # Compile a filtered list of excel workbooks and worksheets to ingest ----
-list.files(
+output <- list.files(
   "G:/1st Pass spreadsheets",
   pattern = "[0-9]{4} Valuation",
   full.names = TRUE
 ) %>%
-  file.path("PublicVersions") %>%
+  list.files(pattern = "public", full.names = TRUE, ignore.case = TRUE) %>%
   list.files(pattern = ".xlsx", full.names = TRUE, recursive = TRUE) %>%
-  grep(pattern = "Other", invert = TRUE, value = TRUE) %>%
+  grep(pattern = "Other|PropertyData", invert = TRUE, value = TRUE) %>%
   map(function(x) {
     # Unfortunately, people are still working on some of these sheets which
     # means this script will error out when a file is open - `possibly` here
@@ -181,7 +183,7 @@ list.files(
     township = coalesce(township, ccao::town_convert(substr(taxdist, 1, 2))),
     across(.cols = everything(), ~ na_if(.x, "N/A")),
     # Ignore known character columns for parse_number
-    across(.cols = !char_cols, parse_number),
+    across(.cols = !any_of(char_cols), parse_number),
     # Columns that can be numeric should be
     across(where(~ all(check.numeric(.x))), as.numeric),
     yearbuilt = case_when(
@@ -205,6 +207,8 @@ list.files(
   select(all_of(sort(names(.)))) %>%
   relocate(c(keypin, pins, township, year)) %>%
   relocate(c(file, sheet), .after = last_col()) %>%
-  distinct() %>%
-  group_by(year) %>%
+  distinct()
+
+hug <- output %>%
+  group_by(year) %>% skim()
   write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
