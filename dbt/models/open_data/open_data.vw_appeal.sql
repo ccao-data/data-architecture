@@ -2,7 +2,7 @@
 -- Some columns from the feeder view may not be present in this view.
 
 SELECT
-    pin || year || case_no || hearing_type || subkey AS row_id,
+    pin || year || case_no || hearing_type || CAST(subkey AS VARCHAR) AS row_id,
     pin,
     class,
     township_code,
