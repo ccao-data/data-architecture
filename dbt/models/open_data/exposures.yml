@@ -12,6 +12,8 @@ exposures:
       asset_id: y282-6ig3
       primary_key:
         - case_no
+        - hearing_type
+        - subkey
         - pin
         - year
     description: |
