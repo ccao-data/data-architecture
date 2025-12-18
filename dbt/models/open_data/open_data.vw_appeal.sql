@@ -29,7 +29,6 @@ SELECT
         ELSE hearing_type
     END AS hearing_type,
     subkey,
-
     change,
     reason_code1,
     reason_desc1,
