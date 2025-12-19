@@ -15,7 +15,21 @@ SELECT
     certified_tot,
     case_no,
     appeal_type,
-    hearing_type,
+    CASE WHEN hearing_type = '1' THEN 'Assessor recommendation'
+        WHEN hearing_type = '2' THEN 'Certificate of correction'
+        WHEN hearing_type = 'A' THEN 'Current year appeal'
+        WHEN hearing_type = 'C' THEN 'Current appeal & certificate of error'
+        WHEN hearing_type = 'E' THEN 'Certificate of error only'
+        WHEN
+            hearing_type = 'F'
+            THEN 'Smartfile exemption certificate of error filing'
+        WHEN hearing_type = 'O' THEN 'Omitted assessment'
+        WHEN hearing_type = 'R' THEN 'Re-review'
+        WHEN hearing_type = 'S' THEN 'Specific objection'
+        WHEN hearing_type = 'T' THEN 'Taxable'
+        WHEN hearing_type = 'X' THEN 'Exempt'
+        ELSE hearing_type
+    END AS hearing_type,
     subkey,
     change,
     reason_code1,

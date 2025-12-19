@@ -208,7 +208,7 @@ Possible values for this variable are:
 - `A` = Current year appeal
 - `C` = Current appeal & certificate of error
 - `E` = Certificate of error only
-- `F` = Smartfile exemption coe filing
+- `F` = Smartfile exemption certificate of error filing
 - `O` = Omitted assessment
 - `R` = Re-review
 - `S` = Specific objection
