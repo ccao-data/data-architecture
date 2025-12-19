@@ -20,7 +20,9 @@ SELECT
         WHEN hearing_type = 'A' THEN 'Current year appeal'
         WHEN hearing_type = 'C' THEN 'Current appeal & certificate of error'
         WHEN hearing_type = 'E' THEN 'Certificate of error only'
-        WHEN hearing_type = 'F' THEN 'Smartfile exemption coe filing'
+        WHEN
+            hearing_type = 'F'
+            THEN 'Smartfile exemption certificate of error filing'
         WHEN hearing_type = 'O' THEN 'Omitted assessment'
         WHEN hearing_type = 'R' THEN 'Re-review'
         WHEN hearing_type = 'S' THEN 'Specific objection'
