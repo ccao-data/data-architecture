@@ -22,9 +22,9 @@ df <- df %>%
       coalesce(
         sale_is_arms_length == "NO", FALSE
       ) |
-      coalesce(flips == "YES", FALSE) |
-      coalesce(grepl("YES", class_change, ignore.case = TRUE), FALSE) |
-      coalesce(grepl("YES", field_check, ignore.case = TRUE), FALSE)
+        coalesce(flips == "YES", FALSE) |
+        coalesce(grepl("YES", class_change, ignore.case = TRUE), FALSE) |
+        coalesce(grepl("YES", field_check, ignore.case = TRUE), FALSE)
   )
 
 write_parquet(
