@@ -7,7 +7,7 @@ library(aws.s3)
 df <-
   read_excel(
     here::here(
-      "scripts-ccao-data-warehouse-us-east-1/sale/res_characteristic_potentials_reviewed.xlsx" # nonlint
+      "scripts-ccao-data-warehouse-us-east-1/sale/res_characteristic_potentials_reviewed.xlsx" # nolint
     )
   ) %>%
   janitor::clean_names() %>%
@@ -22,9 +22,9 @@ df <- df %>%
       coalesce(
         sale_is_arms_length == "NO", FALSE
       ) |
-        coalesce(flips == "YES", FALSE) |
-        coalesce(grepl("YES", class_change, ignore.case = TRUE), FALSE) |
-        coalesce(grepl("YES", field_check, ignore.case = TRUE), FALSE)
+      coalesce(flips == "YES", FALSE) |
+      coalesce(grepl("YES", class_change, ignore.case = TRUE), FALSE) |
+      coalesce(grepl("YES", field_check, ignore.case = TRUE), FALSE)
   )
 
 write_parquet(
