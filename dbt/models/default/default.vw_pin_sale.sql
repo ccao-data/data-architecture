@@ -250,8 +250,8 @@ sales_val AS (
 
 flag_override AS (
     SELECT
-        exclude_sale,
-        is_arms_length
+        doc_no,
+        exclude_sale
     FROM z_dev_miwagne_sale.flag_override
 )
 
