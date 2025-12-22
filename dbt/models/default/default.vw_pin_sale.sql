@@ -342,14 +342,14 @@ SELECT
     sales_val.sv_run_id,
     sales_val.sv_version,
     flag_override.exclude_sale AS override_exclude_sale,
-  COALESCE(
-      NOT flag_override.exclude_sale,
-      NOT sales_val.sv_is_outlier
-  ) AS use_in_model
+    COALESCE(
+        NOT flag_override.exclude_sale,
+        NOT sales_val.sv_is_outlier
+    ) AS use_in_model
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
 LEFT JOIN sales_val
     ON unique_sales.doc_no = sales_val.meta_sale_document_num
-  LEFT JOIN flag_override
+LEFT JOIN flag_override
     ON unique_sales.doc_no = flag_override.doc_no
