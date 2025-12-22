@@ -252,7 +252,7 @@ flag_override AS (
     SELECT
         exclude_sale,
         is_arms_length
-    FROM {{ source('z_dev_miwagne_sale', 'flag_override') }}
+    FROM z_dev_miwagne_sale.flag_override
 )
 
 SELECT
@@ -341,9 +341,9 @@ SELECT
     sales_val.sv_outlier_reason3,
     sales_val.sv_run_id,
     sales_val.sv_version,
-    flag_override.exclude_sale AS exclude_sale,
+    flag_override.exclude_sale AS override_exclude_sale,
   COALESCE(
-      NOT fo.exclude_sale,
+      NOT flag_override.exclude_sale,
       NOT sales_val.sv_is_outlier
   ) AS use_in_model
 FROM unique_sales
