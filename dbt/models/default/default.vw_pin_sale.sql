@@ -246,6 +246,13 @@ sales_val AS (
     INNER JOIN max_version_flag AS mv
         ON sf.meta_sale_document_num = mv.meta_sale_document_num
         AND sf.version = mv.max_version
+),
+
+flag_override AS (
+    SELECT
+        exclude_sale,
+        is_arms_length
+    FROM {{ source('z_dev_miwagne_sale', 'flag_override') }}
 )
 
 SELECT
@@ -333,9 +340,16 @@ SELECT
     sales_val.sv_outlier_reason2,
     sales_val.sv_outlier_reason3,
     sales_val.sv_run_id,
-    sales_val.sv_version
+    sales_val.sv_version,
+    flag_override.exclude_sale AS exclude_sale,
+  COALESCE(
+      NOT fo.exclude_sale,
+      NOT sales_val.sv_is_outlier
+  ) AS use_in_model
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
 LEFT JOIN sales_val
     ON unique_sales.doc_no = sales_val.meta_sale_document_num
+  LEFT JOIN flag_override
+    ON unique_sales.doc_no = flag_override.doc_no
