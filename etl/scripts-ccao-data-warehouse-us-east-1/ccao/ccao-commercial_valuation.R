@@ -51,6 +51,7 @@ int_cols <- c(
   "4brunits",
   "aprx_comm_sf",
   "bldgsf",
+  "gross_building_area",
   "landsf",
   "studiounits",
   "tot_units",
@@ -68,7 +69,9 @@ remove_cols <- c(
   "locrating",
   "mobilehomepads",
   "tot_apts",
-  "usecode"
+  "usecode",
+  "imprname",
+  "units/beds"
 )
 
 # Declare all regex syntax for renaming sheet column names as they're ingested
@@ -78,7 +81,7 @@ renames <- c(
   "(^adj)(.*rent.*)" = "adj_rent/sf",
   "adjsales" = "adjsale",
   "hotelclass" = "hotel",
-  "idphlic#" = "idphlicense#",
+  "^idph.*" = "idphlicense#",
   "cost\\\\" = "cost",
   "^costapp.*" = "costapproach/sf",
   "(.*bed.*)(.*day.*)" = "revenuebed/day",
@@ -104,10 +107,21 @@ renames <- c(
   "^propertyt.*|^propertyu.*" = "property_type/use",
   "(.*sale.*)(.*/sf.*)" = "salecompmarketvalue/sf",
   "(^total)(.*ap.*)" = "tot_apts",
-  "(^total)(.*units.*)|^#of.*" = "tot_units",
+  "(^total)(.*units.*)|^#of.*|units/keys" = "tot_units",
   "unit2" = "unit",
   "^v.*|%vac" = "vacancy",
-  "br$" = "brunits"
+  "br$" = "brunits",
+  "yearblt" = "yearbuilt",
+  "landtotalsf" = "landsf",
+  "estvacancy%" = "vacancy",
+  "landtotalval" = "totallandval",
+  "revenue/bed/night" = "revenuebed/day",
+  "taxdistrict" = "taxdist",
+  "studios" = "studiounits",
+  "l:bratio" = "land:bldg",
+  "rev/key/night" = "avgdailyrate",
+  "partialvalue" = "permit/partial/demovalue",
+  "gba" = "gross_building_area"
 )
 
 # Compile a filtered list of excel workbooks and worksheets to ingest ----
@@ -209,6 +223,6 @@ output <- list.files(
   relocate(c(file, sheet), .after = last_col()) %>%
   distinct()
 
-hug <- output %>%
+output %>%
   group_by(year) %>% skim()
   write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
