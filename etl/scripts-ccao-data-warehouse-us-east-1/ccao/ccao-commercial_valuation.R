@@ -132,7 +132,9 @@ output <- list.files(
 ) %>%
   list.files(pattern = "public", full.names = TRUE, ignore.case = TRUE) %>%
   list.files(pattern = ".xlsx", full.names = TRUE, recursive = TRUE) %>%
-  grep(pattern = "Other|PropertyData|12-09-2025", invert = TRUE, value = TRUE) %>%
+  grep(
+    pattern = "Other|PropertyData|12-09-2025", invert = TRUE, value = TRUE
+  ) %>%
   map(function(x) {
     # Unfortunately, people are still working on some of these sheets which
     # means this script will error out when a file is open - `possibly` here
