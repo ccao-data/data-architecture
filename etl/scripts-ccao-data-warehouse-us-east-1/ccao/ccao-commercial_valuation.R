@@ -212,7 +212,8 @@ output <- list.files(
       TRUE ~ str_replace_all(str_squish(.x), " ", ", ")
     )),
     across(int_cols, as.integer),
-    across(char_cols, as.character)
+    across(char_cols, as.character),
+    across(where(is.character), ~ gsub("\\r", "", .x))
   ) %>%
   # Remove empty columns
   select(where(~ !(all(is.na(.)) | all(. == "")))) %>%
