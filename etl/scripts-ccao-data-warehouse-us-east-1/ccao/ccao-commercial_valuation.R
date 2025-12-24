@@ -227,5 +227,5 @@ output <- list.files(
   distinct()
 
 output %>%
-  group_by(year) %>% skim()
+  group_by(year) %>%
   write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
