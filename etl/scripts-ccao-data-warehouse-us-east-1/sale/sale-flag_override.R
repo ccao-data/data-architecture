@@ -7,7 +7,7 @@ source("utils.R")
 
 df <-
   read_excel(
-    "O:/CCAODATA/data/sale/res_characteristic_potentials_reviewed.xlsx"
+    "O:/CCAODATA/data/sale/res_characteristic_potentials_reviewed.xlsx" # nolint
   ) %>%
   janitor::clean_names() %>%
   rename(
@@ -26,14 +26,18 @@ df <- df %>%
         coalesce(grepl("YES", field_check, ignore.case = TRUE), FALSE) # nolint
   )
 
-out_uri <- "s3://ccao-data-warehouse-dev-us-east-1/z_dev_miwagne_sale/flag_override/res_characteristic_potentials_reviewed.parquet"
+out_uri <- "s3://ccao-data-warehouse-dev-us-east-1/z_dev_miwagne_sale/flag_override/res_characteristic_potentials_reviewed.parquet" # nolint
 
 tmp_file <- tempfile(fileext = ".parquet")
-arrow::write_parquet(df %>% select(doc_no, exclude_sale), tmp_file, compression = "snappy")
+arrow::write_parquet(
+  df %>% select(doc_no, exclude_sale),
+  tmp_file,
+  compression = "snappy"
+)
 
 save_local_to_s3(
   s3_uri = out_uri,
-  path   = tmp_file,
+  path = tmp_file,
   overwrite = FALSE
 )
 
