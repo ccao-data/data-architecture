@@ -11,6 +11,17 @@ should be possible to reconstruct using the other sales validation tables:
 **Primary Key**: `meta_sale_document_number`, `run_id`, `version`
 {% enddocs %}
 
+        description: '{{ doc("flag_override") }}'
+
+# flag_override
+
+{% docs flag_override %}
+Data built by manual review by analysts that determine whether or not
+we should include sales in the model.
+
+**Primary Key**: `doc_no`
+{% enddocs %}
+
 # foreclosure
 
 {% docs foreclosure %}

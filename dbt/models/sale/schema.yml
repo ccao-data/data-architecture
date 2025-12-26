@@ -50,6 +50,15 @@ sources:
               meta:
                 description: flag is unique by meta_sale_document_num and version
 
+      - name: flag_override
+        description: '{{ doc("flag_override") }}'
+        columns:
+          - name: doc_no
+            description: '{{ doc("shared_column_document_number") }}'
+          - name: exclude_sale
+            description: Whether or not to exclude the sale from the model training data b
+                         based on analyst decision between arms length and characteristic classification
+
       - name: foreclosure
         description: '{{ doc("foreclosure") }}'
         tags:
