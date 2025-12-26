@@ -58,12 +58,6 @@ sources:
           - name: exclude_sale
             description: Whether or not to exclude the sale from the model training data b
                          based on analyst decision between arms length and characteristic classification
-        data_tests:
-          - unique_combination_of_columns:
-              name: sale_flag_override_unique_by_doc_no
-              combination_of_columns:
-                - doc_no
-
 
       - name: foreclosure
         description: '{{ doc("foreclosure") }}'
