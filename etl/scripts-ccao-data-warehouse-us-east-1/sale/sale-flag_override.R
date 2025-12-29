@@ -5,6 +5,8 @@ library(arrow)
 library(aws.s3)
 source("utils.R")
 
+# These files are filled out by valuations. We then place them in the O drive
+# for ingest
 df <-
   read_excel(
     "O:/CCAODATA/data/sale/res_characteristic_potentials_reviewed.xlsx" # nolint
