@@ -199,13 +199,18 @@ sources:
               config:
                 where: not is_multisale
               meta:
-                description: mydec is unique by document_number
+                description: |
+                  mydec is unique by document_number for non multi-sales
               name: sale_mydec_multisales_unique_by_document_number_and_pin
               combination_of_columns:
                 - document_number
                 - line_1_primary_pin
               config:
                 where: is_multisale
+              meta:
+                description: |
+                  mydec is unique by document_number and line_1_primary_pin
+                  for multi-sales
 
 models:
   - name: sale.vw_ias_salesval_upload
