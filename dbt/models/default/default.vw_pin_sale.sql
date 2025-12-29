@@ -298,6 +298,7 @@ SELECT
     mydec_sales.mydec_deed_type,
     mydec_sales.sale_filter_ptax_flag,
     mydec_sales.mydec_property_advertised,
+    mydec_sales.mydec_line_8_current_use,
     mydec_sales.mydec_line_9_no_changes,
     mydec_sales.mydec_line_9_demolition_damage,
     mydec_sales.mydec_line_9_additions,
