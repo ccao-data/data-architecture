@@ -13,7 +13,7 @@ sources:
             description: '{{ doc("shared_column_document_number") }}'
           - name: ptax_flag_original
             description: |
-              Whether or not this sale was flagged on certain Q10 
+              Whether or not this sale was flagged on certain Q10
               line items of the PTAX-203 form.
           - name: rolling_window
             description: '{{ doc("column_rolling_window") }}'
@@ -200,6 +200,12 @@ sources:
                 where: not is_multisale
               meta:
                 description: mydec is unique by document_number
+              name: sale_mydec_multisales_unique_by_document_number_and_pin
+              combination_of_columns:
+                - document_number
+                - line_1_primary_pin
+              config:
+                where: is_multisale
 
 models:
   - name: sale.vw_ias_salesval_upload
@@ -241,7 +247,7 @@ models:
           If a group's `group_size` is under a certain threshold, we decide to
           automatically set the `sv_is_outlier` status to `False`. This is a binary
           column that tells us if that threshold is met or not.
-          
+
           A caveat is that even if the threshold is not met, sales with certain
           line items marked on the ptax-203 form can still be classified as an
           outlier.
@@ -251,7 +257,7 @@ models:
         description: '{{ doc("shared_column_pin") }}'
       - name: ptax_flag
         description: |
-          Whether or not this sale was flagged on certain Q10 
+          Whether or not this sale was flagged on certain Q10
           line items of the PTAX-203 form.
       - name: run_id
         description: '{{ doc("shared_column_sv_run_id") }}'
