@@ -193,15 +193,6 @@ sources:
           - load_manual
         data_tests:
           - unique_combination_of_columns:
-              name: sale_mydec_unique_by_document_number
-              combination_of_columns:
-                - document_number
-              config:
-                where: not is_multisale
-              meta:
-                description: |
-                  mydec is unique by document_number for non multi-sales
-          - unique_combination_of_columns:
               name: sale_mydec_multisales_unique_by_document_number_and_pin
               combination_of_columns:
                 - document_number
@@ -212,6 +203,15 @@ sources:
                 description: |
                   mydec is unique by document_number and line_1_primary_pin
                   for multi-sales
+          - unique_combination_of_columns:
+              name: sale_mydec_unique_by_document_number
+              combination_of_columns:
+                - document_number
+              config:
+                where: not is_multisale
+              meta:
+                description: |
+                  mydec is unique by document_number for non multi-sales
 
 models:
   - name: sale.vw_ias_salesval_upload
