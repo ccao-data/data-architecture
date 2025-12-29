@@ -161,6 +161,7 @@ mydec_sales AS (
             NULLIF(TRIM(seller_name), '') AS seller_name,
             NULLIF(TRIM(buyer_name), '') AS buyer_name,
             line_7_property_advertised AS mydec_property_advertised,
+            line_8_current_use AS mydec_current_use,
             line_9_no_changes AS mydec_line_9_no_changes,
             line_9_demolitiondamage AS mydec_line_9_demolition_damage,
             line_9_additions AS mydec_line_9_additions,
