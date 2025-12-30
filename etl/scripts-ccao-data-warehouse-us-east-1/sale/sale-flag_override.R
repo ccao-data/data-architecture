@@ -51,7 +51,7 @@ add_is_valid_for_modeling <- function(df, use_characteristic_regex = TRUE) {
     ) %>%
     mutate(
       is_valid_for_modeling = !(
-        coalesce(sale_is_arms_length == "NO", FALSE) |
+        coalesce(sale_is_arms_length == "NO", FALSE) | # nolint
           coalesce(flip == "YES", FALSE) |
           coalesce(grepl("YES", class_change, ignore.case = TRUE), FALSE) |
           if (use_characteristic_regex) {
