@@ -81,7 +81,8 @@ dfs_processed <- imap(
   ~ add_is_valid_for_modeling(
     .x,
     use_characteristic_regex = !grepl(
-      "dont_use_char_col", .y, ignore.case = TRUE
+      "dont_use_char_col", .y,
+      ignore.case = TRUE
     )
   )
 )
