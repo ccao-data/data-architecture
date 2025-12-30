@@ -1,7 +1,6 @@
 library(readxl)
 library(dplyr)
 library(aws.s3)
-source("utils.R")
 library(tools)
 
 # TODO: Standardize and rework filernames
@@ -10,7 +9,7 @@ library(tools)
 
 
 # Source directory with Excel files, provided by valuations
-src_dir <- "O:/CCAODATA/data/sale"
+src_dir <- "/home/miwagne/repos/data-architecture/etl/scripts-ccao-data-raw-us-east-1/sale"
 
 # Output dir
 s3_dir <- "s3://ccao-data-raw-us-east-1/sale/flag_override/"
@@ -30,6 +29,6 @@ for (f in excel_files) {
 
   write_parquet(
     df,
-    file.path(s3_dir, paste0(base_name, ".parquet"))
+    paste0(s3_dir, base_name, ".parquet")
   )
 }
