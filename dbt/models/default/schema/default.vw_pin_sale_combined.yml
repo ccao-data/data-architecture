@@ -17,6 +17,23 @@ models:
         description: Indicator for whether or not the observation uses the MyDec sale date
       - name: mydec_deed_type
         description: Deed type from MyDec, more granular than CCAO deed type
+      - name: mydec_line_8_current_use
+        description: |
+          Categorical indicator from mydec for the use of a property when it was sold.
+        
+          Possible values for this variable are:
+  
+          - `A` = Land/lot only
+          - `B` = Residence (single-family, condominium, townhome, or duplex)
+          - `C` = Mobile home residence
+          - `D` = Apartment building (6 units or less)
+          - `E` = Apartment building (over 6 units)
+          - `F` = Office
+          - `G` = Retail establishment
+          - `H` = Commercial building
+          - `I` = Industrial building
+          - `J` = Farm
+          - `K` = Other
       - name: mydec_line_9_additions
         description: Binary indicator on the ptax-203 form. A subsection of a question about significant physical changes to the property.
       - name: mydec_line_9_date_of_significant_change
