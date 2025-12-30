@@ -7,8 +7,12 @@ library(readr)
 library(tools)
 source("utils.R")
 
-# This script retrieves raw foreclosure sales from the CCAO's O Drive
-# THIS SOURCE WILL NEED TO BE UPDATED
+# This script retrieves raw foreclosure sales from the CCAO's O Drive. Data
+# comes from https://beta-www.public-record.com/. Instructions for accessing the
+# website and downloading the data can be found here:
+# O:\CCAODATA\documentation\How to Download Foreclosure Data.docx
+# The script itself does NOT update the data; it only gathers what has been
+# downloaded and uploads it to S3.
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "sale", "foreclosure")
 
