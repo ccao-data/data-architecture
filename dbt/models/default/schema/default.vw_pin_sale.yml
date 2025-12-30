@@ -18,7 +18,7 @@ models:
       - name: mydec_deed_type
         description: Deed type from MyDec, more granular than CCAO deed type
       - name: mydec_line_8_current_use
-        description: Indicator from mydec with a categorical value for the use of a property when it was sold
+        description: Categorical indicator from mydec for the use of a property when it was sold
       - name: mydec_line_9_additions
         description: Binary indicator on the ptax-203 form. A subsection of a question about significant physical changes to the property.
       - name: mydec_line_9_date_of_significant_change
