@@ -1,12 +1,8 @@
 library(readxl)
+library(writexl)
 library(dplyr)
 library(aws.s3)
 library(tools)
-
-# TODO: Standardize and rework filernames
-# TODO: Refactor ingest
-# TODO: Rework mutates into a function
-
 
 # Source directory with Excel files, provided by valuations
 src_dir <- "O:/CCAODATA/data/sale"
@@ -21,14 +17,16 @@ excel_files <- list.files(
   full.names = TRUE
 )
 
-# Read each Excel file and immediately write to Parquet
+# Read each Excel file and write back to S3 as Excel
 for (f in excel_files) {
   base_name <- file_path_sans_ext(basename(f))
+  s3_path <- paste0(s3_dir, base_name, ".xlsx")
 
   df <- read_excel(f)
 
-  write_parquet(
-    df,
-    paste0(s3_dir, base_name, ".parquet")
+  s3write_using(
+    x = df,
+    FUN = write_xlsx,
+    object = s3_path
   )
 }
