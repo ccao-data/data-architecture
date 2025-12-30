@@ -56,12 +56,18 @@ add_is_valid_for_modeling <- function(df, use_characteristic_regex = TRUE) {
           coalesce(grepl("YES", class_change, ignore.case = TRUE), FALSE) |
           if (use_characteristic_regex) {
             # Regex statement explained:
-            # YES - string match
-            # [- ]? - matches a space, a hyphen, and doesn't disqualify omission (YES-MAJOR, YES MAJOR, YESMAJOR)
-            # MAJ - string match # [OA] - matches O or A
-            # [REOT] - matches R, E, O, or T (we see data like 'YES-MAJOE' and 'YES-MAJOE')
+            # - YES - string match
+            # - [- ]? - matches a space, a hyphen, and doesn't disqualify
+            #   omission (YES-MAJOR, YES MAJOR, YESMAJOR)
+            # - MAJ - string match # [OA] - matches O or A
+            # - [REOT] - matches R, E, O, or T (we see data like 'YES-MAJOE'
+            #   and 'YES-MAJOE')
             coalesce(
-              grepl("YES[- ]?MAJ[OA][REOT]", characteristic_change, ignore.case = TRUE),
+              grepl(
+                "YES[- ]?MAJ[OA][REOT]",
+                characteristic_change,
+                ignore.case = TRUE
+              ),
               FALSE
             )
           } else {
@@ -74,7 +80,9 @@ dfs_processed <- imap(
   dfs,
   ~ add_is_valid_for_modeling(
     .x,
-    use_characteristic_regex = !grepl("dont_use_char_col", .y, ignore.case = TRUE)
+    use_characteristic_regex = !grepl(
+      "dont_use_char_col", .y, ignore.case = TRUE\
+    )
   )
 )
 
