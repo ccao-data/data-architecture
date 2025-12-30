@@ -18,11 +18,11 @@ dfs <- list()
 
 for (obj in objs) {
   key <- obj[["Key"]]
-  if (is.null(key) || grepl("/$", key)) next  # skip directory placeholders
+  if (is.null(key) || grepl("/$", key)) next # skip directory placeholders
 
   s3_uri <- paste0("s3://ccao-data-raw-us-east-1/", key)
 
-  file_name  <- basename(key)
+  file_name <- basename(key)
   local_path <- file.path(tmp_dir, file_name)
 
   save_s3_to_local(s3_uri, local_path, overwrite = TRUE)
@@ -66,8 +66,7 @@ add_is_valid_for_modeling <- function(df, use_characteristic_regex = TRUE) {
             )
           } else {
             coalesce(grepl("YES", field_check, ignore.case = TRUE), FALSE)
-          }
-      )
+          })
     )
 }
 
