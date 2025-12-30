@@ -9,7 +9,7 @@ library(tools)
 
 
 # Source directory with Excel files, provided by valuations
-src_dir <- "/home/miwagne/repos/data-architecture/etl/scripts-ccao-data-raw-us-east-1/sale"
+src_dir <- "O:/CCAODATA/data/sale"
 
 # Output dir
 s3_dir <- "s3://ccao-data-raw-us-east-1/sale/flag_override/"
