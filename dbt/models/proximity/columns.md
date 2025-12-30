@@ -527,7 +527,7 @@ Speed limit for the nearest highway road.
 Road data sourced from Illinois Department of Transportation.
 {% enddocs %}
 
-## nearest_road_highway_surface type
+## nearest_road_highway_surface_type
 
 {% docs column_nearest_road_highway_surface_type %}
 Surface type for the nearest highway road (for example brick, stone, etc.).
