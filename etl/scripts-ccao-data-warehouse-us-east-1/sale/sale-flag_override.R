@@ -18,7 +18,9 @@ dfs <- list()
 
 for (obj in objs) {
   key <- obj[["Key"]]
-  if (is.null(key) || grepl("/$", key)) next # skip directory placeholders
+  # I believe this line is needed because get_bucket
+  # also returns prefix objects that end in /
+  if (is.null(key) || grepl("/$", key)) next
 
   s3_uri <- paste0("s3://ccao-data-raw-us-east-1/", key)
 
