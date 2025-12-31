@@ -251,8 +251,8 @@ sales_val AS (
 flag_override AS (
     SELECT
         doc_no,
-        exclude_sale
-    FROM z_dev_miwagne_sale.flag_override
+        is_valid_for_modeling
+    FROM {{ source('sale', 'flag_override') }}
 )
 
 SELECT
@@ -341,9 +341,9 @@ SELECT
     sales_val.sv_outlier_reason3,
     sales_val.sv_run_id,
     sales_val.sv_version,
-    flag_override.exclude_sale AS override_exclude_sale,
+    flag_override. AS override_is_valid_for_modeling,
     COALESCE(
-        NOT flag_override.exclude_sale,
+        NOT flag_override.is_valid_for_modeling,
         NOT sales_val.sv_is_outlier
     ) AS use_in_model
 FROM unique_sales
