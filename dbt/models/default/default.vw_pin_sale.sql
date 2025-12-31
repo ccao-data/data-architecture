@@ -341,7 +341,7 @@ SELECT
     sales_val.sv_outlier_reason3,
     sales_val.sv_run_id,
     sales_val.sv_version,
-    flag_override. AS override_is_valid_for_modeling,
+    flag_override.is_valid_for_modeling AS override_is_valid_for_modeling,
     COALESCE(
         NOT flag_override.is_valid_for_modeling,
         NOT sales_val.sv_is_outlier
