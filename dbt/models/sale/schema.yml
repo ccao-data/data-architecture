@@ -55,7 +55,7 @@ sources:
         columns:
           - name: doc_no
             description: '{{ doc("shared_column_document_number") }}'
-          - name: exclude_sale
+          - name: is_valid_for_modeling
             description: Whether or not to exclude the sale from the model training data b
                          based on analyst decision between arms length and characteristic classification
         data_tests:

@@ -40,6 +40,8 @@ models:
         description: '{{ doc("shared_column_nbhd_code") }}'
       - name: num_parcels_sale
         description: '{{ doc("shared_column_num_parcels_sale") }}'
+      - name: override_is_valid_for_modeling
+        description: Whether or not to exclude the sale from the model training data based on analyst decision between arms length and characteristic classification
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: sale_date
@@ -70,6 +72,8 @@ models:
         description: '{{ doc("shared_column_sv_version") }}'
       - name: township_code
         description: '{{ doc("shared_column_township_code") }}'
+      - name: use_in_model
+        description: The ultimate determination on whether or not a sale should be used in model training data. A coalesce based on analyst review and algorithm sales val pipline flagging.
       - name: year
         description: '{{ doc("shared_column_year") }}'
 
