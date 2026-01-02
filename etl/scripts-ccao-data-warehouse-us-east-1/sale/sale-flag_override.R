@@ -39,14 +39,15 @@ for (obj in objs) {
 }
 
 # We have a hard-coded exception for valuations_sale_review_2025.12.16,
-# since unlike the rest of the files, we aren't using the `characteristic_change`
-# column. In the first round of this collaboration with valuations, we weren't
-# distinguishing between minor and major characteristic changes. For example,
-# a `YES` in `characteristic_change` could have represented a full new floor, or
-# it could have represented a fireplace addition. We don't want to exclude all
-# the sales from the training data with very minor characteristic changes, so
-# we re-scoped and added a minor/major option for this column. As such, for this
-# file specifically we are relying on other columns
+# since unlike the rest of the files, we aren't using the
+# `characteristic_change` column. In the first round of this collaboration with
+# valuations, we weren't distinguishing between minor and major characteristic
+# changes. For example, a `YES` in `characteristic_change` could have
+# represented a full new floor, or it could have represented a fireplace
+# addition. We don't want to exclude all the sales from the training data with
+# very minor characteristic changes, so we re-scoped and added a minor/major
+# option for this column. As such, for this file specifically we are relying
+# on other columns
 
 dfs$valuations_sale_review_2025.12.16 <-
   dfs$valuations_sale_review_2025.12.16 %>%
