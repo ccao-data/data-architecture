@@ -246,14 +246,8 @@ sales_val AS (
     INNER JOIN max_version_flag AS mv
         ON sf.meta_sale_document_num = mv.meta_sale_document_num
         AND sf.version = mv.max_version
-),
-
-flag_override AS (
-    SELECT
-        doc_no,
-        is_valid_for_modeling
-    FROM {{ source('sale', 'flag_override') }}
 )
+
 
 SELECT
     unique_sales.pin,
@@ -341,15 +335,33 @@ SELECT
     sales_val.sv_outlier_reason3,
     sales_val.sv_run_id,
     sales_val.sv_version,
-    flag_override.is_valid_for_modeling AS override_is_valid_for_modeling,
-    COALESCE(
-        NOT flag_override.is_valid_for_modeling,
-        NOT sales_val.sv_is_outlier
-    ) AS use_in_model
+    flag_override.is_arms_length,
+    flag_override.is_flip,
+    flag_override.has_class_change,
+    flag_override.has_characteristic_change,
+    flag_override.requires_field_check,
+    CASE
+        -- Apply override logic when any override signal exists
+        WHEN
+            flag_override.is_arms_length IS NOT NULL
+            OR flag_override.is_flip IS NOT NULL
+            OR flag_override.has_class_change IS NOT NULL
+            OR flag_override.has_characteristic_change IS NOT NULL
+            OR flag_override.requires_field_check IS NOT NULL
+            THEN NOT (
+                flag_override.is_arms_length = FALSE
+                OR flag_override.is_flip
+                OR flag_override.has_class_change
+                OR flag_override.has_characteristic_change = 'yes_major'
+                OR flag_override.requires_field_check
+            )
+        -- Otherwise fall back to sales validation
+        ELSE NOT COALESCE(sales_val.sv_is_outlier, FALSE)
+    END AS is_valid_for_modeling
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
 LEFT JOIN sales_val
     ON unique_sales.doc_no = sales_val.meta_sale_document_num
-LEFT JOIN flag_override
+LEFT JOIN {{ source('sale', 'flag_override') }} AS flag_override
     ON unique_sales.doc_no = flag_override.doc_no
