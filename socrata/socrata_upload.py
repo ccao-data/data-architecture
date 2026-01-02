@@ -176,12 +176,15 @@ def parse_years_list(athena_asset, years=None):
         # cases the max year is incorrectly in the future, so we
         # append the current year to the list and take the minimum.
         years_list = (
-            cursor.execute("SELECT MAX(year) AS year FROM " + athena_asset)
+            cursor.execute(
+                "SELECT MAX(year) AS year FROM "
+                + athena_asset
+                + " WHERE year <= "
+                + str(datetime.now().year)
+            )
             .as_pandas()["year"]
             .to_list()
         )
-        years_list.append(datetime.now().year)
-        years_list = [min(years_list)]
 
     else:
         years_list = None
