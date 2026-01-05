@@ -274,7 +274,7 @@
     },
     "arrow": {
       "Package": "arrow",
-      "Version": "21.0.0.1",
+      "Version": "15.0.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -292,7 +292,7 @@
         "utils",
         "vctrs"
       ],
-      "Hash": "ef54a31808517d2197e83dd57ca391e5"
+      "Hash": "85c24dd7844977e4a680ba28f576125c"
     },
     "askpass": {
       "Package": "askpass",
