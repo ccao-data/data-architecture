@@ -341,13 +341,14 @@ SELECT
     flag_override.has_characteristic_change,
     flag_override.requires_field_check,
     CASE
-        -- Apply override logic when any override signal exists
+        -- If any override flag is explicitly set (non-NULL), use override-based validation
         WHEN
             flag_override.is_arms_length IS NOT NULL
             OR flag_override.is_flip IS NOT NULL
             OR flag_override.has_class_change IS NOT NULL
             OR flag_override.has_characteristic_change IS NOT NULL
             OR flag_override.requires_field_check IS NOT NULL
+            -- Record is valid unless any disqualifying override condition is present
             THEN NOT (
                 flag_override.is_arms_length = FALSE
                 OR flag_override.is_flip
@@ -355,7 +356,7 @@ SELECT
                 OR flag_override.has_characteristic_change = 'yes_major'
                 OR flag_override.requires_field_check
             )
-        -- Otherwise fall back to sales validation
+        -- If no override flags are present, fall back to sales val classification
         ELSE NOT COALESCE(sales_val.sv_is_outlier, FALSE)
     END AS is_valid_for_modeling
 FROM unique_sales
