@@ -6,6 +6,9 @@ import pandas as pd
 import requests
 from dotenv import load_dotenv
 
+# This script downloads ARI data from IHDA. ARI data is pulled from 
+# census indicators and measures housing vulnerability (especially price increases).
+
 # Define the two known ARI sources
 file_urls = {
     "2023": "https://www.ihda.org/wp-content/uploads/2023/07/2023-ARI.xlsx",
