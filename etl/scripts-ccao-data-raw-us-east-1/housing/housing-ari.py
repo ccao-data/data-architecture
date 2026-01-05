@@ -4,7 +4,6 @@ import os
 import boto3
 import pandas as pd
 import requests
-from botocore.exceptions import NoCredentialsError
 from dotenv import load_dotenv
 
 # Define the two known ARI sources
@@ -31,6 +30,7 @@ def upload_to_s3(file_content, bucket, key_prefix, file_name):
     object_key = f"{key_prefix}/{file_name}"
     s3_client.put_object(Bucket=bucket, Key=object_key, Body=file_content)
     return f"s3://{bucket}/{object_key}"
+
 
 load_dotenv(".Renviron")
 AWS_S3_RAW_BUCKET = os.environ.get("AWS_S3_RAW_BUCKET")[5:]  # type: ignore
