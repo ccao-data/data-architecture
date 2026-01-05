@@ -56,7 +56,7 @@ dfs$valuations_sale_review_2025.12.16 <-
     sale_is_arms_length = sale_is_arm_s_length,
     doc_no = sale_doc_no
   ) %>%
-  mutate(
+  mutate( # nolint
     is_arms_length =
       coalesce(sale_is_arms_length == "YES", FALSE),
     is_flip =
