@@ -56,23 +56,20 @@ dfs$valuations_sale_review_2025.12.16 <-
     sale_is_arms_length = sale_is_arm_s_length,
     doc_no = sale_doc_no
   ) %>%
-  mutate( # nolint
-    is_arms_length =
-      coalesce(sale_is_arms_length == "YES", FALSE),
-    is_flip =
-      coalesce(flip == "YES", FALSE),
-    has_class_change =
-      coalesce(
-        grepl("YES", class_change, ignore.case = TRUE),
-        FALSE
-      ),
-    has_characteristic_change =
-      NA,
-    requires_field_check =
-      coalesce(
-        grepl("YES", field_check, ignore.case = TRUE),
-        FALSE
-      )
+  mutate(
+    is_arms_length = coalesce(
+      sale_is_arms_length == "YES", FALSE
+    ),
+    is_flip = coalesce(flip == "YES", FALSE),
+    has_class_change = coalesce(
+      grepl("YES", class_change, ignore.case = TRUE),
+      FALSE
+    ),
+    has_characteristic_change = NA,
+    requires_field_check = coalesce(
+      grepl("YES", field_check, ignore.case = TRUE),
+      FALSE
+    )
   )
 
 clean_columns <- function(df) {
