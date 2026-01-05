@@ -9,6 +9,8 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "economy")
 current_year <- strftime(Sys.Date(), "%Y")
 
 ##### ENTERPRISE ZONE #####
+# To check if this data has been updated, visit:
+# https://data.cityofchicago.org/Community-Economic-Development/Enterprise_Zones/bwpt-y235/about_data # nolint
 remote_file_enterprise_zone <- file.path(
   output_bucket, "enterprise_zone",
   paste0("2021", ".geojson")
@@ -32,6 +34,9 @@ if (!aws.s3::object_exists(remote_file_enterprise_zone)) {
 }
 
 ##### INDUSTRIAL GROWTH ZONE #####
+
+# To check if this data has been updated, visit:
+# https://hub-cookcountyil.opendata.arcgis.com/maps/76e52da12b56406c945662eea968f3e1_1/about # nolint
 remote_file_industrial_growth_zone <- file.path(
   output_bucket, "industrial_growth_zone",
   paste0("2019", ".geojson")
@@ -67,7 +72,8 @@ if (!aws.s3::object_exists(remote_file_qualified_opportunity_zone)) {
   tmp2 <- tempfile()
   tmp3 <- tempfile(fileext = ".geojson")
 
-  # Grab zipped shapefile - https://www.cdfifund.gov/opportunity-zones
+  # Grab zipped shapefile check if data has been updated:
+  # https://www.cdfifund.gov/opportunity-zones
   download.file(
     paste0(
       "https://www.cdfifund.gov/sites/cdfi/files/",
@@ -94,6 +100,8 @@ if (!aws.s3::object_exists(remote_file_qualified_opportunity_zone)) {
 }
 
 ##### CENTRAL BUSINESS DISTRICT
+# To check if this data has been updated, visit:
+# https://data.cityofchicago.org/Facilities-Geographic-Boundaries/Central_Business_District/fe34-kcci/about_data # nolint
 remote_file_central_business_district <- file.path(
   output_bucket, "central_business_district",
   paste0(2016, ".geojson")
