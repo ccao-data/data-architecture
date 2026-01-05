@@ -90,11 +90,19 @@ clean_columns <- function(df) {
           FALSE
         ),
       has_characteristic_change = case_when(
+        # Regex statement explained:
+        # - YES - string match
+        # - [- ]? - matches a space, a hyphen, and doesn't disqualify
+        #   omission (YES-MAJOR, YES MAJOR, YESMAJOR)
+        # - MAJ - string match # [OA] - matches O or A
+        # - [REOT] - matches R, E, O, or T (we see data like 'YES-MAJOE'
+        #   and 'YES-MAJOE')
         grepl(
           "YES[- ]?MAJ[OA][REOT]",
           characteristic_change,
           ignore.case = TRUE
         ) ~ "yes_major",
+        # Similar strategy to major
         grepl(
           "YES[- ]?MIN(?:OR|OT)",
           characteristic_change,
