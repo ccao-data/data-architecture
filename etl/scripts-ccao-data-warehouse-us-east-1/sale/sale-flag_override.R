@@ -53,6 +53,7 @@ for (obj in objs) {
 dfs$valuations_sale_review_2025.12.16 <-
   dfs$valuations_sale_review_2025.12.16 %>%
   janitor::clean_names() %>%
+  mutate(across(where(is.character), stringr::str_trim)) %>%
   rename(
     sale_is_arms_length = sale_is_arm_s_length,
     doc_no = sale_doc_no
@@ -76,6 +77,7 @@ dfs$valuations_sale_review_2025.12.16 <-
 clean_columns <- function(df) {
   df %>%
     janitor::clean_names() %>%
+    mutate(across(where(is.character), stringr::str_trim)) %>%
     rename(
       sale_is_arms_length = sale_is_arm_s_length,
       doc_no = sale_doc_no
