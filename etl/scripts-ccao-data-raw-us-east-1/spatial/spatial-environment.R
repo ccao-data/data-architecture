@@ -22,7 +22,13 @@ remote_file_flood_fema <- file.path(
 
 
 fema_url <- "https://hazards.fema.gov/femaportal/NFHL/Download/ProductsDownLoadServlet?DFIRMID=17031C&state=ILLINOIS&county=COOK%20COUNTY&fileName=17031C_" # nolint
-fema_files <- c("2021" = "20210615", "2022" = "20221130", "2023" = "20231006")
+
+fema_files <- c(
+  "2021" = "20210615",
+  "2022" = "20221130",
+  "2023" = "20231006",
+  "2025" = "20251218"
+)
 
 
 # Write FEMA floodplains to S3 if they don't exist
@@ -108,7 +114,7 @@ walk(2011:current_year, function(i) {
 ##### RAILROAD #####
 remote_file_railroad <- file.path(
   output_bucket, "railroad",
-  paste0(current_year, ".geojson")
+  paste0(2021, ".geojson")
 )
 
 # Write railroads to S3 if they don't exist
