@@ -60,5 +60,4 @@ for data_year, file_url in file_urls.items():
         key_prefix=key_prefix,
         file_name=s3_key_name,
     )
-
-    print(f"Uploaded {s3_key_name} → {result}")
+    print(f"Uploaded {data_year} ARI data to {result}")
