@@ -1,8 +1,9 @@
-library(readxl)
-library(janitor)
-library(dplyr)
 library(arrow)
 library(aws.s3)
+library(dplyr)
+library(janitor)
+library(readxl)
+
 source("utils.R")
 
 s3_dir <- "s3://ccao-data-raw-us-east-1/sale/flag_override/"

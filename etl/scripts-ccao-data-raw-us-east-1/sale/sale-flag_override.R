@@ -1,8 +1,8 @@
-library(readxl)
-library(writexl)
-library(dplyr)
 library(aws.s3)
+library(dplyr)
+library(readxl)
 library(tools)
+library(writexl)
 
 # Source directory with Excel files, provided by valuations
 src_dir <- "O:/CCAODATA/data/sale"
