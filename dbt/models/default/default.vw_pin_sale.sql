@@ -341,24 +341,27 @@ SELECT
     flag_override.has_characteristic_change,
     flag_override.requires_field_check,
     CASE
-        -- If any override flag is explicitly set (non-NULL), use override-based validation
+        -- If there is an override, use override logic
         WHEN
             flag_override.is_arms_length IS NOT NULL
-            OR flag_override.is_flip IS NOT NULL
-            OR flag_override.has_class_change IS NOT NULL
-            OR flag_override.has_characteristic_change IS NOT NULL
-            OR flag_override.requires_field_check IS NOT NULL
-            -- Record is valid unless any disqualifying override condition is present
-            THEN NOT (
+        OR flag_override.is_flip IS NOT NULL
+        OR flag_override.has_class_change IS NOT NULL
+        OR flag_override.has_characteristic_change IS NOT NULL
+        OR flag_override.requires_field_check IS NOT NULL
+        THEN NOT (
                 flag_override.is_arms_length = FALSE
-                OR flag_override.is_flip
-                OR flag_override.has_class_change
-                OR flag_override.has_characteristic_change = 'yes_major'
-                OR flag_override.requires_field_check
-            )
-        -- If no override flags are present, fall back to sales val classification
-        ELSE NOT COALESCE(sales_val.sv_is_outlier, FALSE)
+            OR flag_override.is_flip = TRUE
+            OR flag_override.has_class_change = TRUE
+            OR flag_override.has_characteristic_change = 'yes_major'
+            OR flag_override.requires_field_check = TRUE
+        )
+        -- If there is no override, default to sv_is_outlier
+        WHEN sales_val.sv_is_outlier IS NOT NULL
+        THEN NOT sales_val.sv_is_outlier
+        -- If neither override nor sv_is_outlier is populated, leave null
+        ELSE NULL
     END AS is_valid_for_modeling
+END AS is_valid_for_modeling
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
