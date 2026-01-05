@@ -34,7 +34,9 @@ for (year in years) {
       add_osm_feature(
         key = "highway",
         value = "secondary"
-      ) %>%
+      )
+
+    osm_roads <- osm_roads %>%
       osmdata_sf() %>%
       .$osm_lines %>%
       select(osm_id, name) %>%
