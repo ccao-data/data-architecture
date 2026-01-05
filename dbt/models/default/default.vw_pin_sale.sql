@@ -361,7 +361,6 @@ SELECT
         -- If neither override nor sv_is_outlier is populated, leave null
         ELSE NULL
     END AS is_valid_for_modeling
-END AS is_valid_for_modeling
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
