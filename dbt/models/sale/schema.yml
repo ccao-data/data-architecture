@@ -56,19 +56,19 @@ sources:
           - name: doc_no
             description: '{{ doc("shared_column_document_number") }}'
           - name: has_characteristic_change
-            description: '{{ doc("shared_column_has_characteristic_change") }}'
+            description: Analyst determination of whether or not property had an incorrect characteristic at time of sale. Split between yes_major, yes_minor, and no.
           - name: has_class_change
-            description: '{{ doc("shared_column_has_class_change") }}'
+            description: Analyst determination of whether or not the property had an incorrect class classification at time of sale.
           - name: is_arms_length
-            description: '{{ doc("shared_column_is_arms_length") }}'
+            description: Analyst determination of whether or not a sale was an "arm's length" transaction.
           - name: is_flip
-            description: '{{ doc("shared_column_is_flip") }}'
+            description: Analyst determination of whether or not the sale was a "flip".
           - name: loaded_at
-            description: '{{ doc("shared_column_loaded_at") }}'
+            description: The time at which the data warehouse transformation script ran that produced the data.
           - name: requires_field_check
-            description: '{{ doc("shared_column_requires_field_check") }}'
+            description: Analyst determination on whether we need to send someone from the office out to collect further information.
           - name: source_file
-            description: '{{ doc("shared_column_source_file") }}'
+            description: Name of the excel file the data was ingested from.
         data_tests:
           - unique_combination_of_columns:
               name: sale_flag_override_unique_by_doc_no
