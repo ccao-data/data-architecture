@@ -50,8 +50,6 @@ models:
         description: '{{ doc("shared_column_nbhd_code") }}'
       - name: num_parcels_sale
         description: '{{ doc("shared_column_num_parcels_sale") }}'
-      - name: override_is_valid_for_modeling
-        description: Whether or not to exclude the sale from the model training data based on analyst decision between arms length and characteristic classification
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: sale_date
