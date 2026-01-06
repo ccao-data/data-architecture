@@ -11,6 +11,14 @@ models:
         description: '{{ doc("shared_column_deed_type") }}'
       - name: doc_no
         description: '{{ doc("shared_column_document_number") }}'
+      - name: has_characteristic_change
+        description: '{{ doc("shared_column_has_characteristic_change") }}'
+      - name: has_class_change
+        description: '{{ doc("shared_column_has_class_change") }}'
+      - name: is_arms_length
+        description: '{{ doc("shared_column_is_arms_length") }}'
+      - name: is_flip
+        description: '{{ doc("shared_column_is_flip") }}'
       - name: is_multisale
         description: '{{ doc("shared_column_sale_is_multisale") }}'
       - name: is_mydec_date
@@ -62,6 +70,7 @@ models:
         description: '{{ doc("shared_column_sale_price") }}'
       - name: seller_name
         description: '{{ doc("shared_column_seller_name") }}'
+
       - name: sv_is_heuristic_outlier
         description: '{{ doc("shared_column_sv_is_heuristic_outlier") }}'
       - name: sv_is_outlier
