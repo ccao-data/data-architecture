@@ -1,3 +1,12 @@
+# This script ingests valuation analyst review workbooks and
+# normalizes several yes-no columns into standardized flags
+# (arms-length, flip, class change, characteristic change, field check)
+#
+# The parsing logic relies on string equality and regex matching against
+# heterogeneous analyst inputs, so before running on new workbooks we
+# should spot-check new values/typos (variants of "YES", "YES-MAJOR",
+# "YES MINOR", etc) to ensure edge cases are still classified correctly
+
 library(arrow)
 library(aws.s3)
 library(dplyr)
