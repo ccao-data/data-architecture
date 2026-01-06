@@ -6,6 +6,9 @@ import boto3
 import pandas as pd
 from dotenv import load_dotenv
 
+# This script cleans the Distressed Communities Index data, mostly standardizing
+# column names to our conventions, and filtering data to IL.
+
 # Set up the S3 client
 s3 = boto3.client("s3")
 temp_file = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
