@@ -133,8 +133,8 @@ sources_list <- bind_rows(list(
     "year" = "2022"
   ),
   "ewrd_2025" = c(
-    "source" = "https://maps.cityofevanston.org/arcgis/rest/services/OpenData/ArcGISOpenData2Administrative/MapServer/0/", # nolint
-    "api_url" = "query?outFields=*&where=1%3D1&f=geojson",
+    "source" = "https://maps.cityofevanston.org/arcgis/rest/services/OpenData/ArcGISOpenData2Administrative/MapServer/", # nolint
+    "api_url" = "0/query?outFields=*&where=1%3D1&f=geojson",
     "boundary" = "ward_evanston",
     "year" = "2025"
   )
