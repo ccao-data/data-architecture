@@ -359,7 +359,7 @@ SELECT
         -- If there is no override, default to sv_is_outlier
         WHEN sales_val.sv_is_outlier IS NOT NULL
             THEN NOT sales_val.sv_is_outlier
-    END AS is_valid_for_modeling
+    END AS is_outlier
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
