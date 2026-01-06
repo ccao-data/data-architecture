@@ -6,6 +6,9 @@ import pandas as pd
 import requests
 from dotenv import load_dotenv
 
+# This script downloads Distressed Communities Index data
+# from Economic Innovation Group. It is a zip-code level
+# measure of economic well-being.
 
 def load_csv_from_url(url):
     # Headers to simulate a browser request
