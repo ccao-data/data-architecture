@@ -54,13 +54,13 @@ sources:
         description: '{{ doc("flag_override") }}'
         columns:
           - name: doc_no
-            description: '{{ doc("shared_column_document_number") }}
+            description: '{{ doc("shared_column_document_number") }}'
           - name: has_characteristic_change
             description: Analyst determination of whether or not property had an incorrect characteristic at time of sale. Split between `yes_major`, `yes_minor`, and `no`
           - name: has_class_change
             description: Analyst determination of whether or not the property had an incorrect class classification at time of sale.
           - name: is_arms_length
-            description: Analyst determination of whether or not a sale was an "arms length" transaction
+            description: Analyst determination of whether or not a sale was an "arm's length" transaction
           - name: is_flip
             description: Analyst determination of whether or not the sale was a "flip".
           - name: loaded_at
