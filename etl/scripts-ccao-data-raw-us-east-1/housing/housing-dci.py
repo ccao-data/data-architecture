@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 # from Economic Innovation Group. It is a zip-code level
 # measure of economic well-being.
 
+
 def load_csv_from_url(url):
     # Headers to simulate a browser request
     headers = {

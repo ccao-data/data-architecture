@@ -6,7 +6,7 @@ import pandas as pd
 import requests
 from dotenv import load_dotenv
 
-# This script downloads ARI data from IHDA. ARI data is pulled from 
+# This script downloads ARI data from IHDA. ARI data is pulled from
 # census indicators and measures housing vulnerability (especially price increases).
 
 # Define the two known ARI sources

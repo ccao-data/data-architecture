@@ -8,8 +8,7 @@ from dotenv import load_dotenv
 
 # This script cleans the Area Risk Index data, standardizing
 # column names to our conventions, and creating a data_year column
-# based on the year that the data is constructed. The column data_year remains
-# lagged from the final year of census data used.
+# based on the final year of census data.
 
 load_dotenv(".Renviron")
 AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")
