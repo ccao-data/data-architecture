@@ -45,6 +45,9 @@ pwalk(gdb_files, function(...) {
 
 
 ##### Attributes #####
+
+# We grab a little high-level data from iasworld to join with spatial parcel
+# data. Stuff like class, township, etc. that's nice to have.
 # Connect to CCAODATA SQL server
 CCAODATA <- odbc::dbConnect(
   odbc::odbc(),
