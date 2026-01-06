@@ -10,6 +10,8 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "police")
 
 sources_list <- bind_rows(list(
   # POLICE
+  # To check if this data has been updated, visit:
+  # https://data.cityofchicago.org/Public-Safety/PoliceDistrictDec2012/24zt-jpfn/about_data # nolint
   "pol_2012" = c(
     "source" = "https://data.cityofchicago.org/api/geospatial/",
     "api_url" = "p3h8-xsd4?method=export&format=GeoJSON",
