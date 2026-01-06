@@ -248,7 +248,6 @@ sales_val AS (
         AND sf.version = mv.max_version
 )
 
-
 SELECT
     unique_sales.pin,
     -- In the past, mydec sale dates were more precise than iasworld dates
