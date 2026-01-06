@@ -55,13 +55,10 @@ temp_file.close()
 
 # Upload the Parquet file to S3 partitioned by year
 data["loaded_at"] = str(datetime.now())
+out_path = f"{AWS_S3_WAREHOUSE_BUCKET}/housing/ari/"
+
 data.to_parquet(
-    os.path.join(
-        os.environ["AWS_S3_WAREHOUSE_BUCKET"],
-        "housing",
-        "ari",
-        "ari.parquet",
-    ),
+    out_path,
     index=False,
     partition_cols=["year"],
 )
