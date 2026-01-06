@@ -13,7 +13,7 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "tax")
 
 # Read privileges for the this drive location are limited.
 # Contact Cook County GIS if permissions need to be changed.
-file_path <- "//10.122.19.14/ArchiveServices"
+file_path <- "//gisemcv1.ccounty.com/ArchiveServices"
 
 # Tax districts
 crossing(
