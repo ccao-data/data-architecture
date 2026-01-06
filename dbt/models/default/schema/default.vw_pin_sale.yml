@@ -15,6 +15,8 @@ models:
         description: '{{ doc("shared_column_sale_is_multisale") }}'
       - name: is_mydec_date
         description: Indicator for whether or not the observation uses the MyDec sale date
+      - name: is_outlier
+        description: The ultimate determination on whether or not a sale should be excluded in model training data. A coalesce based on analyst review and algorithm sales val pipline flagging.
       - name: mydec_deed_type
         description: Deed type from MyDec, more granular than CCAO deed type
       - name: mydec_line_9_additions
@@ -72,8 +74,6 @@ models:
         description: '{{ doc("shared_column_sv_version") }}'
       - name: township_code
         description: '{{ doc("shared_column_township_code") }}'
-      - name: is_outlier
-        description: The ultimate determination on whether or not a sale should be excluded in model training data. A coalesce based on analyst review and algorithm sales val pipline flagging.
       - name: year
         description: '{{ doc("shared_column_year") }}'
 
