@@ -8,13 +8,13 @@
 ] %}
 
 SELECT
-    parid,
-    taxyr,
-    township_code,
-    class,
-    valclass,
+    parid AS "PARID",
+    taxyr AS "TAXYR",
+    township_code AS "TOWNSHIP",
+    class AS "Class",
+    valclass AS "VALCLASS",
 {% for column in val_columns %}
-    {{ column }}{% if not loop.last %},{% endif %}
+    {{ column | upper }}{% if not loop.last %},{% endif %}
 {% endfor %}
 FROM {{ ref('qc.vw_neg_asmt_value') }}
 WHERE

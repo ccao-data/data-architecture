@@ -1,8 +1,8 @@
 SELECT
-    oby.parid,
-    oby.taxyr,
-    legdat.user1 AS township_code,
-    oby.class
+    oby.parid AS "PARID",
+    oby.taxyr AS "TAXYR",
+    legdat.user1 AS "TOWNSHIP",
+    oby.class AS "CLASS"
 FROM {{ source('iasworld', 'oby') }} AS oby
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
     ON oby.parid = legdat.parid

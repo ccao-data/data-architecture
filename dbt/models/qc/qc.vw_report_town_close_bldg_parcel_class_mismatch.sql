@@ -1,13 +1,13 @@
 {% set comparison_tables = ['comdat', 'dweldat', 'oby'] %}
 
 SELECT
-    legdat.parid,
-    legdat.taxyr,
-    legdat.user1 AS township_code,
-    pardat.class AS parcel_class,
+    legdat.parid AS "PARID",
+    legdat.taxyr AS "TAXYR",
+    legdat.user1 AS "TOWNSHIP",
+    pardat.class AS "Parcel Class",
 {% for tablename in comparison_tables %}
     ARRAY_JOIN({{ tablename }}.classes, ', ')
-        AS {{ tablename }}_classes{% if not loop.last %}, {% endif %}
+        AS "{{ tablename | upper }} Classes"{% if not loop.last %}, {% endif %}
 {% endfor %}
 FROM {{ source('iasworld', 'pardat') }} AS pardat
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat

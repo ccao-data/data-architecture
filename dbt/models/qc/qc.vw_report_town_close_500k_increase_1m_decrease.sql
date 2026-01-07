@@ -56,18 +56,18 @@ WITH card_code_info AS (
 )
 
 SELECT
-    asmt.parid,
-    asmt.taxyr,
-    asmt.township_code,
-    asmt.class,
-    asmt.reascd,
-    asmt.valapr1_prev,
-    asmt.valapr2_prev,
-    asmt.valapr3_prev,
-    asmt.valapr1,
-    asmt.valapr2,
-    asmt.valapr3,
-    asmt.valapr3 - asmt.valapr3_prev AS difference,
+    asmt.parid AS "PARID",
+    asmt.taxyr AS "TAXYR",
+    asmt.township_code AS "TOWNSHIP",
+    asmt.class AS "CLASS",
+    asmt.reascd AS "REASCD",
+    asmt.valapr1_prev AS "Prior Year LMV",
+    asmt.valapr2_prev AS "Prior Year BMV",
+    asmt.valapr3_prev AS "Prior Year Total",
+    asmt.valapr1 AS "Curr. Year LMV",
+    asmt.valapr2 AS "Curr. Year BMV",
+    asmt.valapr3 AS "Curr. Year Total",
+    asmt.valapr3 - asmt.valapr3_prev AS "DIFFERENCE",
     CASE
         WHEN asmt.valapr3_prev != 0
             THEN CONCAT(
@@ -83,10 +83,10 @@ SELECT
                 ),
                 '%'
             )
-    END AS percent_change,
-    code.dweldat_code_5,
-    code.comdat_code_5,
-    code.oby_code_5
+    END AS "% Change",
+    code.dweldat_code_5 AS "DWELDAT Code 5?",
+    code.comdat_code_5 AS "COMDAT Code 5?",
+    code.oby_code_5 AS "OBY Code 5?"
 FROM {{ ref('qc.vw_iasworld_asmt_all_with_prior_year_values') }} AS asmt
 LEFT JOIN card_code_info AS code
     ON asmt.parid = code.parid

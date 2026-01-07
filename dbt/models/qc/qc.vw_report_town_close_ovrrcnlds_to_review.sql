@@ -69,28 +69,28 @@ WITH combined_calc AS (
 )
 
 SELECT
-    calc.parid,
-    calc.taxyr,
-    legdat.user1 AS township_code,
-    pardat.class,
-    aprval.reascd AS reason_for_change,
+    calc.parid AS "PARID",
+    calc.taxyr AS "TAXYR",
+    legdat.user1 AS "TOWNSHIP",
+    pardat.class AS "Parcel Class",
+    aprval.reascd AS "Reason for Change",
     DATE_FORMAT(DATE_PARSE(aprval.revdt, '%Y-%m-%d %H:%i:%S.%f'), '%c/%e/%Y')
-        AS revdt,
-    aprval.aprbldg,
-    aprval_prev.aprbldg AS aprbldg_prev,
-    calc.table_name,
-    calc.card,
-    calc.lline,
-    calc.external_rcnld,
-    calc.external_occpct,
-    calc.external_propct,
-    calc.external_calc_rcnld,
-    calc.ovrrcnld,
-    calc.value_difference,
-    calc.card_code,
-    calc.alt_cdu,
-    calc.who,
-    calc.wen
+        AS "Review Date",
+    aprval.aprbldg AS "Curr. Year BMV",
+    aprval_prev.aprbldg AS "Prior Year BMV",
+    calc.table_name AS "Table",
+    calc.card AS "CARD",
+    calc.lline AS "Line",
+    calc.external_rcnld AS "EXTERNAL_RCNLD",
+    calc.external_occpct AS "EXTERNAL_OCCPCT",
+    calc.external_propct AS "EXTERNAL_PROPCT",
+    calc.external_calc_rcnld AS "EXTERNAL_CALC_RCNLD",
+    calc.ovrrcnld AS "OVRRCNLD",
+    calc.value_difference AS "Value difference",
+    calc.card_code AS "Card Code",
+    calc.alt_cdu AS "Alternative CDU",
+    calc.who AS "WHO",
+    calc.wen AS "WEN"
 FROM combined_calc AS calc
 LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
     ON calc.parid = pardat.parid

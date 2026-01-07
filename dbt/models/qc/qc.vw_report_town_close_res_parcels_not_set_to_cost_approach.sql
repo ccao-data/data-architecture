@@ -1,17 +1,17 @@
 SELECT
-    pardat.parid,
-    pardat.taxyr,
-    legdat.user1 AS township_code,
-    pardat.class,
-    aprval.revcode,
-    aprval.reascd AS reason_for_change,
-    aprval.aprland,
-    aprval.aprbldg,
-    aprval.aprtot,
-    aprval.who,
+    pardat.parid AS "PARID",
+    pardat.taxyr AS "TAXYR",
+    legdat.user1 AS "TOWNSHIP",
+    pardat.class AS "Class",
+    aprval.revcode AS "Review Code",
+    aprval.reascd AS "Reason for Change",
+    aprval.aprland AS "Final Appraised Land Value",
+    aprval.aprbldg AS "Final Appraised Building Value",
+    aprval.aprtot AS "Final Appr Total Value",
+    aprval.who AS "WHO",
     DATE_FORMAT(
         DATE_PARSE(aprval.wen, '%Y-%m-%d %H:%i:%S.%f'), '%c/%e/%Y %H:%i'
-    ) AS wen
+    ) AS "WEN"
 FROM {{ source('iasworld', 'aprval') }} AS aprval
 LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
     ON aprval.parid = pardat.parid

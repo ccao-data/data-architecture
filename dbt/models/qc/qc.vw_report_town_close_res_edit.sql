@@ -80,37 +80,37 @@ num_dwellings AS (
 )
 
 SELECT
-    pardat.parid,
-    pardat.taxyr,
-    legdat.user1 AS township_code,
-    pardat.nbhd,
-    pardat.class,
-    legdat.adrno,
-    legdat.adradd,
-    legdat.adrdir,
-    legdat.adrstr,
-    legdat.adrsuf,
-    legdat.adrsuf2,
-    legdat.unitdesc,
-    legdat.unitno,
-    legdat.cityname,
-    aprval.aprland,
-    aprval.aprbldg,
-    aprval.aprtot,
-    aprval_prev.aprland AS aprland_prev,
-    aprval_prev.aprbldg AS aprbldg_prev,
-    aprval_prev.aprtot AS aprtot_prev,
+    pardat.parid AS "PARID",
+    pardat.taxyr AS "TAXYR",
+    legdat.user1 AS "TOWNSHIP",
+    pardat.nbhd AS "Nbhd",
+    pardat.class AS "Class",
+    legdat.adrno AS "ADRNO",
+    legdat.adradd AS "ADRADD",
+    legdat.adrdir AS "ADRDIR",
+    legdat.adrstr AS "ADRSTR",
+    legdat.adrsuf AS "ADRSUF",
+    legdat.adrsuf2 AS "ADRSUF2",
+    legdat.unitdesc AS "UNITDESC",
+    legdat.unitno AS "UNITNO",
+    legdat.cityname AS "City",
+    aprval.aprland AS "Curr. Year LMV",
+    aprval.aprbldg AS "Crr. Year BMV",
+    aprval.aprtot AS "Curr. Year TMV",
+    aprval_prev.aprland AS "Prior Year LMV",
+    aprval_prev.aprbldg AS "Prior Year BMV",
+    aprval_prev.aprtot AS "Prior Year TMV",
     ROUND(
         (
             (aprval.aprtot - aprval_prev.aprtot)
             / CAST(aprval_prev.aprtot AS DOUBLE)
         ),
         2
-    ) AS aprtot_percent_change,
-    aprval.dwelval,
-    aprval.dwelval + aprval.aprland AS dweltot,
-    aprval_prev.dwelval AS dwelval_prev,
-    aprval_prev.dwelval + aprval_prev.aprland AS dweltot_prev,
+    ) AS "Total % Change",
+    aprval.dwelval AS "Curr. Year Dwelling MV",
+    aprval.dwelval + aprval.aprland AS "Curr. Year Dwelling Total",
+    aprval_prev.dwelval AS "Prior Year Dwelling MV",
+    aprval_prev.dwelval + aprval_prev.aprland AS "Prior Year Dwelling Total",
     ROUND(
         (
             (
@@ -122,26 +122,26 @@ SELECT
             )
         ),
         2
-    ) AS dweltot_percent_change,
-    sale.saledt_fmt,
-    sale.price,
-    sale.instruno,
-    COALESCE(pardat.tiebldgpct, 0) AS tiebldgpct,
-    aprval.reascd,
-    aprval.obyval,
-    land.sf,
-    num_dwellings.num_dwellings,
+    ) AS "Dwelling % Change",
+    sale.saledt_fmt AS "Sale Date",
+    sale.price AS "Sale Price",
+    sale.instruno AS "Instrument No",
+    COALESCE(pardat.tiebldgpct, 0) AS "PARDAT Proration",
+    aprval.reascd AS "Reason for Change",
+    aprval.obyval AS "OBY Value",
+    land.sf AS "LAND_SF",
+    num_dwellings.num_dwellings AS "Dwelling Count",
 {% for idx in range(1, 6) %}
-    dweldat.yrblt_{{ idx }},
-    dweldat.sfla_{{ idx }},
-    dweldat.stories_{{ idx }},
-    dweldat.rmbed_{{ idx }},
-    dweldat.fixbath_{{ idx }},
-    dweldat.fixhalf_{{ idx }},
-    dweldat.bsmt_{{ idx }},
-    dweldat.bsmt_fin_{{ idx }},
-    dweldat.external_propct_{{ idx }},
-    dweldat.alt_cdu_{{ idx }}{% if not loop.last %},{% endif %}
+    dweldat.yrblt_{{ idx }} AS "Yr Built Card {{ idx }}",
+    dweldat.sfla_{{ idx }} AS "SFLA Card {{ idx }}",
+    dweldat.stories_{{ idx }} AS "Story Height Card {{ idx }}",
+    dweldat.rmbed_{{ idx }} AS "Bedrooms Card {{ idx }}",
+    dweldat.fixbath_{{ idx }} AS "Full Baths Card {{ idx }}",
+    dweldat.fixhalf_{{ idx }} AS "Half Baths Card {{ idx }}",
+    dweldat.bsmt_{{ idx }} AS "Basement Card {{ idx }}",
+    dweldat.bsmt_fin_{{ idx }} AS "Bsmt finish Card {{ idx }}",
+    dweldat.external_propct_{{ idx }} AS "Proration Card {{ idx }}",
+    dweldat.alt_cdu_{{ idx }} AS "Alt CDU Card {{ idx }}"{% if not loop.last %},{% endif %}
 {% endfor %}
 FROM {{ source('iasworld', 'pardat') }} AS pardat
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat

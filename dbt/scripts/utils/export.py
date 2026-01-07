@@ -198,8 +198,7 @@ def query_models_for_export(
         ),
         region_name=os.getenv("AWS_ATHENA_REGION_NAME", "us-east-1"),
         cursor_class=pyathena.pandas.cursor.PandasCursor,
-        # Unload query results to speed up execution times
-    ).cursor(unload=True)
+    ).cursor()  # We can't unload here or else Athena will lowercase colnames
 
     models_for_export: list[ModelForExport] = []
     for model in models:

@@ -206,7 +206,7 @@ def main():
             target=args.target,
             rebuild=args.rebuild,
             select=select,
-            where=f"taxyr = '{args.year}'",
+            where=f"TAXYR = '{args.year}'",
         )
         output_dir = args.output_dir or "export/output/"
         for model in models_for_export:
@@ -233,9 +233,7 @@ def main():
                 town_df = (
                     model.df
                     if model.df.empty
-                    else model.df[
-                        model.df["township_code"] == town.township_code
-                    ]
+                    else model.df[model.df["TOWNSHIP"] == town.township_code]
                 )
                 town_export_filename = (
                     f"{town.township_name} {model.export_filename}"
