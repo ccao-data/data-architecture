@@ -69,6 +69,8 @@ sources:
             description: '{{ doc("shared_column_requires_field_check") }}'
           - name: source_file
             description: Name of the excel file the data was ingested from.
+          - name: work_drawer
+            description: Whether an analyst marked a given sale for 'work drawer'.
         data_tests:
           - unique_combination_of_columns:
               name: sale_flag_override_unique_by_doc_no
