@@ -14,11 +14,11 @@ models:
       - name: has_characteristic_change
         description: '{{ doc("shared_column_has_characteristic_change") }}'
       - name: has_class_change
-        description: Analyst determination of whether or not the property had an incorrect class classification at time of sale.
+        description: '{{ doc("shared_column_has_class_change") }}'
       - name: is_arms_length
-        description: Analyst determination of whether or not a sale was an "arm's length" transaction.
+        description: '{{ doc("shared_column_is_arms_length") }}'
       - name: is_flip
-        description: Analyst determination of whether or not the sale was a "flip".
+        description: '{{ doc("shared_column_is_flip") }}'
       - name: is_multisale
         description: '{{ doc("shared_column_sale_is_multisale") }}'
       - name: is_mydec_date
@@ -52,6 +52,8 @@ models:
         description: '{{ doc("shared_column_num_parcels_sale") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
+      - name: requires_field_check
+        description: '{{ doc("shared_column_requires_field_check") }}'
       - name: sale_date
         description: '{{ doc("shared_column_sale_date") }}'
       - name: sale_filter_deed_type

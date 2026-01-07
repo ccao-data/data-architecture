@@ -1653,6 +1653,27 @@ incorrect characteristic at time of sale. Split between
 yes_major, yes_minor, and no.
 {% enddocs %}
 
+## has_class_change
+
+{% docs shared_column_has_class_change %}
+Analyst determination of whether or not the property
+had an incorrect class classification at time of sale.
+{% enddocs %}
+
+## is_arms_length
+
+{% docs shared_column_is_arms_length %}
+Analyst determination of whether or not a sale was
+an "arm's length" transaction.
+{% enddocs %}
+
+## is_flip
+
+{% docs shared_column_is_flip %}
+Analyst determination of whether or not the sale was
+a "flip".
+{% enddocs %}
+
 ## sv_is_heuristic_outlier
 
 {% docs shared_column_sv_is_heuristic_outlier %}
