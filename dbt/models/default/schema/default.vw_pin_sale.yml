@@ -24,7 +24,12 @@ models:
       - name: is_mydec_date
         description: Indicator for whether or not the observation uses the MyDec sale date
       - name: is_outlier
-        description: The ultimate determination on whether or not a sale should be excluded in model training data. A coalesce based on analyst review and algorithm sales val pipline flagging.
+        description: |
+          The final determination indicating whether a sale is a statistical
+          outlier that should be excluded from model training.
+
+          Combines information from our sales validation model with information
+          from analysts who review our outliers for correctness.
       - name: mydec_deed_type
         description: Deed type from MyDec, more granular than CCAO deed type
       - name: mydec_line_9_additions
