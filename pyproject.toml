@@ -5,7 +5,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 
 [tool.mypy]
-explicit_package_bases = true
+explicit-package-bases = true
 
 [tool.pyright]
 reportUnusedImport = false
