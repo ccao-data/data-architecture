@@ -1674,6 +1674,13 @@ Analyst determination of whether or not the sale was
 a "flip".
 {% enddocs %}
 
+## requires_field_check
+
+{% docs shared_column_requires_field_check %}
+Analyst determination on whether we need to send someone
+from the office out to collect further information.
+{% enddocs %}
+
 ## sv_is_heuristic_outlier
 
 {% docs shared_column_sv_is_heuristic_outlier %}
