@@ -66,7 +66,7 @@ sources:
           - name: loaded_at
             description: The time at which the data warehouse transformation script ran that produced the data.
           - name: requires_field_check
-            description: Analyst determination on whether we need to send someone from the office out to collect further information.
+            description: '{{ doc("shared_column_requires_field_check") }}'
           - name: source_file
             description: Name of the excel file the data was ingested from.
         data_tests:
