@@ -48,6 +48,23 @@ for (obj in objs) {
   dfs[[df_name]] <- df
 }
 
+
+clean_columns_and_whitespace <- function(df) {
+  df %>%
+    janitor::clean_names() %>%
+    rename(
+      sale_is_arms_length = sale_is_arm_s_length,
+      doc_no              = sale_doc_no
+    ) %>%
+    # Finds any column with both "work" and "drawer"
+    # and renames to work_drawer
+    rename_with(
+      .fn = ~"work_drawer",
+      .cols = matches("work.*drawer|drawer.*work")
+    ) %>%
+    mutate(across(where(is.character), stringr::str_trim))
+}
+
 # We have a hard-coded exception for valuations_sale_review_2025.12.16,
 # since unlike the rest of the files, we aren't using the
 # `characteristic_change` column. In the first round of this collaboration with
@@ -61,12 +78,7 @@ for (obj in objs) {
 
 dfs$valuations_sale_review_2025.12.16 <-
   dfs$valuations_sale_review_2025.12.16 %>%
-  janitor::clean_names() %>%
-  mutate(across(where(is.character), stringr::str_trim)) %>%
-  rename(
-    sale_is_arms_length = sale_is_arm_s_length,
-    doc_no = sale_doc_no
-  ) %>%
+  clean_columns_and_whitespace() %>%
   mutate(
     is_arms_length = coalesce(
       sale_is_arms_length == "YES", FALSE
@@ -80,17 +92,17 @@ dfs$valuations_sale_review_2025.12.16 <-
     requires_field_check = coalesce(
       grepl("YES", field_check, ignore.case = TRUE),
       FALSE
-    )
+    ),
+    work_drawer =
+      coalesce(
+        grepl("YES", work_drawer, ignore.case = TRUE),
+        FALSE
+      )
   )
 
-clean_columns <- function(df) {
+transform_columns <- function(df) {
   df %>%
-    janitor::clean_names() %>%
-    mutate(across(where(is.character), stringr::str_trim)) %>%
-    rename(
-      sale_is_arms_length = sale_is_arm_s_length,
-      doc_no = sale_doc_no
-    ) %>%
+    clean_columns_and_whitespace() %>%
     mutate( # nolint
       is_arms_length =
         coalesce(sale_is_arms_length == "YES", FALSE),
@@ -126,6 +138,11 @@ clean_columns <- function(df) {
         coalesce(
           grepl("YES", field_check, ignore.case = TRUE),
           FALSE
+        ),
+      work_drawer =
+        coalesce(
+          grepl("YES", work_drawer, ignore.case = TRUE),
+          FALSE
         )
     )
 }
@@ -134,7 +151,7 @@ clean_columns <- function(df) {
 exception_df <- "valuations_sale_review_2025.12.16"
 dfs_processed <- imap(
   dfs[names(dfs) != exception_df],
-  ~ clean_columns(.x)
+  ~ transform_columns(.x)
 )
 dfs_processed[[exception_df]] <- dfs[[exception_df]]
 
@@ -148,6 +165,7 @@ dfs_ready_to_write <- purrr::imap(
     has_class_change,
     has_characteristic_change,
     requires_field_check,
+    work_drawer,
     source_file
   ) %>%
     mutate(
