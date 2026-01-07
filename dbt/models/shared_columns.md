@@ -1685,7 +1685,7 @@ a "flip".
 Analyst determination on whether we need to send someone
 from the office out to collect further information. True
 in this column suggests that the analyst believes there
-has been completed work on the house.
+has been completed work on the home.
 {% enddocs %}
 
 ## sv_is_heuristic_outlier
