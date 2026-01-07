@@ -93,11 +93,10 @@ dfs$valuations_sale_review_2025.12.16 <-
       grepl("YES", field_check, ignore.case = TRUE),
       FALSE
     ),
-    work_drawer =
-      coalesce(
-        grepl("YES", work_drawer, ignore.case = TRUE),
-        FALSE
-      )
+    work_drawer = coalesce(
+      grepl("YES", work_drawer, ignore.case = TRUE),
+      FALSE
+    )
   )
 
 transform_columns <- function(df) {
