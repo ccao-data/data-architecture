@@ -15,8 +15,6 @@ library(readxl)
 
 source("utils.R")
 
-s3_dir <- "s3://ccao-data-raw-us-east-1/sale/flag_override/"
-
 objs <- get_bucket(
   bucket = "ccao-data-raw-us-east-1",
   prefix = "sale/flag_override/"
