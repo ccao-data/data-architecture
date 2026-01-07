@@ -190,7 +190,7 @@ purrr::iwalk(
     save_local_to_s3(
       s3_uri = out_uri,
       path = tmp_file,
-      overwrite = FALSE
+      overwrite = TRUE
     )
 
     unlink(tmp_file)
