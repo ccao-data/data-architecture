@@ -53,7 +53,7 @@ models:
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: requires_field_check
-        description: test stump
+        description: '{{ doc("shared_column_requires_field_check") }}'
       - name: sale_date
         description: '{{ doc("shared_column_sale_date") }}'
       - name: sale_filter_deed_type
