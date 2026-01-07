@@ -1649,8 +1649,13 @@ Can be truncated by MyDec/IDOR. See Clerk/Recorder of Deeds for full name.
 
 {% docs shared_column_has_characteristic_change %}
 Analyst determination of whether or not property had an
-incorrect characteristic at time of sale. Split between
-yes_major, yes_minor, and no.
+incorrect characteristic at time of sale.
+
+Possible values for this variable are:
+
+- `yes_major`: Major characteristic change
+- `yes_minor`: Minor characteristic change
+- `no`: No characteristic change
 {% enddocs %}
 
 ## has_class_change
