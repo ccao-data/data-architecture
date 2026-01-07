@@ -4,6 +4,7 @@ library(geoarrow)
 library(purrr)
 library(sf)
 library(stringr)
+source("utils.R")
 
 # Define the S3 bucket and folder path
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")

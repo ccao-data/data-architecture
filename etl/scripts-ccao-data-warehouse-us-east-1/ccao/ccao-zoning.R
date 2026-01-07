@@ -17,12 +17,12 @@ AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccao", "other", "zoning")
 
 # Grab all xlsx data from our created folder
-township_paths <- list.files("O:/CCAODATA/zoning/data/",
+township_paths <- list.files("O:/CCAODATA/data/zoning/",
   pattern = "\\.xlsx$", full.names = TRUE
 )
 
 township_data <- map(
-  list.files("O:/CCAODATA/zoning/data/", full.names = TRUE),
+  list.files("O:/CCAODATA/data/zoning/", full.names = TRUE),
   \(file_path) {
     read_excel(file_path) %>%
       select(
