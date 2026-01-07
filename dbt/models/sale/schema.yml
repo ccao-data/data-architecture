@@ -56,7 +56,7 @@ sources:
           - name: doc_no
             description: '{{ doc("shared_column_document_number") }}'
           - name: has_characteristic_change
-            description: Analyst determination of whether or not property had an incorrect characteristic at time of sale. Split between yes_major, yes_minor, and no.
+            description: '{{ doc("shared_column_has_characteristic_change") }}'
           - name: has_class_change
             description: Analyst determination of whether or not the property had an incorrect class classification at time of sale.
           - name: is_arms_length

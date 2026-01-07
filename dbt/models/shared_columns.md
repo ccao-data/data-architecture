@@ -1645,6 +1645,14 @@ Can be truncated by MyDec/IDOR. See Clerk/Recorder of Deeds for full name.
 
 # Sale Validation
 
+## has_characteristic_change
+
+{% docs shared_column_has_characteristic_change %}
+Analyst determination of whether or not property had an
+incorrect characteristic at time of sale. Split between
+yes_major, yes_minor, and no.
+{% enddocs %}
+
 ## sv_is_heuristic_outlier
 
 {% docs shared_column_sv_is_heuristic_outlier %}
