@@ -5,7 +5,8 @@ readme = "README.md"
 requires-python = ">=3.11"
 
 [tool.mypy]
-no_namespace_packages = true
+explicit_package_bases = true
+namespace_packages = true
 
 [tool.pyright]
 reportUnusedImport = false
