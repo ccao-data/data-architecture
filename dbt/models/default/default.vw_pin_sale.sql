@@ -348,7 +348,7 @@ SELECT
             OR flag_override.has_class_change IS NOT NULL
             OR flag_override.has_characteristic_change IS NOT NULL
             OR flag_override.requires_field_check IS NOT NULL
-            THEN NOT (
+            THEN (
                 flag_override.is_arms_length = FALSE
                 OR flag_override.is_flip = TRUE
                 OR flag_override.has_class_change = TRUE
@@ -357,7 +357,7 @@ SELECT
             )
         -- If there is no override, default to sv_is_outlier
         WHEN sales_val.sv_is_outlier IS NOT NULL
-            THEN NOT sales_val.sv_is_outlier
+            THEN sales_val.sv_is_outlier
     END AS is_outlier
 FROM unique_sales
 LEFT JOIN mydec_sales
