@@ -1669,7 +1669,7 @@ had an incorrect class classification at time of sale.
 
 {% docs shared_column_is_arms_length %}
 Analyst determination of whether or not a sale was
-an "arm's length" transaction.
+an "arm's length, open market" transaction.
 {% enddocs %}
 
 ## is_flip
