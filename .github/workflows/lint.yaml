@@ -36,7 +36,6 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PYTHON_MYPY_ARGUMENTS: "--explicit-package-bases --no-namespace-packages"
           VALIDATE_MARKDOWN: false
           # These tools are handled by pre-commit, so we don't need SuperLinter
           # to run them as well
@@ -52,4 +51,5 @@ jobs:
           # helpful
           VALIDATE_NATURAL_LANGUAGE: false
           LINTER_RULES_PATH: /
+          PYTHON_MYPY_CONFIG_FILE: pyproject.toml
           YAML_CONFIG_FILE: .yamllint.yml
