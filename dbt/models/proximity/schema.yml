@@ -797,8 +797,8 @@ models:
         description: '{{ doc("column_nearest_road_highway_lanes") }}'
       - name: nearest_road_highway_name
         description: '{{ doc("column_nearest_road_highway_name") }}'
-      - name: nearest_road_highway_speed_limit_mph
-        description: '{{ doc("column_nearest_road_highway_speed_limit_mph") }}'
+      - name: nearest_road_highway_speed_limit
+        description: '{{ doc("column_nearest_road_highway_speed_limit") }}'
       - name: nearest_road_highway_surface_type
         description: '{{ doc("column_nearest_road_highway_surface_type") }}'
       - name: nearest_secondary_road_data_year
