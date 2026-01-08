@@ -153,7 +153,7 @@ dest_files_hydro <- file.path(
 )
 
 # Function to pull raw data from S3 and clean
-walk(2011:current_year, function(year) {
+walk(dest_files_hydro_years, function(year) {
   remote_files_hydro_raw <- file.path(
     input_bucket, "hydrology", c("area", "linear"), paste0(year, ".geojson")
   )
