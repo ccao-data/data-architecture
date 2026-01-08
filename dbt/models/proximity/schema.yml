@@ -631,14 +631,14 @@ models:
           meta:
             description: vw_pin10_proximity should be unique by pin10 and year
     columns: &vw_proximity_columns
-      - name: airport_ohare_dist_ft
-        description: '{{ doc("column_airport_ohare_dist_ft") }}'
-      - name: airport_midway_dist_ft
-        description: '{{ doc("column_airport_midway_dist_ft") }}'
-      - name: airport_dnl_total
-        description: '{{ doc("column_airport_dnl_total") }}'
       - name: airport_data_year
         description: '{{ doc("column_airport_data_year") }}'
+      - name: airport_dnl_total
+        description: '{{ doc("column_airport_dnl_total") }}'
+      - name: airport_midway_dist_ft
+        description: '{{ doc("column_airport_midway_dist_ft") }}'
+      - name: airport_ohare_dist_ft
+        description: '{{ doc("column_airport_ohare_dist_ft") }}'
       - name: avg_school_rating_in_half_mile
         description: '{{ doc("column_avg_school_rating_in_half_mile") }}'
       - name: lake_michigan_data_year
@@ -683,8 +683,6 @@ models:
         description: '{{ doc("column_nearest_golf_course_dist_ft") }}'
       - name: nearest_golf_course_id
         description: '{{ doc("column_nearest_golf_course_id") }}'
-      - name: nearest_golf_course_data_year
-        description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_grocery_store_dist_ft
         description: '{{ doc("column_nearest_grocery_store_dist_ft") }}'
       - name: nearest_grocery_store_name
@@ -767,12 +765,12 @@ models:
         description: '{{ doc("column_nearest_road_arterial_dist_ft") }}'
       - name: nearest_road_arterial_lanes
         description: '{{ doc("column_nearest_road_arterial_lanes") }}'
+      - name: nearest_road_arterial_name
+        description: '{{ doc("column_nearest_road_arterial_name") }}'
       - name: nearest_road_arterial_speed_limit
         description: '{{ doc("column_nearest_road_arterial_speed_limit") }}'
       - name: nearest_road_arterial_surface_type
         description: '{{ doc("column_nearest_road_arterial_surface_type") }}'
-      - name: nearest_road_arterial_name
-        description: '{{ doc("column_nearest_road_arterial_name") }}'
       - name: nearest_road_collector_daily_traffic
         description: '{{ doc("column_nearest_road_collector_daily_traffic") }}'
       - name: nearest_road_collector_data_year
@@ -781,12 +779,12 @@ models:
         description: '{{ doc("column_nearest_road_collector_dist_ft") }}'
       - name: nearest_road_collector_lanes
         description: '{{ doc("column_nearest_road_collector_lanes") }}'
+      - name: nearest_road_collector_name
+        description: '{{ doc("column_nearest_road_collector_name") }}'
       - name: nearest_road_collector_speed_limit
         description: '{{ doc("column_nearest_road_collector_speed_limit") }}'
       - name: nearest_road_collector_surface_type
         description: '{{ doc("column_nearest_road_collector_surface_type") }}'
-      - name: nearest_road_collector_name
-        description: '{{ doc("column_nearest_road_collector_name") }}'
       - name: nearest_road_highway_daily_traffic
         description: '{{ doc("column_nearest_road_highway_daily_traffic") }}'
       - name: nearest_road_highway_data_year
