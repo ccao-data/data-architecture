@@ -141,7 +141,7 @@ raw_files_hydro <- grep(
 )
 dest_files_hydro_prefix <- file.path(
   AWS_S3_WAREHOUSE_BUCKET,
-  "spatial/environment/hydrology/"
+  "spatial/environment/hydrology"
 )
 dest_files_hydro_years <- raw_files_hydro %>%
   str_extract("[0-9]{4}") %>%
