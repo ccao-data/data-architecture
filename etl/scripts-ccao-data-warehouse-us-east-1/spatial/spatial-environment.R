@@ -4,6 +4,7 @@ library(dplyr)
 library(geoarrow)
 library(here)
 library(purrr)
+library(readr)
 library(sf)
 library(stringr)
 library(tidyr)
@@ -19,7 +20,10 @@ current_year <- strftime(Sys.Date(), "%Y")
 
 
 ##### LAKE MICHICAN COASTLINE #####
-walk(2013:current_year, function(x) {
+coastline_years <- parse_number(
+  get_bucket_df(input_bucket, prefix = "spatial/environment/coastline/")$Key
+)
+walk(coastline_years, function(x) {
   remote_file_coastline_raw <- file.path(
     input_bucket, "coastline", paste0(x, ".geojson")
   )
@@ -58,37 +62,43 @@ walk(2013:current_year, function(x) {
 })
 
 
-
 ##### FEMA FLOODPLAINS #####
-flood_fema_raw <- file.path(
-  input_bucket, "flood_fema", "2024.geojson"
+fema_years <- parse_number(
+  get_bucket_df(input_bucket, prefix = "spatial/environment/flood_fema/")$Key
 )
-flood_fema_warehouse <- file.path(
-  output_bucket, "flood_fema", "year=2024", "part-0.parquet"
-)
+
 
 # Write FEMA floodplains to S3 if they don't exist
-if (
-  aws.s3::object_exists(flood_fema_raw) &&
-    !aws.s3::object_exists(flood_fema_warehouse)
-) {
-  tmp_file <- tempfile(fileext = ".geojson")
-  aws.s3::save_object(flood_fema_raw, file = tmp_file)
+for (year in fema_years) {
+  flood_fema_raw <- file.path(
+    input_bucket, "flood_fema", paste0(year, ".geojson")
+  )
+  flood_fema_warehouse <- file.path(
+    output_bucket, "flood_fema", paste0("year=", year), "part-0.parquet"
+  )
 
-  # All we need to do is recode the special flood hazard area column
-  # And remove superfluous columns
-  st_read(tmp_file) %>%
-    st_transform(4326) %>%
-    mutate(
-      SFHA_TF = as.logical(SFHA_TF),
-      geometry_3435 = st_transform(geometry, 3435)
-    ) %>%
-    select(
-      fema_special_flood_hazard_area = SFHA_TF,
-      geometry, geometry_3435
-    ) %>%
-    geoparquet_to_s3(flood_fema_warehouse)
-  file.remove(tmp_file)
+  if (
+    aws.s3::object_exists(flood_fema_raw) &&
+      !aws.s3::object_exists(flood_fema_warehouse)
+  ) {
+    tmp_file <- tempfile(fileext = ".geojson")
+    aws.s3::save_object(flood_fema_raw, file = tmp_file)
+
+    # All we need to do is recode the special flood hazard area column
+    # And remove superfluous columns
+    st_read(tmp_file) %>%
+      st_transform(4326) %>%
+      mutate(
+        SFHA_TF = as.logical(SFHA_TF),
+        geometry_3435 = st_transform(geometry, 3435)
+      ) %>%
+      select(
+        fema_special_flood_hazard_area = SFHA_TF,
+        geometry, geometry_3435
+      ) %>%
+      geoparquet_to_s3(flood_fema_warehouse)
+    file.remove(tmp_file)
+  }
 }
 
 
@@ -152,6 +162,7 @@ walk(2011:current_year, function(year) {
   )
 
   if (!aws.s3::object_exists(remote_file_hydro_warehouse)) {
+    print(remote_file_hydro_warehouse)
     tmp_file <- tempfile(c(fileext = ".geojson", fileext = ".geojson"))
     mapply(aws.s3::save_object, remote_files_hydro_raw, file = tmp_file)
 
