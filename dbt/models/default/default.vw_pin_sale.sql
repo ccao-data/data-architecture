@@ -349,11 +349,11 @@ SELECT
             OR flag_override.has_characteristic_change IS NOT NULL
             OR flag_override.requires_field_check IS NOT NULL
             THEN (
-                flag_override.is_arms_length = FALSE
-                OR flag_override.is_flip = TRUE
-                OR flag_override.has_class_change = TRUE
-                OR flag_override.has_characteristic_change = 'yes_major'
-                OR flag_override.requires_field_check = TRUE
+                COALESCE(flag_override.is_arms_length = FALSE, FALSE)
+                OR COALESCE(flag_override.is_flip = TRUE, FALSE)
+                OR COALESCE(flag_override.has_class_change = TRUE, FALSE)
+                OR COALESCE(flag_override.has_characteristic_change = 'yes_major', FALSE)
+                OR COALESCE(flag_override.requires_field_check = TRUE, FALSE)
             )
         -- If there is no override, default to sv_is_outlier
         WHEN sales_val.sv_is_outlier IS NOT NULL
