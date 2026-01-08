@@ -266,12 +266,6 @@ sources_list <- bind_rows(list(
     "api_url" = "a9a2e342397249fd90872765d11aede7_4.geojson",
     "boundary" = "location",
     "year" = "2021"
-  ),
-  "locations_all_25" = c(
-    "source" = "https://data.cityofchicago.org/resource/",
-    "api_url" = "pb6d-zzuh.geojson",
-    "boundary" = "location",
-    "year" = "2025"
   )
 ))
 
