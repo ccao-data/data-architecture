@@ -176,21 +176,10 @@ out_dir <- "s3://ccao-data-warehouse-us-east-1/sale/flag_override/"
 purrr::iwalk(
   dfs_ready_to_write,
   ~ {
-    out_uri <- paste0(out_dir, .y, ".parquet")
-    tmp_file <- tempfile(fileext = ".parquet")
-
     arrow::write_parquet(
       .x,
-      tmp_file,
+      sink = paste0(out_dir, .y, ".parquet"),
       compression = "snappy"
     )
-
-    save_local_to_s3(
-      s3_uri = out_uri,
-      path = tmp_file,
-      overwrite = TRUE
-    )
-
-    unlink(tmp_file)
   }
 )
