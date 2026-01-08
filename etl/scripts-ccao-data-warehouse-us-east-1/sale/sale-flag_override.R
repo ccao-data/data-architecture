@@ -166,7 +166,7 @@ dfs_ready_to_write <- purrr::imap(
     source_file
   ) %>%
     mutate(
-      loaded_at = Sys.time()
+      loaded_at = as.character(Sys.time())
     )
 )
 
