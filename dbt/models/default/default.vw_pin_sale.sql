@@ -349,6 +349,11 @@ SELECT
             OR flag_override.has_characteristic_change IS NOT NULL
             OR flag_override.requires_field_check IS NOT NULL
             THEN (
+                -- COALESCE is required here because the boolean logic is
+                -- three-valued (TRUE / FALSE / NULL). When overrides exist
+                -- but some override columns are NULL, expressions like FALSE
+                -- OR NULL evaluate to NULL, which would incorrectly return
+                -- is_outlier = NULL instead of FALSE.
                 COALESCE(flag_override.is_arms_length = FALSE, FALSE)
                 OR COALESCE(flag_override.is_flip = TRUE, FALSE)
                 OR COALESCE(flag_override.has_class_change = TRUE, FALSE)
