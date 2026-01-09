@@ -1672,6 +1672,49 @@ Can be truncated by MyDec/IDOR. See Clerk/Recorder of Deeds for full name.
 
 # Sale Validation
 
+## has_characteristic_change
+
+{% docs shared_column_has_characteristic_change %}
+Analyst determination of whether or not property had an
+incorrect characteristic at time of sale.
+
+Possible values for this variable are:
+
+- `yes_major`: Major characteristic change
+- `yes_minor`: Minor characteristic change
+- `no`: No characteristic change
+{% enddocs %}
+
+## has_class_change
+
+{% docs shared_column_has_class_change %}
+Analyst determination of whether or not the property
+had an incorrect class classification at time of sale.
+{% enddocs %}
+
+## is_arms_length
+
+{% docs shared_column_is_arms_length %}
+Analyst determination of whether or not a sale was
+an "arm's length, open market" transaction.
+{% enddocs %}
+
+## is_flip
+
+{% docs shared_column_is_flip %}
+Analyst determination of whether or not the sale was
+a "flip".
+{% enddocs %}
+
+## requires_field_check
+
+{% docs shared_column_requires_field_check %}
+Analyst determination on whether we need to send someone
+from the office out to collect further information. True
+in this column suggests that the analyst believes there
+has been completed work on the home.
+{% enddocs %}
+
 ## sv_is_heuristic_outlier
 
 {% docs shared_column_sv_is_heuristic_outlier %}

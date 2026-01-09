@@ -11,10 +11,25 @@ models:
         description: '{{ doc("shared_column_deed_type") }}'
       - name: doc_no
         description: '{{ doc("shared_column_document_number") }}'
+      - name: has_characteristic_change
+        description: '{{ doc("shared_column_has_characteristic_change") }}'
+      - name: has_class_change
+        description: '{{ doc("shared_column_has_class_change") }}'
+      - name: is_arms_length
+        description: '{{ doc("shared_column_is_arms_length") }}'
+      - name: is_flip
+        description: '{{ doc("shared_column_is_flip") }}'
       - name: is_multisale
         description: '{{ doc("shared_column_sale_is_multisale") }}'
       - name: is_mydec_date
         description: Indicator for whether or not the observation uses the MyDec sale date
+      - name: is_outlier
+        description: |
+          The final determination indicating whether a sale is a statistical
+          outlier that should be excluded from model training.
+
+          Combines information from our sales validation model with information
+          from analysts who review our outliers for correctness.
       - name: mydec_deed_type
         description: Deed type from MyDec, more granular than CCAO deed type
       - name: mydec_line_8_current_use
@@ -59,6 +74,8 @@ models:
         description: '{{ doc("shared_column_num_parcels_sale") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
+      - name: requires_field_check
+        description: '{{ doc("shared_column_requires_field_check") }}'
       - name: sale_date
         description: '{{ doc("shared_column_sale_date") }}'
       - name: sale_filter_deed_type

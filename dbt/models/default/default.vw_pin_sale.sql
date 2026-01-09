@@ -335,9 +335,43 @@ SELECT
     sales_val.sv_outlier_reason2,
     sales_val.sv_outlier_reason3,
     sales_val.sv_run_id,
-    sales_val.sv_version
+    sales_val.sv_version,
+    flag_override.is_arms_length,
+    flag_override.is_flip,
+    flag_override.has_class_change,
+    flag_override.has_characteristic_change,
+    flag_override.requires_field_check,
+    CASE
+        -- If there is an override, use override logic
+        -- If neither override nor sv_is_outlier is populated, leave null
+        WHEN
+            flag_override.is_arms_length IS NOT NULL
+            OR flag_override.is_flip IS NOT NULL
+            OR flag_override.has_class_change IS NOT NULL
+            OR flag_override.has_characteristic_change IS NOT NULL
+            OR flag_override.requires_field_check IS NOT NULL
+            THEN (
+                -- COALESCE is required here because the boolean logic is
+                -- three-valued (TRUE / FALSE / NULL). When overrides exist
+                -- but some override columns are NULL, expressions like FALSE
+                -- OR NULL evaluate to NULL, which would incorrectly return
+                -- is_outlier = NULL instead of FALSE.
+                COALESCE(flag_override.is_arms_length = FALSE, FALSE)
+                OR COALESCE(flag_override.is_flip = TRUE, FALSE)
+                OR COALESCE(flag_override.has_class_change = TRUE, FALSE)
+                OR COALESCE(
+                    flag_override.has_characteristic_change = 'yes_major', FALSE
+                )
+                OR COALESCE(flag_override.requires_field_check = TRUE, FALSE)
+            )
+        -- If there is no override, default to sv_is_outlier
+        WHEN sales_val.sv_is_outlier IS NOT NULL
+            THEN sales_val.sv_is_outlier
+    END AS is_outlier
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
 LEFT JOIN sales_val
     ON unique_sales.doc_no = sales_val.meta_sale_document_num
+LEFT JOIN {{ source('sale', 'flag_override') }} AS flag_override
+    ON unique_sales.doc_no = flag_override.doc_no
