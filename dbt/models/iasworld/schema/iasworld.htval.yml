@@ -1,0 +1,26 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
+    tags:
+      - load_auto
+      - data_test_iasworld
+
+    tables:
+      - name: htval
+        description: '{{ doc("table_htval") }}'
+        freshness:
+          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+        columns:
+          - name: caseno
+            description: '{{ doc("shared_column_case_no") }}'
+          - name: parid
+            description: '{{ doc("shared_column_pin") }}'
+          - name: subkey
+            description: '{{ doc("shared_column_subkey") }}'
+          - name: taxyr
+            description: '{{ doc("shared_column_year") }}'
+          - name: valclass
+            description: '{{ doc("column_valclass") }}'
