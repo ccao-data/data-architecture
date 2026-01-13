@@ -40,7 +40,7 @@ cook_bbox <- st_as_sfc(st_bbox(c(
 ), crs = st_crs(4326)))
 
 # Load raw files, cleanup, then write to warehouse S3
-map(files, read_parquet) %>%
+output <- map(files, read_parquet) %>%
   rbindlist() %>%
   rename_with(~ tolower(gsub(" ", "_", .x))) %>%
   rename(pin = property_identification_number) %>%
@@ -95,5 +95,14 @@ map(files, read_parquet) %>%
     sep = " - Chapter ", into = c(NA, "bankruptcy_chapter")
   ) %>%
   select(pin, everything(), geometry, geometry_3435, year_of_sale) %>%
-  group_by(year_of_sale) %>%
+  # Because of how we retrieve these sales, it's possible to get overlapping
+  # data from one year to another. The data itself if good, but when we refresh
+  # it every year we have to define a precise date range for which to gather
+  # foreclosures. If one date range for any year overlaps the previous by even a
+  # day, we'll get duplicates. Within duplicates it's possible for input date to
+  # vary, so we only use distinct on the keys we've defined.
+  distinct(case_number, pin, sale_results, date_of_sale, .keep_all = TRUE) %>%
+  group_by(year_of_sale)
+
+output %>%
   write_partitions_to_s3(output_bucket, is_spatial = TRUE, overwrite = TRUE)
