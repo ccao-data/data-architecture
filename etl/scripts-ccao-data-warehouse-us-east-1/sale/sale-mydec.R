@@ -33,7 +33,7 @@ sales <- open_dataset(file.path(AWS_S3_RAW_BUCKET, "sale", "mydec")) %>%
   collect()
 
 # Clean up, then write to S3
-sales %>%
+output <- sales %>%
   rename(any_of(lookup)) %>%
   (\(x) {
     # If the lookup has column names that are not in the dataset, add them as
@@ -68,6 +68,21 @@ sales %>%
   ) %>%
   arrange(line_4_instrument_date, date_recorded, .by_group = TRUE) %>%
   mutate(is_multisale = n() > 1 | line_2_total_parcels > 1) %>%
+  ungroup() %>%
+  # This filter keeps only the multisale rows with the most non-null values
+  # within document number and pin
+  mutate(non_null_count = rowSums(!is.na(across(everything())))) %>%
+  filter(
+    non_null_count == max(non_null_count),
+    .by = c(document_number, line_1_primary_pin)
+  ) %>%
+  select(-non_null_count) %>%
+  # After the abover filter, what's left are true duplicates if there are
+  # multiple rows within documnet number and pin with the same number of
+  # non-null values. We use distinct() to keep only one of those rows.
+  distinct(document_number, line_1_primary_pin, .keep_all = TRUE) %>%
   relocate(year_of_sale = year, .after = last_col()) %>%
-  group_by(year_of_sale) %>%
+  group_by(year_of_sale)
+
+output %>%
   write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
