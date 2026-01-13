@@ -368,10 +368,10 @@ SELECT
         WHEN sales_val.sv_is_outlier IS NOT NULL
             THEN sales_val.sv_is_outlier
     END AS is_outlier,
-    -- Combined outlier reasons: model SV reasons + override “trigger” fieldnames
+    -- Combined outlier reasons: model SV reasons + manual override reasons
 ARRAY_DISTINCT(
     CONCAT(
-        -- Model reasons (sv_outlier_reason1-3)
+        -- Sales val statistical model reasons (sv_outlier_reason1-3)
         FILTER(
             ARRAY[
                 sales_val.sv_outlier_reason1,
@@ -381,7 +381,7 @@ ARRAY_DISTINCT(
             r -> r IS NOT NULL AND TRIM(r) <> ''
         ),
 
-        -- Override triggers (only those that *would* make the sale an outlier)
+        -- Manual override triggers
         FILTER(
             ARRAY[
                 CASE
