@@ -367,7 +367,48 @@ SELECT
         -- If there is no override, default to sv_is_outlier
         WHEN sales_val.sv_is_outlier IS NOT NULL
             THEN sales_val.sv_is_outlier
-    END AS is_outlier
+    END AS is_outlier,
+    -- Combined outlier reasons: model SV reasons + override “trigger” fieldnames
+ARRAY_DISTINCT(
+    CONCAT(
+        -- Model reasons (sv_outlier_reason1-3)
+        FILTER(
+            ARRAY[
+                sales_val.sv_outlier_reason1,
+                sales_val.sv_outlier_reason2,
+                sales_val.sv_outlier_reason3
+            ],
+            r -> r IS NOT NULL AND TRIM(r) <> ''
+        ),
+
+        -- Override triggers (only those that *would* make the sale an outlier)
+        FILTER(
+            ARRAY[
+                CASE
+                    WHEN COALESCE(flag_override.is_arms_length = FALSE, FALSE)
+                        THEN 'is_arms_length'
+                END,
+                CASE
+                    WHEN COALESCE(flag_override.is_flip = TRUE, FALSE)
+                        THEN 'is_flip'
+                END,
+                CASE
+                    WHEN COALESCE(flag_override.has_class_change = TRUE, FALSE)
+                        THEN 'has_class_change'
+                END,
+                CASE
+                    WHEN COALESCE(flag_override.has_characteristic_change = 'yes_major', FALSE)
+                        THEN 'has_characteristic_change'
+                END,
+                CASE
+                    WHEN COALESCE(flag_override.requires_field_check = TRUE, FALSE)
+                        THEN 'requires_field_check'
+                END
+            ],
+            r -> r IS NOT NULL
+        )
+    )
+) AS outlier_reason
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
