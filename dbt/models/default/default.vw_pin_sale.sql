@@ -368,20 +368,10 @@ SELECT
         WHEN sales_val.sv_is_outlier IS NOT NULL
             THEN sales_val.sv_is_outlier
     END AS is_outlier,
-    -- Combined outlier reasons: model SV reasons + manual override reasons
+    -- Combined outlier reasons: manual override reasons + model SV reasons
     ARRAY_DISTINCT(
         CONCAT(
-            -- Sales val statistical model reasons (sv_outlier_reason1-3)
-            FILTER(
-                ARRAY[
-                    CONCAT('SV pipeline: ', sales_val.sv_outlier_reason1),
-                    CONCAT('SV pipeline: ', sales_val.sv_outlier_reason2),
-                    CONCAT('SV pipeline: ', sales_val.sv_outlier_reason3)
-                ],
-                r -> r IS NOT NULL AND TRIM(r) <> 'SV pipeline:'
-            ),
-
-            -- Manual override triggers (human-readable)
+            -- Manual override triggers (human-readable) FIRST
             FILTER(
                 ARRAY[
                     IF(
@@ -409,6 +399,16 @@ SELECT
                     )
                 ],
                 r -> r IS NOT NULL
+            ),
+
+            -- Sales val statistical model reasons (sv_outlier_reason1-3) SECOND
+            FILTER(
+                ARRAY[
+                    CONCAT('SV pipeline: ', sales_val.sv_outlier_reason1),
+                    CONCAT('SV pipeline: ', sales_val.sv_outlier_reason2),
+                    CONCAT('SV pipeline: ', sales_val.sv_outlier_reason3)
+                ],
+                r -> r IS NOT NULL AND TRIM(r) <> 'SV pipeline:'
             )
         )
     ) AS outlier_reason
