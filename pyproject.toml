@@ -5,9 +5,6 @@ readme = "README.md"
 requires-python = ">=3.11"
 
 [tool.mypy]
-# Look for packages in the current directory
-mypy_path = "."
-
 # Helps Mypy distinguish between modules with the same name in different folders
 explicit_package_bases = true
 
