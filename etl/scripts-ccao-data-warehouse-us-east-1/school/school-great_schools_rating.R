@@ -9,6 +9,11 @@ library(sf)
 library(stringr)
 source("utils.R")
 
+################################################################################
+# We no longer have access to this data and this script should not be run unless
+# we actively restore access to new Great Schools data.
+################################################################################
+
 # This script cleans data retrieved from greatschools.org and merges
 # it with district shapefiles. In order to average school ratings by district
 # in the suburbs and attendance areas in Chicago

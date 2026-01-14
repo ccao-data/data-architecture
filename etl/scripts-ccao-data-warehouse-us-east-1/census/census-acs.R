@@ -6,8 +6,11 @@ library(stringr)
 library(tidycensus)
 source("utils.R")
 
-# This script retrieves raw ACS data for the data lake
-# It populates the warehouse s3 bucket
+# This script retrieves raw ACS data for the data lake warehouse bucket.
+# Note that this script depends on timeframes defined through environmental
+# variables. These should be updated each year when modeling data is refreshed.
+# Because of how census data is updated, new data may not be available until the
+# end of January.
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "census")
 
