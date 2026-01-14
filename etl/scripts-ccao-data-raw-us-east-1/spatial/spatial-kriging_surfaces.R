@@ -22,7 +22,7 @@ library(tmap)
 library(viridis)
 
 ################################################################################
-# This static data and this script does not need to be re-run unless the data
+# This is static data and this script does not need to be re-run unless the data
 # is no longer availale in the Data Department's raw S3 bucket.
 ################################################################################
 
