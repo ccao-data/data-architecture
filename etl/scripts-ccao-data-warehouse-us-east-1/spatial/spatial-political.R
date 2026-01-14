@@ -150,7 +150,6 @@ unique(str_remove_all(str_sub(names(columns), 1, -6), "_chicago|_evanston")) %>%
   walk(function(x) {
     message(x)
 
-    print(file.path(output_bucket, x))
     bind_rows(clean_files[grepl(x, names(clean_files))]) %>%
       group_by(district_name) %>%
       mutate(district_num = min(district_num, na.rm = TRUE)) %>%
