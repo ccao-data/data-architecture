@@ -9,6 +9,11 @@ library(stringr)
 library(tidyr)
 source("utils.R")
 
+################################################################################
+# This static data and this script does not need to be re-run unless the data
+# is no longer availale in the Data Department's warehouse S3 bucket.
+################################################################################
+
 # This script retrieves and cleans land value spreadsheets provided by
 # the Valuations department and formats them for use in Athena
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")

@@ -2,6 +2,11 @@ library(arrow)
 library(dplyr)
 source("utils.R")
 
+################################################################################
+# This static data and this script does not need to be re-run unless the data
+# is no longer availale in the Data Department's warehouse S3 bucket.
+################################################################################
+
 # This script uploads archived model values from the data department's old SQL
 # server
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")

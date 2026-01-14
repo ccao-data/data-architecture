@@ -1,10 +1,3 @@
-# This file downloads zoning data from the CCAO's O Drive. It is created by
-# a CCAO employee and requested ad-hoc by the data team. It mostly renames
-# the columns and removes duplicate Pins.
-
-# Prevent scientific notation in console and I/O
-options(scipen = 999)
-
 library(arrow)
 library(aws.s3)
 library(dplyr)
@@ -15,6 +8,13 @@ library(stringr)
 library(tools)
 library(readxl)
 source("utils.R")
+
+# This file downloads zoning data from the CCAO's O Drive. It is created by
+# a CCAO employee and requested ad-hoc by the data team. It mostly renames
+# the columns and removes duplicate Pins.
+
+# Prevent scientific notation in console and I/O
+options(scipen = 999)
 
 # Define S3 root
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")

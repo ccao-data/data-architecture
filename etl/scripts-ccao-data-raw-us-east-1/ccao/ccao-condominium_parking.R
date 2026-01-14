@@ -6,8 +6,13 @@ library(purrr)
 library(readr)
 library(tools)
 
+################################################################################
+# This static data and this script does not need to be re-run unless the data
+# is no longer availale in the Data Department's raw S3 bucket.
+################################################################################
+
 # This script retrieves raw condominium characteristics from the CCAO's O Drive
-# compiled by the valuations department
+# compiled by the valuations department.
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccao", "condominium")
 
