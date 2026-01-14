@@ -371,7 +371,7 @@ SELECT
     -- Combined outlier reasons: manual override reasons + model SV reasons
     ARRAY_DISTINCT(
         CONCAT(
-            -- Manual override triggers (human-readable) FIRST
+            -- Manual analyst override triggers
             FILTER(
                 ARRAY[
                     IF(
@@ -388,27 +388,30 @@ SELECT
                     ),
                     IF(
                         COALESCE(
-                            flag_override.has_characteristic_change = 'yes_major',
+                            flag_override.has_characteristic_change
+                            = 'yes_major',
                             FALSE
                         ),
                         'Analyst: Characteristic change'
                     ),
                     IF(
-                        COALESCE(flag_override.requires_field_check = TRUE, FALSE),
+                        COALESCE(
+                            flag_override.requires_field_check = TRUE, FALSE
+                        ),
                         'Analyst: Requires field check'
                     )
                 ],
                 r -> r IS NOT NULL
             ),
 
-            -- Sales val statistical model reasons (sv_outlier_reason1-3) SECOND
+            -- Sales val statistical model reasons (sv_outlier_reason1-3)
             FILTER(
                 ARRAY[
                     CONCAT('SV pipeline: ', sales_val.sv_outlier_reason1),
                     CONCAT('SV pipeline: ', sales_val.sv_outlier_reason2),
                     CONCAT('SV pipeline: ', sales_val.sv_outlier_reason3)
                 ],
-                r -> r IS NOT NULL AND TRIM(r) <> 'SV pipeline:'
+                r -> r IS NOT NULL AND TRIM(r) != 'SV pipeline:'
             )
         )
     ) AS outlier_reason
