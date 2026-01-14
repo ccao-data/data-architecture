@@ -278,7 +278,7 @@ sources:
           - name: stiptot
             description: Stipulated total value
           - name: subkey
-            description: Unique number to allow multiple hearings per level
+            description: '{{ doc("shared_column_subkey") }}'
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
             data_tests:

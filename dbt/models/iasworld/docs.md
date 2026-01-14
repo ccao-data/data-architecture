@@ -231,6 +231,19 @@ appeal views.
 `caseno`, `hrreas`
 {% enddocs %}
 
+# htval
+
+{% docs table_htval %}
+Appeal actions, i.e. value changes that the CCAO makes upon appeal.
+
+Similar to `asmt` tables, you must filter this table for `valclass IS NULL`
+in order to retrieve the final version of each action.
+
+This table is still relatively new to us, and we are working on documenting it.
+
+**Primary Key**: `taxyr`, `parid`, `caseno`, `subkey`, `valclass`
+{% enddocs %}
+
 # land
 
 {% docs table_land %}

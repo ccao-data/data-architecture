@@ -226,7 +226,14 @@ Reason for change or no change
 ## subkey
 
 {% docs shared_column_subkey %}
-Unique number to allow multiple hearings per level
+Unique number to allow multiple actions per appeal.
+
+Multiple actions can occur on a single appeal if the CCAO
+changes multiple values based on that appeal. In this case,
+it still counts as one appeal, though it results in multiple
+value changes. To our knowledge, `subkey` is only relevant
+when analyzing appeal actions, which are recorded in
+`iasworld.htval`.
 {% enddocs %}
 
 # Assessed / Market Values
