@@ -14,6 +14,14 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "political")
 # Contact Cook County GIS if permissions need to be changed.
 file_path <- "//gisemcv1.ccounty.com/ArchiveServices/" # nolint
 
+# To check if data below has been updated:
+# - For Cook County data navigate to
+#   https://datacatalog.cookcountyil.gov/resource/{asset id} where {asset id} is
+#   the 9-digit hyphenated asset identifier
+# - For City of Chicago data navigate to
+#   https://data.cityofchicago.org/resource/{asset id} where {asset id} is
+#   the 9-digit hyphenated asset identifier
+
 sources_list <- bind_rows(list(
   # BOARD OF REVIEW
   "bor_2012" = c(
@@ -101,13 +109,13 @@ sources_list <- bind_rows(list(
 
   # CHICAGO WARD
   "cwrd_2003" = c(
-    "source" = "https://data.cityofchicago.org/api/geospatial/",
+    "source" = "https://datacatalog.cookcountyil.gov/resource/6yjf-dfxs/api/geospatial/", # nolint
     "api_url" = "xt4z-bnwh?method=export&format=GeoJSON",
     "boundary" = "ward_chicago",
     "year" = "2003"
   ),
   "cwrd_2015" = c(
-    "source" = "https://data.cityofchicago.org/api/geospatial/",
+    "source" = "https://datacatalog.cookcountyil.gov/resource/6yjf-dfxs/api/geospatial/", # nolint
     "api_url" = "sp34-6z76?method=export&format=GeoJSON",
     "boundary" = "ward_chicago",
     "year" = "2015"

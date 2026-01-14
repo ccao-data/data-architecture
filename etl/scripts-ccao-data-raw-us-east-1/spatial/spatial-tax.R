@@ -13,6 +13,8 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "tax")
 
 # Read privileges for the this drive location are limited.
 # Contact Cook County GIS if permissions need to be changed.
+# Tax districts come from layers of a GDB file created and maintained by
+# Cook County GIS.
 file_path <- "//gisemcv1.ccounty.com/ArchiveServices"
 
 # Tax districts

@@ -24,7 +24,8 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial")
 # Contact Cook County GIS if permissions need to be changed.
 file_path <- "//gisemcv1.ccounty.com/ArchiveServices"
 
-# Paths for all relevant geodatabases
+# Paths for all relevant geodatabases. Parcel shapes come from a layer of a GDB
+# file created and maintained by Cook County GIS.
 gdb_files <- data.frame("path" = list.files(file_path, full.names = TRUE)) %>%
   filter(
     str_detect(path, "Current", negate = TRUE) &
