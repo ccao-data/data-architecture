@@ -51,5 +51,4 @@ jobs:
           # helpful
           VALIDATE_NATURAL_LANGUAGE: false
           LINTER_RULES_PATH: /
-          PYTHON_MYPY_CONFIG_FILE: pyproject.toml
           YAML_CONFIG_FILE: .yamllint.yml
