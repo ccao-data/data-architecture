@@ -386,7 +386,7 @@ SELECT
                 ARRAY[
                     IF(
                         COALESCE(flag_override.is_arms_length = FALSE, FALSE),
-                        'Analyst: Arms length'
+                        'Analyst: Non-arms length'
                     ),
                     IF(
                         COALESCE(flag_override.is_flip = TRUE, FALSE),
