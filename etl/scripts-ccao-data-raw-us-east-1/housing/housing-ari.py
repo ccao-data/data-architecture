@@ -7,12 +7,14 @@ import requests
 from dotenv import load_dotenv
 
 # This script downloads ARI data from IHDA. ARI data is pulled from
-# census indicators and measures housing vulnerability (especially price increases).
+# census indicators and measures housing vulnerability (especially price
+# increases).
 
 # Define the two known ARI sources
 file_urls = {
     "2023": "https://www.ihda.org/wp-content/uploads/2023/07/2023-ARI.xlsx",
-    "2025": "https://www.ihda.org/wp-content/uploads/2025/08/Final_ARI_2025.csv",
+    "2025": "https://www.ihda.org/wp-content/uploads/2025/08/"
+    + "Final_ARI_2025.csv",
 }
 
 
@@ -39,6 +41,7 @@ load_dotenv(".Renviron")
 AWS_S3_RAW_BUCKET = os.environ.get("AWS_S3_RAW_BUCKET")[5:]  # type: ignore
 key_prefix = os.path.join("housing", "ari")
 
+# Loop through source files and upload to S3
 for data_year, file_url in file_urls.items():
     data = download_file(file_url)
     file_name = file_url.split("/")[-1]

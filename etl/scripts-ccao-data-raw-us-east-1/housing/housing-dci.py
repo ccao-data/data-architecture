@@ -6,9 +6,8 @@ import pandas as pd
 import requests
 from dotenv import load_dotenv
 
-# This script downloads Distressed Communities Index data
-# from Economic Innovation Group. It is a zip-code level
-# measure of economic well-being.
+# This script downloads Distressed Communities Index data from Economic
+# Innovation Group. It is a zip-code level measure of economic well-being.
 
 
 def load_csv_from_url(url):
@@ -44,14 +43,17 @@ def upload_df_to_s3(df, bucket, file_name):
     s3.put_object(Bucket=bucket, Key=file_name, Body=csv_buffer.getvalue())
 
 
-# URL of the file we want to upload.
-# This should be manually checked to see if data more recent
-# than 2024 is included.
-file_url = "https://eig.org/dci-maps-2023/data/1cd12716-de4a-4ef6-884b-af6e1066b581.csv"  # noqa: E501
+# URL of the file we want to upload. This should be manually checked to see if
+# data more recent than 2024 is included.
+file_url = (
+    "https://eig.org/dci-maps-2023/data/"
+    + "1cd12716-de4a-4ef6-884b-af6e1066b581.csv"
+)
 
 # Load the data
 df = load_csv_from_url(file_url)
 
+# Upload to S3
 load_dotenv(".Renviron")
 AWS_S3_RAW_BUCKET = os.getenv("AWS_S3_RAW_BUCKET")[5:]  # type: ignore
 file_name = os.path.join("housing", "dci", "dci.csv")
