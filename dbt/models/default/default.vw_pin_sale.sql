@@ -369,46 +369,49 @@ SELECT
             THEN sales_val.sv_is_outlier
     END AS is_outlier,
     -- Combined outlier reasons: model SV reasons + manual override reasons
-ARRAY_DISTINCT(
-    CONCAT(
-        -- Sales val statistical model reasons (sv_outlier_reason1-3)
-        FILTER(
-            ARRAY[
-                sales_val.sv_outlier_reason1,
-                sales_val.sv_outlier_reason2,
-                sales_val.sv_outlier_reason3
-            ],
-            r -> r IS NOT NULL AND TRIM(r) <> ''
-        ),
+    ARRAY_DISTINCT(
+        CONCAT(
+            -- Sales val statistical model reasons (sv_outlier_reason1-3)
+            FILTER(
+                ARRAY[
+                    CONCAT('SV pipeline: ', sales_val.sv_outlier_reason1),
+                    CONCAT('SV pipeline: ', sales_val.sv_outlier_reason2),
+                    CONCAT('SV pipeline: ', sales_val.sv_outlier_reason3)
+                ],
+                r -> r IS NOT NULL AND TRIM(r) <> 'SV pipeline:'
+            ),
 
-        -- Manual override triggers
-        FILTER(
-            ARRAY[
-                CASE
-                    WHEN COALESCE(flag_override.is_arms_length = FALSE, FALSE)
-                        THEN 'is_arms_length'
-                END,
-                CASE
-                    WHEN COALESCE(flag_override.is_flip = TRUE, FALSE)
-                        THEN 'is_flip'
-                END,
-                CASE
-                    WHEN COALESCE(flag_override.has_class_change = TRUE, FALSE)
-                        THEN 'has_class_change'
-                END,
-                CASE
-                    WHEN COALESCE(flag_override.has_characteristic_change = 'yes_major', FALSE)
-                        THEN 'has_characteristic_change'
-                END,
-                CASE
-                    WHEN COALESCE(flag_override.requires_field_check = TRUE, FALSE)
-                        THEN 'requires_field_check'
-                END
-            ],
-            r -> r IS NOT NULL
+            -- Manual override triggers (human-readable)
+            FILTER(
+                ARRAY[
+                    IF(
+                        COALESCE(flag_override.is_arms_length = FALSE, FALSE),
+                        'Analyst: Arms length'
+                    ),
+                    IF(
+                        COALESCE(flag_override.is_flip = TRUE, FALSE),
+                        'Analyst: Flip'
+                    ),
+                    IF(
+                        COALESCE(flag_override.has_class_change = TRUE, FALSE),
+                        'Analyst: Class change'
+                    ),
+                    IF(
+                        COALESCE(
+                            flag_override.has_characteristic_change = 'yes_major',
+                            FALSE
+                        ),
+                        'Analyst: Characteristic change'
+                    ),
+                    IF(
+                        COALESCE(flag_override.requires_field_check = TRUE, FALSE),
+                        'Analyst: Requires field check'
+                    )
+                ],
+                r -> r IS NOT NULL
+            )
         )
-    )
-) AS outlier_reason
+    ) AS outlier_reason
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
