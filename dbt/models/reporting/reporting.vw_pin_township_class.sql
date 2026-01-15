@@ -43,15 +43,7 @@ SELECT
             AND town.triad_name = 'City'
             THEN TRUE
         ELSE FALSE
-    END AS reassessment_year,
-    CASE
-        WHEN
-            correct.taxyr
-            > (SELECT MAX(year) FROM {{ ref('location.vw_pin10_location') }})
-            THEN (SELECT MAX(year) FROM {{ ref('location.vw_pin10_location') }})
-        ELSE correct.taxyr
-    END AS join_year,
-    vpl.combined_municipality_name
+    END AS reassessment_year
 FROM correct_class AS correct
 LEFT JOIN {{ ref('default.vw_pin_status') }} AS ahsap
     ON correct.parid = ahsap.pin
