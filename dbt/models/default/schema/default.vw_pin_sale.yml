@@ -25,11 +25,11 @@ models:
         description: Indicator for whether or not the observation uses the MyDec sale date
       - name: is_outlier
         description: |
-          The final determination indicating whether a sale is a statistical
+          The final determination indicating whether a sale is an
           outlier that should be excluded from model training.
 
-          Combines information from our sales validation model with information
-          from analysts who review our outliers for correctness.
+          Combines information from our statistical sales validation model with
+          information from analysts who review our outliers for correctness.
       - name: mydec_deed_type
         description: Deed type from MyDec, more granular than CCAO deed type
       - name: mydec_line_8_current_use
@@ -72,6 +72,10 @@ models:
         description: '{{ doc("shared_column_nbhd_code") }}'
       - name: num_parcels_sale
         description: '{{ doc("shared_column_num_parcels_sale") }}'
+      - name: outlier_reason
+        description: This is an array colum that contains all of the distinct outlier reasons between analyst review and our
+                     algorithmic sales validation model. A nuance is that there are some outlier reasons that don't necessarily
+                     cause the `is_outlier` status to be true.
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: requires_field_check
@@ -92,6 +96,9 @@ models:
         description: '{{ doc("shared_column_sale_price") }}'
       - name: seller_name
         description: '{{ doc("shared_column_seller_name") }}'
+      - name: source_is_outlier
+        description: This field tells us if the determination in `is_outlier` was sourced from analyst review or from our algorithmic
+                     sales validation pipeline.
       - name: sv_is_heuristic_outlier
         description: '{{ doc("shared_column_sv_is_heuristic_outlier") }}'
       - name: sv_is_outlier
