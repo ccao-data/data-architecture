@@ -58,7 +58,7 @@ LEFT JOIN {{ source('spatial', 'township') }} AS town
 -- Exclude classes without a reporting class
 INNER JOIN {{ ref('ccao.class_dict') }} AS groups
     ON correct.class = groups.class_code
--- Tax municipality data lags iasWorld data by a year or two at any given time
+-- Location data in our lake lags iasWorld data by a year or two
 LEFT JOIN {{ ref('location.vw_pin10_location') }} AS vpl
     ON SUBSTR(correct.parid, 1, 10) = vpl.pin10
     AND CASE
