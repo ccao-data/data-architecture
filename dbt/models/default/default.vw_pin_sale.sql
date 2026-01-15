@@ -415,7 +415,7 @@ SELECT
             )
         )
     ) AS outlier_reason,
-    -- Logic that mirrots the is_outlier_field but lets us know explicity
+    -- Logic similar to the is_outlier_field but lets us know explicity
     -- if the is_outlier column determination is an analyst override or
     -- an algorithmic fallback. 
     CASE
