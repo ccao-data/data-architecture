@@ -11,6 +11,7 @@ library(arrow)
 library(aws.s3)
 library(dplyr)
 library(janitor)
+
 library(readxl)
 
 source("utils.R")
@@ -37,7 +38,7 @@ for (obj in objs) {
 
   save_s3_to_local(s3_uri, local_path, overwrite = TRUE)
 
-  df <- read_excel(local_path)
+  df <- read_excel(local_path, guess_max = 20000)
 
   df_name <- make.names(tools::file_path_sans_ext(file_name))
 
@@ -45,6 +46,10 @@ for (obj in objs) {
 
   dfs[[df_name]] <- df
 }
+
+dfs$valuations_sale_review_2026_01_16 <-
+  dfs$valuations_sale_review_2026_01_16 %>%
+  filter(WHOM == "LYDIA")
 
 
 clean_columns_and_whitespace <- function(df) {
@@ -60,7 +65,38 @@ clean_columns_and_whitespace <- function(df) {
       .fn = ~"work_drawer",
       .cols = matches("work.*drawer|drawer.*work")
     ) %>%
+    rename_with(
+      .fn   = ~"flip",
+      .cols = matches("flip")
+    ) %>%
     mutate(across(where(is.character), stringr::str_trim))
+}
+
+# Check to make sure we have properly standardized column names
+# for the manual exception of `valuations_sale_review_2025.12.16`
+# and for the `transform_columns()` function loop
+required_raw_cols <- c(
+  "sale_is_arms_length",
+  "flip",
+  "class_change",
+  "characteristic_change",
+  "field_check",
+  "work_drawer"
+)
+
+assert_required_cols <- function(df, df_name = "<unnamed>") {
+  missing <- setdiff(required_raw_cols, names(df))
+  if (length(missing) > 0) {
+    stop(
+      sprintf(
+        "Missing required raw column(s) in %s: %s",
+        df_name,
+        paste(missing, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+  df
 }
 
 # We have a hard-coded exception for valuations_sale_review_2025.12.16,
@@ -77,6 +113,7 @@ clean_columns_and_whitespace <- function(df) {
 dfs$valuations_sale_review_2025.12.16 <-
   dfs$valuations_sale_review_2025.12.16 %>%
   clean_columns_and_whitespace() %>%
+  assert_required_cols() %>%
   mutate(
     is_arms_length = coalesce(
       sale_is_arms_length == "YES", FALSE
@@ -97,9 +134,11 @@ dfs$valuations_sale_review_2025.12.16 <-
     )
   )
 
+
 transform_columns <- function(df) {
   df %>%
     clean_columns_and_whitespace() %>%
+    assert_required_cols(df_name = df_name) %>%
     mutate( # nolint
       is_arms_length =
         coalesce(sale_is_arms_length == "YES", FALSE),
