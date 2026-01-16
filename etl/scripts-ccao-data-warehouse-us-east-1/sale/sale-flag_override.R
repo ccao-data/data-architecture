@@ -49,8 +49,17 @@ for (obj in objs) {
 
 dfs$valuations_sale_review_2026_01_16 <-
   dfs$valuations_sale_review_2026_01_16 %>%
-  filter(WHOM == "LYDIA")
-
+  filter(WHOM == "LYDIA") %>%
+  # We were expecting "major" and "minor" inputs, but had to make some manual
+  # corrections here to fit our schema
+  mutate(
+    characteristic_change = case_when(
+      tolower(`Characteristic Change`) == "no" ~ "no",
+      grepl("sf", `Characteristic Change`, ignore.case = TRUE) ~ "yes major",
+      grepl("yes", `Characteristic Change`, ignore.case = TRUE) ~ "yes minor",
+      TRUE ~ NA_character_
+    )
+  ) %>% select(-`Characteristic Change`)
 
 clean_columns_and_whitespace <- function(df) {
   df %>%
