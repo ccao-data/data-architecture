@@ -138,7 +138,7 @@ dfs$valuations_sale_review_2025.12.16 <-
 transform_columns <- function(df) {
   df %>%
     clean_columns_and_whitespace() %>%
-    assert_required_cols(df_name = df_name) %>%
+    assert_required_cols() %>%
     mutate( # nolint
       is_arms_length =
         coalesce(sale_is_arms_length == "YES", FALSE),
