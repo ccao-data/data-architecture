@@ -124,10 +124,15 @@ dfs$valuations_sale_review_2025.12.16 <-
   clean_columns_and_whitespace() %>%
   assert_required_cols() %>%
   mutate(
-    is_arms_length = coalesce(
-      sale_is_arms_length == "YES", FALSE
+    is_arms_length =
+      coalesce(
+        grepl("YES", sale_is_arms_length, ignore.case = TRUE),
+        FALSE
+      ),
+    is_flip = coalesce(
+      grepl("YES", flip, ignore.case = TRUE),
+      FALSE
     ),
-    is_flip = coalesce(flip == "YES", FALSE),
     has_class_change = coalesce(
       grepl("YES", class_change, ignore.case = TRUE),
       FALSE
@@ -150,9 +155,14 @@ transform_columns <- function(df) {
     assert_required_cols() %>%
     mutate( # nolint
       is_arms_length =
-        coalesce(sale_is_arms_length == "YES", FALSE),
-      is_flip =
-        coalesce(flip == "YES", FALSE),
+        coalesce(
+          grepl("YES", sale_is_arms_length, ignore.case = TRUE),
+          FALSE
+        ),
+      is_flip = coalesce(
+        grepl("YES", flip, ignore.case = TRUE),
+        FALSE
+      ),
       has_class_change =
         coalesce(
           grepl("YES", class_change, ignore.case = TRUE),
