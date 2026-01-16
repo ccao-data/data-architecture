@@ -62,7 +62,8 @@ dfs$valuations_sale_review_2026_01_16 <-
       grepl("yes", `Characteristic Change`, ignore.case = TRUE) ~ "yes minor",
       TRUE ~ NA_character_
     )
-  ) %>% select(-`Characteristic Change`)
+  ) %>%
+  select(-`Characteristic Change`)
 
 clean_columns_and_whitespace <- function(df) {
   df %>%
@@ -127,11 +128,10 @@ dfs$valuations_sale_review_2025.12.16 <-
   clean_columns_and_whitespace() %>%
   assert_required_cols() %>%
   mutate(
-    is_arms_length =
-      coalesce(
-        grepl("YES", sale_is_arms_length, ignore.case = TRUE),
-        FALSE
-      ),
+    is_arms_length = coalesce(
+      grepl("YES", sale_is_arms_length, ignore.case = TRUE),
+      FALSE
+    ),
     is_flip = coalesce(
       grepl("YES", flip, ignore.case = TRUE),
       FALSE
