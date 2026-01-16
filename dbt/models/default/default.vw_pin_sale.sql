@@ -415,9 +415,9 @@ SELECT
             )
         )
     ) AS outlier_reason,
-    -- Logic similar to the is_outlier_field but lets us know explicity
-    -- if the is_outlier column determination is an analyst override or
-    -- an algorithmic fallback. 
+    -- Logic similar to the is_outlier field but lets us know explicity
+    -- if the is_outlier column determination is sourced from an analyst
+    -- override or an algorithmic fallback. 
     CASE
         WHEN
             flag_override.is_arms_length IS NOT NULL
