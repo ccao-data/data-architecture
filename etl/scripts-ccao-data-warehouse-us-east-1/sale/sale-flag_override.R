@@ -11,7 +11,6 @@ library(arrow)
 library(aws.s3)
 library(dplyr)
 library(janitor)
-
 library(readxl)
 
 source("utils.R")
@@ -150,7 +149,6 @@ dfs$valuations_sale_review_2025.12.16 <-
       FALSE
     )
   )
-
 
 transform_columns <- function(df) {
   df %>%
