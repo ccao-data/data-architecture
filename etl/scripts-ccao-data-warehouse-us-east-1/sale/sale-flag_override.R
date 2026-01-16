@@ -51,7 +51,8 @@ dfs$valuations_sale_review_2026_01_16 <-
   dfs$valuations_sale_review_2026_01_16 %>%
   filter(WHOM == "LYDIA") %>%
   # We were expecting "major" and "minor" inputs, but had to make some manual
-  # corrections here to fit our schema
+  # corrections here to fit our schema. Our strategy here is to detect SF
+  # char errors as major changes, and all other changes as minor.
   mutate(
     characteristic_change = case_when(
       tolower(`Characteristic Change`) == "no" ~ "no",
