@@ -47,6 +47,8 @@ for (obj in objs) {
   dfs[[df_name]] <- df
 }
 
+# TODO: For this file there is a high incidence of field_check filled in as
+# 'yes', so we are going to need to decide how strict to be here
 dfs$valuations_sale_review_2026_01_16 <-
   dfs$valuations_sale_review_2026_01_16 %>%
   filter(WHOM == "LYDIA") %>%
