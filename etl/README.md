@@ -26,7 +26,7 @@ can be tiggered to add new data to
 While working through the raw scripts, keep in mind that many refrence data that
 is either static (no longer updated) or public open data that could possibly be
 updated, but likely isn't. A good example of the later is Enterprise Zone in
-[./scripts-ccao-data-raw-us-east-1/spatial-economy.R](./scripts-ccao-data-raw-us-east-1/spatial/spatial-economy.R).
+[spatial-economy.R](./scripts-ccao-data-raw-us-east-1/spatial/spatial-economy.R).
 If we search the City of Chicago open data portal for that data asset, we can
 see the data hasn't been updated since 2021. While we still needed to check to
 make sure our data is as recent as is available, because it already is, we don't
