@@ -32,29 +32,33 @@ municipality AS (
 
 ward_chicago AS (
     SELECT
-        ward_chicago.ward_chicago_name,
-        ward_chicago.ward_chicago_num,
+        ward_chicago.ward_name AS ward_chicago_name,
+        ward_chicago.ward_num AS ward_chicago_num,
         ward_chicago.year AS ward_chicago_year,
         ST_GEOMFROMBINARY(ward_chicago.geometry_3435) AS geom
-    FROM {{ source('spatial', 'ward_chicago') }} AS ward_chicago
-    WHERE ward_chicago.year
+    FROM {{ source('spatial', 'ward') }} AS ward_chicago
+    WHERE ward_chicago.ward_name LIKE '%chicago%'
+        AND ward_chicago.year
         = (
             SELECT MAX(ward_chicago.year)
-            FROM {{ source('spatial', 'ward_chicago') }} AS ward_chicago
+            FROM {{ source('spatial', 'ward') }} AS ward_chicago
+            WHERE ward_chicago.ward_name LIKE '%chicago%'
         )
 ),
 
 ward_evanston AS (
     SELECT
-        ward_evanston.ward_evanston_name,
-        ward_evanston.ward_evanston_num,
+        ward_evanston.ward_name AS ward_evanston_name,
+        ward_evanston.ward_num AS ward_evanston_num,
         ward_evanston.year AS ward_evanston_year,
         ST_GEOMFROMBINARY(ward_evanston.geometry_3435) AS geom
-    FROM {{ source('spatial', 'ward_evanston') }} AS ward_evanston
-    WHERE ward_evanston.year
+    FROM {{ source('spatial', 'ward') }} AS ward_evanston
+    WHERE ward_evanston.ward_name LIKE '%evanston%'
+        AND ward_evanston.year
         = (
             SELECT MAX(ward_evanston.year)
-            FROM {{ source('spatial', 'ward_evanston') }} AS ward_evanston
+            FROM {{ source('spatial', 'ward') }} AS ward_evanston
+            WHERE ward_evanston.ward_name LIKE '%evanston%'
         )
 ),
 

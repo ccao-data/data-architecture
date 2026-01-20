@@ -217,9 +217,3 @@ sources:
 
       - name: ward
         description: '{{ doc("table_ward") }}'
-
-      - name: ward_chicago
-        description: '{{ doc("table_ward_chicago") }}'
-
-      - name: ward_evanston
-        description: '{{ doc("table_ward_evanston") }}'
