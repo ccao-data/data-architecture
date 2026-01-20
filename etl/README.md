@@ -1,7 +1,8 @@
 # ETL
 
 The Data Department uses the ETL pipeline to retrieve and clean all of the
-third-party data needed for modeling and reporting.
+third-party data and first-party data stored on shared drives rather than
+iasWorld needed for modeling and reporting.
 
 We use a new copy of [this excel workbook](https://cookcounty.sharepoint.com/:x:/r/sites/Data-Assessor/Shared%20Documents/General/2026%20Modeling%20Data%20Refresh.xlsx?d=wf47324268a8e4c63921189e12c9ab1e4&csf=1&web=1&e=4aoIHk)
 to track data refresh progress each year.
