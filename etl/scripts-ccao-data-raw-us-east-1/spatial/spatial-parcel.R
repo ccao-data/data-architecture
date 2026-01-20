@@ -22,9 +22,10 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial")
 
 # Read privileges for the this drive location are limited.
 # Contact Cook County GIS if permissions need to be changed.
-file_path <- "//10.122.19.14/ArchiveServices"
+file_path <- "//gisemcv1.ccounty.com/ArchiveServices"
 
-# Paths for all relevant geodatabases
+# Paths for all relevant geodatabases. Parcel shapes come from a layer of a GDB
+# file created and maintained by Cook County GIS.
 gdb_files <- data.frame("path" = list.files(file_path, full.names = TRUE)) %>%
   filter(
     str_detect(path, "Current", negate = TRUE) &
@@ -45,6 +46,9 @@ pwalk(gdb_files, function(...) {
 
 
 ##### Attributes #####
+
+# We grab a little high-level data from iasworld to join with spatial parcel
+# data. Stuff like class, township, etc. that's nice to have.
 # Connect to CCAODATA SQL server
 CCAODATA <- odbc::dbConnect(
   odbc::odbc(),

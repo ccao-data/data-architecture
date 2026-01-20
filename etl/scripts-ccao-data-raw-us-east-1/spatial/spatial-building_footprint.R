@@ -44,6 +44,10 @@ if (!aws.s3::object_exists(remote_file_osm)) {
 
 
 ##### ESRI / COOK COUNTY FOOTPRINTS #####
+# To check if data below has been updated navigate to
+# https://datacatalog.cookcountyil.gov/resource/{asset id} where {asset id} is
+# the 9-digit hyphenated asset identifier
+
 sources_list <- bind_rows(list(
   "esri_sub" = c(
     "source" = "https://datacatalog.cookcountyil.gov/api/geospatial/",

@@ -4,8 +4,8 @@ library(purrr)
 library(sf)
 source("utils.R")
 
-# This script retrieves the spatial/location data for
-# industrial corridors in the City of Chicago
+# This script retrieves the spatial/location data for industrial corridors in
+# the City of Chicago
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "access")
 

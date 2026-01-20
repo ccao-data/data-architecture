@@ -1,5 +1,7 @@
 # This script ingests excel workbooks from the IC drive and standardizes them
 # in order to compile a single aggregated dataset of commercial valuation data.
+# It should be run once a year after determining if Commercial Valuations has
+# completed their valuation for the current tri.
 
 library(ccao)
 library(dplyr)

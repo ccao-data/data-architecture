@@ -33,6 +33,9 @@ remote_file_raw_nbhd_rate_2024 <- file.path(
 remote_file_raw_nbhd_rate_2025 <- file.path(
   input_bucket, "nbhd_rate", "2025.xlsx"
 )
+remote_file_raw_nbhd_rate_2026 <- file.path(
+  input_bucket, "nbhd_rate", "2026.xlsx"
+)
 remote_file_warehouse_nbhd_rate <- file.path(
   output_bucket, "land_nbhd_rate"
 )
@@ -43,6 +46,7 @@ tmp_file_nbhd_rate_2022 <- tempfile(fileext = ".xlsx")
 tmp_file_nbhd_rate_2023 <- tempfile(fileext = ".xlsx")
 tmp_file_nbhd_rate_2024 <- tempfile(fileext = ".xlsx")
 tmp_file_nbhd_rate_2025 <- tempfile(fileext = ".xlsx")
+tmp_file_nbhd_rate_2026 <- tempfile(fileext = ".xlsx")
 
 # Grab the workbook from the raw S3 bucket
 aws.s3::save_object(
@@ -60,6 +64,10 @@ aws.s3::save_object(
 aws.s3::save_object(
   object = remote_file_raw_nbhd_rate_2025,
   file = tmp_file_nbhd_rate_2025
+)
+aws.s3::save_object(
+  object = remote_file_raw_nbhd_rate_2026,
+  file = tmp_file_nbhd_rate_2026
 )
 
 # List of regression classes
@@ -183,12 +191,37 @@ land_nbhd_rate_2025 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2025) %>%
   ) %>%
   select(-classes)
 
+land_nbhd_rate_2026 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2026) %>%
+  set_names(snakecase::to_snake_case(names(.))) %>%
+  select(
+    town_nbhd = neighborhood_number,
+    `2026` = proposed_2026_class_two_rate
+  ) %>%
+  mutate(
+    town_nbhd = gsub("\\D", "", town_nbhd),
+    township_code = substr(town_nbhd, 1, 2),
+    township_name = ccao::town_convert(township_code)
+  ) %>%
+  relocate(c(township_code, township_name)) %>%
+  pivot_longer(
+    c(`2026`),
+    names_to = "year", values_to = "land_rate_per_sqft"
+  ) %>%
+  mutate(
+    across(c(township_code:year), as.character),
+    land_rate_per_sqft = parse_number(land_rate_per_sqft),
+    data_year = "2026"
+  ) %>%
+  expand_grid(class)
+
+
 # Write the rates to S3, partitioned by year
 bind_rows(
   land_nbhd_rate_2022,
   land_nbhd_rate_2023,
   land_nbhd_rate_2024,
-  land_nbhd_rate_2025
+  land_nbhd_rate_2025,
+  land_nbhd_rate_2026
 ) %>%
   relocate(land_rate_per_sqft, .after = last_col()) %>%
   mutate(loaded_at = as.character(Sys.time())) %>%

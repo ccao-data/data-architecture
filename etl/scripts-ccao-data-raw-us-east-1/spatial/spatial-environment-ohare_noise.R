@@ -4,6 +4,11 @@ library(purrr)
 library(sf)
 source("utils.R")
 
+################################################################################
+# This is static data and this script does not need to be re-run unless the data
+# is no longer availale in the Data Department's raw S3 bucket.
+################################################################################
+
 # This script retrieves and uploads a couple of PDFs containing
 # O'Hare noise level measurements and addresses of sensors, as well as
 # a shapefile containing a theoretical noise boundary

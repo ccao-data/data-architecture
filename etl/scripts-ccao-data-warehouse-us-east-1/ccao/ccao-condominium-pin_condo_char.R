@@ -1,5 +1,3 @@
-# This script cleans and combines raw condo characteristics data for the
-# warehouse
 library(arrow)
 library(aws.s3)
 library(DBI)
@@ -11,6 +9,10 @@ library(purrr)
 library(stringr)
 library(tidyr)
 source("utils.R")
+
+# This script cleans and combines raw condo characteristics data for the
+# warehouse. It should only be run if the Data Department has asked the Data
+# Integrity team to update the data and they have completed that task.
 
 # Declare raw and clean condo data locations
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
