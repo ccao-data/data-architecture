@@ -45,7 +45,7 @@ Ideally, there shouldn't be any updates that need to be made for these scripts,
 but it's possible something about new raw data will cause an error that needs to
 be addressed.
 
-# Glue Crawlers
+## Glue Crawlers
 
 Run the glue crawler for the corresponding warehouse bucket once all the
 necessary warehouse scripts for that bucket have been run successfully.
