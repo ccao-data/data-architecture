@@ -16,18 +16,20 @@ This pipeline is generally only used once a year to refresh as much data as
 possible prior to modeling. Whoever is responsible for working through the data
 refresh should work as much of the raw scripts as they can, then switch over to
 running warehouse scripts to clean raw data that has been updated, or warehouse
-scripts that don't have a raw counterpart and calls data from an API and cleans
-it in one go. Once that's done [glue crawlers](https://us-east-1.console.aws.amazon.com/glue/home?region=us-east-1#/v2/data-catalog/crawlers) can be tiggered to add new data to
+scripts that don't have raw counterparts. Once that's done
+[glue crawlers](https://us-east-1.console.aws.amazon.com/glue/home?region=us-east-1#/v2/data-catalog/crawlers)
+can be tiggered to add new data to
 [athena](https://us-east-1.console.aws.amazon.com/athena/home?region=us-east-1#/query-editor).
 
 ## Raw Scripts
 
 While working through the raw scripts, keep in mind that many refrence data that
 is either static (no longer updated) or public open data that could possibly be
-updated, but likely isn't. A good example of the later is Enterprise Zones. If
-we search the City of Chicago open data portal for that data asset, we can see
-the data hasn't been updated since 2021. While we still needed to check to make
-sure our data is as recent as is available, because it already is, we don't
+updated, but likely isn't. A good example of the later is Enterprise Zone in
+[./scripts-ccao-data-raw-us-east-1/spatial-economy.R](./scripts-ccao-data-raw-us-east-1/spatial-economy.R).
+If we search the City of Chicago open data portal for that data asset, we can
+see the data hasn't been updated since 2021. While we still needed to check to
+make sure our data is as recent as is available, because it already is, we don't
 actually have to run that part of the script.
 
 ## Warehouse Scripts
@@ -43,4 +45,4 @@ be addressed.
 # Glue Crawlers
 
 Run the glue crawler for the corresponding warehouse bucket once all the
-necessary warehouse scripts for that bucket that have been run successfully.
+necessary warehouse scripts for that bucket have been run successfully.
