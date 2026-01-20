@@ -576,7 +576,7 @@ polygons.
 # ward
 
 {% docs table_ward %}
-Combined ward political boundaries.
+Combined Chicago and Evanston ward political boundaries.
 
 **Geometry:** `MULTIPOLYGON`
 {% enddocs %}
