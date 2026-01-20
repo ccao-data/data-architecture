@@ -21,9 +21,9 @@ possible prior to modeling. Whoever is responsible for working through the data
 refresh should work as much of the raw scripts as they can, then switch over to
 running warehouse scripts to clean raw data that has been updated, or warehouse
 scripts that don't have raw counterparts. Once that's done
-[glue crawlers](https://us-east-1.console.aws.amazon.com/glue/home?region=us-east-1#/v2/data-catalog/crawlers)
+[Glue Crawlers](https://us-east-1.console.aws.amazon.com/glue/home?region=us-east-1#/v2/data-catalog/crawlers)
 can be tiggered to add new data to
-[athena](https://us-east-1.console.aws.amazon.com/athena/home?region=us-east-1#/query-editor).
+[Athena](https://us-east-1.console.aws.amazon.com/athena/home?region=us-east-1#/query-editor).
 
 ## Raw Scripts
 
@@ -50,3 +50,9 @@ be addressed.
 
 Run the glue crawler for the corresponding warehouse bucket once all the
 necessary warehouse scripts for that bucket have been run successfully.
+
+## DBT
+
+After all of the new data in the spatial warehouse bucket has been successfully
+added to Athena we need to trigger a rebuild of our Athena `location` database
+using DBT. This can be done using the [build-and-test-dbt workflow](https://github.com/ccao-data/data-architecture/actions/workflows/build_and_test_dbt.yaml) by passing it `location.*`.
