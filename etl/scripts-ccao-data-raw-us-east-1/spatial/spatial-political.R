@@ -109,13 +109,13 @@ sources_list <- bind_rows(list(
 
   # CHICAGO WARD
   "cwrd_2003" = c(
-    "source" = "https://datacatalog.cookcountyil.gov/resource/6yjf-dfxs/api/geospatial/", # nolint
+    "source" = "https://data.cityofchicago.org/api/geospatial/",
     "api_url" = "xt4z-bnwh?method=export&format=GeoJSON",
     "boundary" = "ward_chicago",
     "year" = "2003"
   ),
   "cwrd_2015" = c(
-    "source" = "https://datacatalog.cookcountyil.gov/resource/6yjf-dfxs/api/geospatial/", # nolint
+    "source" = "https://data.cityofchicago.org/api/geospatial/",
     "api_url" = "sp34-6z76?method=export&format=GeoJSON",
     "boundary" = "ward_chicago",
     "year" = "2015"
