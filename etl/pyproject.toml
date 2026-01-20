@@ -7,7 +7,6 @@ dependencies = [
   "geopandas==1.0.1",
   "osm2geojson==0.2.5",
   "pandas==2.2.2",
-  "python-dotenv==1.0.1",
   "requests==2.32.3",
 ]
 
