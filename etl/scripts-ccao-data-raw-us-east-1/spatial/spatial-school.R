@@ -15,10 +15,6 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "school")
 # on the City of Chicago open data portal, and filter using a tag for the
 # current year.
 
-# To check if data below has been updated navigate to
-# https://data.cityofchicago.org/resource/{asset id} where {asset id} is the
-# 9-digit hyphenated asset identifier
-
 sources_list <- bind_rows(list(
   # CPS ATTENDANCE - ELEMENTARY
   "attendance_ele_0607" = c(
