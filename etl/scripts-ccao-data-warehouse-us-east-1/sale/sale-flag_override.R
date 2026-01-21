@@ -46,8 +46,6 @@ for (obj in objs) {
   dfs[[df_name]] <- df
 }
 
-# TODO: For this file there is a high incidence of field_check filled in as
-# 'yes', so we are going to need to decide how strict to be here
 dfs$valuations_sale_review_2026_01_16 <-
   dfs$valuations_sale_review_2026_01_16 %>%
   filter(WHOM == "LYDIA") %>%
@@ -125,7 +123,7 @@ assert_required_cols <- function(df, df_name = "<unnamed>") {
 dfs$valuations_sale_review_2025.12.16 <-
   dfs$valuations_sale_review_2025.12.16 %>%
   clean_columns_and_whitespace() %>%
-  assert_required_cols() %>%
+  assert_required_cols(df_name) %>%
   mutate(
     is_arms_length = coalesce(
       grepl("YES", sale_is_arms_length, ignore.case = TRUE),
@@ -153,7 +151,7 @@ dfs$valuations_sale_review_2025.12.16 <-
 transform_columns <- function(df) {
   df %>%
     clean_columns_and_whitespace() %>%
-    assert_required_cols() %>%
+    assert_required_cols(df_name) %>%
     mutate( # nolint
       is_arms_length =
         coalesce(
