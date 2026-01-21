@@ -48,8 +48,9 @@ be addressed.
 
 ## Glue Crawlers
 
-Run the glue crawler for the corresponding warehouse bucket once all the
-necessary warehouse scripts for that bucket have been run successfully.
+Run [the glue crawler](https://us-east-1.console.aws.amazon.com/glue/home?region=us-east-1#/v2/data-catalog/crawlers)
+for the corresponding warehouse bucket once all the necessary warehouse scripts
+for that bucket have been run successfully.
 
 ## DBT
 
