@@ -23,9 +23,3 @@ models:
             - pin
             - year
             - exemption_type
-          config:
-            # We're not sure why there are so many duplicates right now. We
-            # suspect an underlying data error that got introduced during
-            # migration from the AS400. While we wait for stakeholder feedback,
-            # we're ignoring the known dupes
-            error_if: ">2580"
