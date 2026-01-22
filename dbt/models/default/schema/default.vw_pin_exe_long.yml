@@ -1,0 +1,31 @@
+models:
+  - name: default.vw_pin_exe_long
+    description: '{{ doc("view_vw_pin_exe_long") }}'
+
+    columns:
+      - name: cofe_date
+        description: '{{ doc("column_cofe_date") }}'
+      - name: exemption_amount
+        description: Exemption amount
+      - name: exemption_type
+        description: Exemption type
+      - name: is_cofe
+        description: '{{ doc("column_cofe_indicator") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
+
+    data_tests:
+      - unique_combination_of_columns:
+          name: default_vw_pin_exe_long_unique_by_pin_year_exemption_type
+          combination_of_columns:
+            - pin
+            - year
+            - exemption_type
+          config:
+            # We're not sure why there are so many duplicates right now. We
+            # suspect an underlying data error that got introduced during
+            # migration from the AS400. While we wait for stakeholder feedback,
+            # we're ignoring the known dupes
+            error_if: ">2580"

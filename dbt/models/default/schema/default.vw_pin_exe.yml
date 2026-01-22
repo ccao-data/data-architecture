@@ -62,7 +62,5 @@ models:
           combination_of_columns:
             - pin
             - year
-          config:
-            error_if: ">10"
           meta:
             description: vw_pin_exe should be unique by pin and year

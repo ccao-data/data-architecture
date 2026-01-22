@@ -1,0 +1,56 @@
+-- View to collect PIN-level exemptions from exdet. *Only* PINs with exemptions
+-- are included in this view.
+--
+-- This view is long, meaning a PIN can have multiple rows in a year, one for
+-- each exemption that the PIN has in that year. For a wide version of the view,
+-- see `default.vw_pin_exe`.
+
+-- Gather PIN-level exemptions from the exdet table. Exdet contains a row for
+-- each exemption applied to a PIN in a year.
+SELECT
+    det.parid AS pin,
+    det.taxyr AS year,
+    CASE WHEN det.excode IN ('DP', 'C-DP', 'DPHE') THEN 'exe_disabled'
+        WHEN det.excode IN ('SF', 'C-SF') THEN 'exe_freeze'
+        WHEN det.excode IN ('HO', 'C-HO') THEN 'exe_homeowner'
+        WHEN
+            det.excode IN ('LT', 'C-LT', 'LT1', 'LT2')
+            THEN 'exe_longtime_homeowner'
+        WHEN det.excode IN ('SR', 'C-SR', 'SC', 'SCHE')
+            THEN 'exe_senior'
+        WHEN det.excode = 'MUNI' THEN 'exe_muni_built'
+        WHEN
+            det.excode IN ('DV1', 'C-DV1', 'DV0', 'C-DV0', 'DV-1')
+            THEN 'exe_vet_dis_lt50'
+        WHEN det.excode IN ('DV2', 'C-DV2', 'DV-2') THEN 'exe_vet_dis_50_69'
+        WHEN det.excode IN ('DV3', 'DV3-M', 'DV-3') THEN 'exe_vet_dis_ge70'
+        WHEN det.excode IN ('DV4', 'DV4-M', 'DV-4') THEN 'exe_vet_dis_100'
+        WHEN
+            det.excode IN ('RTV', 'C-RTV', 'RDV1', 'RV1', 'RDV2')
+            THEN 'exe_vet_returning'
+        WHEN det.excode = 'WW2' THEN 'exe_wwii'
+    END AS exemption_type,
+    CAST(det.apother AS INT) AS exemption_amount,
+    CASE
+        WHEN TRIM(UPPER(SPLIT_PART(admn.user126, ':', 1))) = 'Y' THEN TRUE
+        WHEN TRIM(UPPER(SPLIT_PART(admn.user126, ':', 1))) = 'N' THEN FALSE
+    END AS is_cofe,
+    DATE_PARSE(SUBSTR(admn.udate9, 1, 10), '%Y-%m-%d') AS cofe_date
+FROM {{ source('iasworld', 'exdet') }} AS det
+-- Ensure only approved exemptions are pulled
+INNER JOIN {{ source('iasworld', 'exadmn') }} AS admn
+    ON det.parid = admn.parid
+    AND det.caseno = admn.caseno
+    AND det.taxyr = admn.taxyr
+    AND det.excode = admn.excode
+    AND admn.cur = 'Y'
+    AND admn.deactivat IS NULL
+    AND admn.exstat = 'A'
+-- Ensure we are only pulling valid exemption codes
+INNER JOIN {{ source('iasworld', 'excode') }} AS code
+    ON det.excode = code.excode
+    AND det.taxyr = code.taxyr
+    AND code.cur = 'Y'
+    AND code.deactivat IS NULL
+WHERE det.deactivat IS NULL
+    AND det.cur = 'Y'
