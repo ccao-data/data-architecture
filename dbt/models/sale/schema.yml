@@ -245,6 +245,42 @@ sources:
                   mydec is unique by document_number for non multi-sales
 
 models:
+  - name: vw_flag
+    description: '{{ doc("vw_flag") }}'
+
+    columns:
+      - name: doc_no
+        description: '{{ doc("shared_column_document_number") }}'
+      - name: run_id
+        description: '{{ doc("shared_column_sv_run_id") }}'
+      - name: sv_is_heuristic_outlier
+        description: '{{ doc("shared_column_sv_is_heuristic_outlier") }}'
+      - name: sv_is_outlier
+        description: '{{ doc("shared_column_sv_is_outlier") }}'
+      - name: sv_is_ptax_outlier
+        description: '{{ doc("shared_column_sv_is_ptax_outlier") }}'
+      - name: sv_outlier_reason1
+        description: '{{ doc("shared_column_sv_outlier_reason") }}'
+      - name: sv_outlier_reason2
+        description: '{{ doc("shared_column_sv_outlier_reason") }}'
+      - name: sv_outlier_reason3
+        description: '{{ doc("shared_column_sv_outlier_reason") }}'
+      - name: version
+        description: '{{ doc("shared_column_sv_version") }}'
+
+    data_tests:
+      - row_count:
+          name: sale_vw_flag_row_count_matches_sale_flag
+          equals: >
+            (
+              SELECT COUNT(DISTINCT(meta_sale_document_num))
+              FROM {{ source('sale.flag') }}
+            )
+      - unique_combination_of_columns:
+          name: sale_vw_flag_unique_by_doc_no
+          combination_of_columns:
+            - doc_no
+
   - name: sale.vw_ias_salesval_upload
     description: '{{ doc("vw_ias_salesval_upload") }}'
     data_tests:
@@ -269,6 +305,7 @@ models:
         description: '{{ doc("shared_column_sv_outlier_reason") }}'
       - name: sv_outlier_reason3
         description: '{{ doc("shared_column_sv_outlier_reason") }}'
+
   - name: sale.vw_flag_group
     description: '{{ doc("vw_flag_group") }}'
 
@@ -325,3 +362,23 @@ models:
             # more details: https://github.com/ccao-data/data-architecture/pull/913#discussion_r2475427865
             # If there are any more duplicates, we will be pushed over 4 and this test will flag it
             error_if: ">4"
+
+  - name: sale.vw_outlier
+    description: '{{ doc("vw_outlier") }}'
+
+    columns:
+      - name: doc_no
+        description: '{{ doc("shared_column_document_number") }}'
+      - name: flag_is_heuristic_outlier
+      - name: flag_is_outlier
+      - name: flag_is_ptax_outlier
+      - name: flag_outlier_reasons
+      - name: flag_run_id
+      - name: flag_version
+      - name: has_flag
+      - name: has_review
+      - name: review_has_characteristic_change
+      - name: review_has_class_change
+      - name: review_has_major_characteristic_change
+      - name: review_is_arms_length
+      - name: review_is_flip

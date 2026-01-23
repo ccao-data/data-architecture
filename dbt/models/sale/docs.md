@@ -66,6 +66,19 @@ including the statistical bounds, groupings, window sizes, etc.
 **Primary Key**: `run_id`
 {% enddocs %}
 
+# vw_flag
+
+{% docs vw_flag %}
+PIN-level sales validation flags created by
+[model-sales-val](https://github.com/ccao-data/model-sales-val).
+
+This view derives the most recent version of flags for each sale in the
+`sale.flag` table, which uses its `version` column as a type 2
+slowly changing dimension. As such, this view is unique by `doc_no`.
+
+**Primary Key**: `doc_no`
+{% enddocs %}
+
 # vw_flag_group
 
 {% docs vw_flag_group %}
@@ -91,4 +104,15 @@ View for sales validation outputs to create an upload format compatible
 with iasWorld.
 
 **Primary Key**: `salekey`, `run_id`
+{% enddocs %}
+
+# vw_outlier
+
+{% docs vw_outlier %}
+
+View that combines `sale.flag` and `sale.flag_review` to produce one
+unified view of all sales validation information for a sale based on its
+doc number.
+
+**Primary Key**: `doc_no`
 {% enddocs %}
