@@ -387,8 +387,25 @@ models:
         description: '{{ doc("shared_column_has_review") }}'
       - name: is_outlier
         description: '{{ doc("shared_column_is_outlier") }}'
+        data_tests:
+          - expression_is_true:
+              name: sale_vw_outlier_is_outlier_is_false_when_outlier_reason_is_null
+              expression: = FALSE
+              config:
+                where: outlier_reason IS NULL
+          - not_null:
+              name: sale_vw_outlier_is_outlier_not_null
       - name: outlier_reason
         description: '{{ doc("shared_column_outlier_reason") }}'
+        data_tests:
+          - is_null:
+              name: sale_vw_outlier_outlier_reason_is_null_when_not_has_flag_and_not_has_review
+              config:
+                where: NOT (has_flag OR has_review)
+          - not_null:
+              name: sale_vw_outlier_outlier_reason_not_null_when_is_outlier_or_has_flag_or_has_review
+              config:
+                where: is_outlier OR has_flag OR has_review
       - name: review_has_characteristic_change
         description: '{{ doc("shared_column_has_characteristic_change") }}'
       - name: review_has_class_change
@@ -405,3 +422,22 @@ models:
         description: '{{ doc("shared_column_is_arms_length") }}'
       - name: review_is_flip
         description: '{{ doc("shared_column_is_flip") }}'
+
+    data_tests:
+      - row_count:
+          name: sale_vw_outlier_row_count_matches_sale_flag_and_sale_review
+          equals: >
+            (
+              SELECT COUNT(*)
+              FROM (
+                SELECT DISTINCT(meta_sale_document_num) AS doc_no
+                FROM {{ source('sale', 'flag') }}
+                UNION
+                SELECT DISTINCT(doc_no) AS doc_no
+                FROM {{ source('sale', 'flag_review') }}
+              )
+            )
+      - unique_combination_of_columns:
+          name: sale_vw_outlier_unique_by_doc_no
+          combination_of_columns:
+            - doc_no
