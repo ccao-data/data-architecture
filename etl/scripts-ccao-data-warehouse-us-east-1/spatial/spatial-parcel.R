@@ -27,6 +27,7 @@ con <- dbConnect(noctua::athena(), rstudio_conn_tab = FALSE)
 
 # Get list of all parcel files (geojson AND attribute files) in the raw bucket
 parcel_files_df <- aws.s3::get_bucket_df(
+  max = Inf,
   bucket = AWS_S3_RAW_BUCKET,
   prefix = file.path("spatial", "parcel")
 ) %>%
@@ -81,6 +82,7 @@ process_parcel_file <- function(s3_bucket_uri,
                                 attr_uri,
                                 spatial_uri) {
   file_year_processed <- aws.s3::get_bucket_df(
+    max = Inf,
     bucket = AWS_S3_WAREHOUSE_BUCKET,
     prefix = file.path("spatial", "parcel")
   ) %>%
@@ -441,166 +443,3 @@ pwalk(parcel_files_df, function(...) {
     spatial_uri = df$spatial
   )
 })
-
-gc()
-
-# PARCEL FILLING AND GECODING ----
-
-# Ingest processed parcel files into one dataframe
-pre_geocoding_data <- open_dataset(
-  file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
-) %>%
-  collect() %>%
-  # Ensure previously geocoded/imputed parcels don't interfere with geocoding
-  # and imputing for any new years of data
-  filter(source == "raw") %>%
-  mutate(across(c(year, town_code), as.character))
-
-gc()
-
-# Get unique combinations of PIN10 and year. There is no reason why the lowest
-# value PIN is better, but we do it for a reproducible query.
-# We remove info from before 2000 since almost all lon/lat information
-# is missing
-all_addresses <- dbGetQuery(
-  conn = con,
-  "
-    WITH filtered AS (
-      SELECT
-        year,
-        pin,
-        pin10,
-        prop_address_full,
-        prop_address_city_name,
-        prop_address_state,
-        prop_address_zipcode_1,
-        ROW_NUMBER() OVER (PARTITION BY pin10, year ORDER BY pin ASC) AS rn
-      FROM default.vw_pin_address
-      WHERE year >= '2000'
-        AND prop_address_full IS NOT NULL
-        AND prop_address_city_name IS NOT NULL
-        AND prop_address_state IS NOT NULL
-        AND prop_address_zipcode_1 IS NOT NULL
-    )
-    SELECT *
-    FROM filtered
-    WHERE rn = 1
-  "
-) %>%
-  # We can have address data from current year, before parcel data
-  # is available.
-  filter(year <= max(pre_geocoding_data$year, na.rm = TRUE))
-
-# The upload is partitioned by town_code, so we need to do a st_intersection
-township <- read_geoparquet_sf(
-  file.path(
-    AWS_S3_WAREHOUSE_BUCKET,
-    "spatial", "ccao", "township", "2022.parquet"
-  )
-) %>%
-  select(town_code = township_code) %>%
-  st_transform(crs = 3435)
-
-# We will use the Sidwell grid to compare the first 4 digits
-# of the geocoded PIN10s against their expected location.
-sidwell_sf <- read_geoparquet_sf(
-  file.path(
-    AWS_S3_WAREHOUSE_BUCKET,
-    "spatial", "tax", "sidwell_grid", "sidwell_grid.parquet"
-  )
-) %>%
-  select(-year) %>%
-  st_transform(crs = 3435)
-
-# Identify any PIN10s which are present in all_addresses, but not
-# present in spatial.parcel.
-# Then use an up-down fill identify locations for PIN10s which are
-# present in other years.
-missing_geographies <- pre_geocoding_data %>%
-  full_join(
-    all_addresses,
-    by = c("pin10", "year")
-  ) %>%
-  group_by(pin10, prop_address_full) %>%
-  mutate(missing = is.na(x_3435) | is.na(y_3435)) %>%
-  arrange(year) %>%
-  fill(x_3435, y_3435, lon, lat, town_code, .direction = "updown") %>%
-  ungroup() %>%
-  filter(missing)
-
-# Split the missing parcels into those which were encoded with imputed technique
-# and those which still need to be calculated with geocoding
-imputed <- missing_geographies %>%
-  filter(if_all(c(x_3435, x_3435, lon, lat), ~ !is.na(.x))) %>%
-  select(pin10, year, x_3435, y_3435, lon, lat, town_code) %>%
-  mutate(source = "imputed")
-
-missing_geographies <- missing_geographies %>%
-  filter(if_all(c(x_3435, y_3435, lon, lat), is.na)) %>%
-  select(
-    pin10, year, prop_address_full,
-    prop_address_city_name, prop_address_state
-  )
-
-# Split the missing coordinates into batches of 1000 rows for tidygeocoder
-batch_list <- split(
-  missing_geographies,
-  ceiling(seq_len(nrow(missing_geographies)) / 1000)
-)
-
-# Function to geocode each batch
-geocode_batch <- function(batch) {
-  batch %>%
-    geocode(
-      street = prop_address_full,
-      city   = prop_address_city_name,
-      state  = prop_address_state,
-      method = "census"
-    ) %>%
-    filter(!is.na(long) & !is.na(lat)) %>%
-    st_as_sf(coords = c("long", "lat"), remove = FALSE, crs = 4326) %>%
-    st_transform(3435) %>%
-    mutate(
-      x_3435 = st_coordinates(.)[, 1],
-      y_3435 = st_coordinates(.)[, 2]
-    )
-}
-
-# Apply geocoding to each batch and combine results
-geocoded <- map(batch_list, geocode_batch) %>%
-  bind_rows() %>%
-  # spatially join geocoded points to Sidwell grid
-  st_join(sidwell_sf) %>%
-  # Keep only observations where first 4 digits match Sidwell Grid
-  # This provides a verification that PIN10s are in the correct
-  # general "neighborhood" rather than just within Cook County.
-  filter(substr(pin10, 1, 4) == section) %>%
-  st_join(township) %>%
-  st_drop_geometry() %>%
-  select(pin10, year, lat, lon = long, x_3435, y_3435, town_code) %>%
-  mutate(source = "geocoded")
-
-post_geocoding_data <- bind_rows(pre_geocoding_data, imputed, geocoded)
-
-# Test to make sure we don't duplicate any pins
-duplicate_keys <- post_geocoding_data %>%
-  group_by(pin10, year) %>%
-  filter(n() > 1)
-
-gc()
-
-if (nrow(duplicate_keys) > 0) {
-  stop("Duplicate rows found pin10 and year combinations. Check rbind")
-}
-
-# Write final dataframe to dataset on S3, partitioned by town and year
-post_geocoding_data %>%
-  mutate(uploaded_before_geocoding = FALSE) %>%
-  relocate(year, town_code, .after = last_col()) %>%
-  group_by(year, town_code) %>%
-  write_partitions_to_s3(
-    output_bucket,
-    is_spatial = TRUE,
-    overwrite = TRUE
-  )
-tictoc::toc()
