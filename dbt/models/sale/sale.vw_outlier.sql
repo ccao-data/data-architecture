@@ -16,8 +16,8 @@ WITH flag_and_review AS (
         COALESCE(flag.sv_is_ptax_outlier, FALSE) AS flag_is_ptax_outlier,
         COALESCE(flag.sv_is_heuristic_outlier, FALSE)
             AS flag_is_heuristic_outlier,
-        flag.sv_run_id AS flag_run_id,
-        flag.sv_version AS flag_version,
+        flag.run_id AS flag_run_id,
+        flag.version AS flag_version,
         FILTER(
             ARRAY[
                 flag.sv_outlier_reason1,
@@ -36,14 +36,14 @@ WITH flag_and_review AS (
         COALESCE(review.is_arms_length, FALSE) AS review_is_arms_length,
         COALESCE(review.is_flip, FALSE) AS review_is_flip,
         COALESCE(review.has_class_change, FALSE) AS review_has_class_change,
-        COALESCE(review.has_characteristic_change, FALSE)
+        COALESCE(review.has_characteristic_change, 'no')
             AS review_has_characteristic_change,
         COALESCE(
             review.has_class_change
             OR review.has_characteristic_change = 'yes_major',
             FALSE
         ) AS review_has_major_characteristic_change
-    FROM {{ source('sale', 'flag') }} AS flag
+    FROM {{ ref('sale.vw_flag') }} AS flag
     FULL OUTER JOIN {{ source('sale', 'flag_override') }} AS review
         ON flag.doc_no = review.doc_no
 ),
