@@ -220,116 +220,6 @@ mydec_sales AS (
     joined back onto unique_sales will create duplicates by pin/sale date. */
     WHERE num_single_day_sales = 1
         OR (year_of_sale > '2020')
-),
-
--- Pull outlier sale determinations from our sales validation pipeline, and
--- combine those fields to derive a final determination
-outlier AS (
-    SELECT
-        *,
-        CASE
-            -- Our sales validation pipeline includes algorithmic sale flagging
-            -- alongside human review. If a human reviewed the sale, we want to
-            -- consider those results first, because we weight those
-            -- determinations more strongly than the algorithmic flags
-            WHEN has_review
-                THEN
-                CASE
-                    -- If a reviewer found a major characteristic change, it
-                    -- should always indicate an outlier, regardless of what
-                    -- the algorithm found. This is because incorrect major
-                    -- characteristics can bias our valuation models
-                    WHEN review_has_major_characteristic_change
-                        THEN
-                        'Review: Major Characteristic Change'
-                    -- Flips and non-arm's-length sales only indicate outliers
-                    -- if the algorithm found the sale price to be unusual.
-                    -- This is because flips and non-arm's-length sales are
-                    -- only problematic if the sale is unrepresentative of the
-                    -- market; if the flip brings the property up to standard
-                    -- for the market, or if a non-arm's-length sale is close
-                    -- to market price, then the information from that sale is
-                    -- still useful for our valuation models
-                    WHEN has_flag AND flag_is_outlier
-                        THEN
-                        CASE
-                            WHEN review_is_flip
-                                THEN
-                                'Review: Flip'
-                            WHEN NOT review_is_arms_length
-                                THEN
-                                'Review: Non-Arms-Length'
-                            ELSE
-                                -- If we reach this branch, then the reviewer
-                                -- did not find anything unusual about the
-                                -- sale, which means the reviewer and the
-                                -- algorithm disagree about whether the sale
-                                -- is an outlier. In these cases, we choose to
-                                -- trust the reviewer's determination
-                                'Review: Valid Sale'
-                        END
-                    ELSE
-                        -- If we reach this branch, we can be confident that
-                        -- the sale does not have major characteristic errors,
-                        -- and that the sales algorithm did not flag the sale
-                        -- as having an unusual sale price. In this case, it
-                        -- doesn't matter if the reviewer found the sale to be
-                        -- a flip or a non-arm's-length transaction, since the
-                        -- sale is in a sense "typical" enough to contain
-                        -- relevant information for our valuation models.
-                        --
-                        -- Note that a sale can also reach this branch if its
-                        -- algorithmic flag group did not have enough sales in
-                        -- it to reach statistical significance, or if the
-                        -- algorithm has not evaluated this sale yet. Though
-                        -- these two conditions are semantically different from
-                        -- the case where the algorithm evaluated the sale and
-                        -- found it to have a typical sale price (i.e. it is
-                        -- not an algorithmic outlier), we lump all of these
-                        -- conditions together for the purpose of this
-                        -- conditional branch, since we want to default to
-                        -- including a sale if we don't have enough information
-                        -- to decide if its sale price was atypical
-                        'Review: Valid Sale'
-                END
-            -- If a reviewer has not looked at the sale, but the algorithm
-            -- has evaluated it, then we will use the algorithm's decision
-            -- as the basis for our outlier determination. If neither a
-            -- reviewer nor the algorithm has evaluated the sale, then the
-            -- outer CASE statement will fall through and return null
-            WHEN
-                has_flag
-                THEN
-                CASE
-                    WHEN flag_is_outlier
-                        THEN
-                        CASE
-                            -- The validation algorithm produces its own
-                            -- set of reasons, so if these exist, we want
-                            -- to use them for the final outlier reason.
-                            --
-                            -- It shouldn't be possible for the algorithm
-                            -- to flag the sale as an outlier without
-                            -- providing reasons for that decision, but
-                            -- if this ever happens against our
-                            -- expectation, we want to avoid a trailing
-                            -- comma in the output
-                            WHEN CARDINALITY(flag_outlier_reasons) > 0
-                                THEN
-                                CONCAT(
-                                    'Algorithm: Outlier Sale, ',
-                                    ARRAY_JOIN(
-                                        flag_outlier_reasons, ', '
-                                    )
-                                )
-                            ELSE
-                                'Algorithm: Outlier Sale'
-                        END
-                    ELSE
-                        'Algorithm: Valid Sale'
-                END
-        END AS outlier_reason
-    FROM {{ ref('sale.vw_outlier') }}
 )
 
 SELECT
@@ -373,6 +263,7 @@ SELECT
     unique_sales.sale_filter_same_sale_within_365,
     unique_sales.sale_filter_less_than_10k,
     unique_sales.sale_filter_deed_type,
+    outlier.is_outlier AS sale_filter_is_outlier,
     mydec_sales.mydec_deed_type,
     mydec_sales.sale_filter_ptax_flag,
     mydec_sales.mydec_property_advertised,
@@ -418,26 +309,9 @@ SELECT
     outlier.review_is_flip,
     outlier.review_has_class_change,
     outlier.review_has_characteristic_change,
-    outlier.outlier_reason,
-    CASE
-        WHEN outlier.outlier_reason IN (
-                'Review: Major Characteristic Change',
-                'Review: Non-Arms-Length',
-                'Review: Flip'
-            ) OR outlier.outlier_reason LIKE 'Algorithm: Outlier Sale%'
-            THEN TRUE
-        WHEN outlier.outlier_reason IN (
-                'Review: Valid Sale',
-                'Algorithm: Valid Sale'
-            )
-            THEN FALSE
-        -- Default to including the sale in our valuation models if neither a
-        -- human reviewer nor our algorithm has evaluated the sale
-        WHEN outlier.outlier_reason IS NULL
-            THEN FALSE
-    END AS sale_filter_is_outlier
+    outlier.outlier_reason
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
-LEFT JOIN outlier
+LEFT JOIN {{ ref('sale.vw_outlier') }} AS outlier
     ON unique_sales.doc_no = outlier.doc_no
