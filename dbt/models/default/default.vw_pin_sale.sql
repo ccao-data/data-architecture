@@ -222,31 +222,114 @@ mydec_sales AS (
         OR (year_of_sale > '2020')
 ),
 
-max_version_flag AS (
+-- Pull outlier sale determinations from our sales validation pipeline, and
+-- combine those fields to derive a final determination
+outlier AS (
     SELECT
-        meta_sale_document_num,
-        MAX(version) AS max_version
-    FROM {{ source('sale', 'flag') }}
-    GROUP BY meta_sale_document_num
-),
-
-sales_val AS (
-    SELECT
-        sf.meta_sale_document_num,
-        sf.sv_is_outlier,
-        sf.sv_is_ptax_outlier,
-        sf.sv_is_heuristic_outlier,
-        sf.sv_outlier_reason1,
-        sf.sv_outlier_reason2,
-        sf.sv_outlier_reason3,
-        sf.run_id AS sv_run_id,
-        sf.version AS sv_version
-    FROM
-        {{ source('sale', 'flag') }}
-            AS sf
-    INNER JOIN max_version_flag AS mv
-        ON sf.meta_sale_document_num = mv.meta_sale_document_num
-        AND sf.version = mv.max_version
+        *,
+        CASE
+            -- Our sales validation pipeline includes algorithmic sale flagging
+            -- alongside human review. If a human reviewed the sale, we want to
+            -- consider those results first, because we weight those
+            -- determinations more strongly than the algorithmic flags
+            WHEN has_review
+                THEN
+                CASE
+                    -- If a reviewer found a major characteristic change, it
+                    -- should always indicate an outlier, regardless of what
+                    -- the algorithm found. This is because incorrect major
+                    -- characteristics can bias our valuation models
+                    WHEN review_has_major_characteristic_change
+                        THEN
+                        'Review: Major Characteristic Change'
+                    -- Flips and non-arm's-length sales only indicate outliers
+                    -- if the algorithm found the sale price to be unusual.
+                    -- This is because flips and non-arm's-length sales are
+                    -- only problematic if the sale is unrepresentative of the
+                    -- market; if the flip brings the property up to standard
+                    -- for the market, or if a non-arm's-length sale is close
+                    -- to market price, then the information from that sale is
+                    -- still useful for our valuation models
+                    WHEN has_flag AND flag_is_outlier
+                        THEN
+                        CASE
+                            WHEN review_is_flip
+                                THEN
+                                'Review: Flip'
+                            WHEN NOT review_is_arms_length
+                                THEN
+                                'Review: Non-Arms-Length'
+                            ELSE
+                                -- If we reach this branch, then the reviewer
+                                -- did not find anything unusual about the
+                                -- sale, which means the reviewer and the
+                                -- algorithm disagree about whether the sale
+                                -- is an outlier. In these cases, we choose to
+                                -- trust the reviewer's determination
+                                'Review: Valid Sale'
+                        END
+                    ELSE
+                        -- If we reach this branch, we can be confident that
+                        -- the sale does not have major characteristic errors,
+                        -- and that the sales algorithm did not flag the sale
+                        -- as having an unusual sale price. In this case, it
+                        -- doesn't matter if the reviewer found the sale to be
+                        -- a flip or a non-arm's-length transaction, since the
+                        -- sale is in a sense "typical" enough to contain
+                        -- relevant information for our valuation models.
+                        --
+                        -- Note that a sale can also reach this branch if its
+                        -- algorithmic flag group did not have enough sales in
+                        -- it to reach statistical significance, or if the
+                        -- algorithm has not evaluated this sale yet. Though
+                        -- these two conditions are semantically different from
+                        -- the case where the algorithm evaluated the sale and
+                        -- found it to have a typical sale price (i.e. it is
+                        -- not an algorithmic outlier), we lump all of these
+                        -- conditions together for the purpose of this
+                        -- conditional branch, since we want to default to
+                        -- including a sale if we don't have enough information
+                        -- to decide if its sale price was atypical
+                        'Review: Valid Sale'
+                END
+            -- If a reviewer has not looked at the sale, but the algorithm
+            -- has evaluated it, then we will use the algorithm's decision
+            -- as the basis for our outlier determination. If neither a
+            -- reviewer nor the algorithm has evaluated the sale, then the
+            -- outer CASE statement will fall through and return null
+            WHEN
+                has_flag
+                THEN
+                CASE
+                    WHEN flag_is_outlier
+                        THEN
+                        CASE
+                            -- The validation algorithm produces its own
+                            -- set of reasons, so if these exist, we want
+                            -- to use them for the final outlier reason.
+                            --
+                            -- It shouldn't be possible for the algorithm
+                            -- to flag the sale as an outlier without
+                            -- providing reasons for that decision, but
+                            -- if this ever happens against our
+                            -- expectation, we want to avoid a trailing
+                            -- comma in the output
+                            WHEN CARDINALITY(flag_outlier_reasons) > 0
+                                THEN
+                                CONCAT(
+                                    'Algorithm: Outlier Sale, ',
+                                    ARRAY_JOIN(
+                                        flag_outlier_reasons, ', '
+                                    )
+                                )
+                            ELSE
+                                'Algorithm: Outlier Sale'
+                        END
+                    ELSE
+                        'Algorithm: Valid Sale'
+                END
+        END AS outlier_reason
+    FROM {{ ref('sale.vw_outlier') }}
 )
 
 SELECT
@@ -290,11 +373,6 @@ SELECT
     unique_sales.sale_filter_same_sale_within_365,
     unique_sales.sale_filter_less_than_10k,
     unique_sales.sale_filter_deed_type,
-    -- Our sales validation pipeline only validates sales past 2014 due to MyDec
-    -- limitations. Previous to that values for sv_is_outlier will be NULL, so
-    -- if we want to both exclude detected outliers and include sales prior to
-    -- 2014, we need to code everything NULL as FALSE.
-    COALESCE(sales_val.sv_is_outlier, FALSE) AS sale_filter_is_outlier,
     mydec_sales.mydec_deed_type,
     mydec_sales.sale_filter_ptax_flag,
     mydec_sales.mydec_property_advertised,
@@ -328,112 +406,38 @@ SELECT
     mydec_sales.mydec_homestead_exemption_general_alternative,
     mydec_sales.mydec_homestead_exemption_senior_citizens,
     mydec_sales.mydec_homestead_exemption_senior_citizens_assessment_freeze,
-    sales_val.sv_is_outlier,
-    sales_val.sv_is_ptax_outlier,
-    sales_val.sv_is_heuristic_outlier,
-    sales_val.sv_outlier_reason1,
-    sales_val.sv_outlier_reason2,
-    sales_val.sv_outlier_reason3,
-    sales_val.sv_run_id,
-    sales_val.sv_version,
-    flag_override.is_arms_length,
-    flag_override.is_flip,
-    flag_override.has_class_change,
-    flag_override.has_characteristic_change,
-    flag_override.requires_field_check,
+    outlier.has_flag,
+    outlier.flag_is_outlier,
+    outlier.flag_is_ptax_outlier,
+    outlier.flag_is_heuristic_outlier,
+    outlier.flag_outlier_reasons,
+    outlier.flag_run_id,
+    outlier.flag_version,
+    outlier.has_review,
+    outlier.review_is_arms_length,
+    outlier.review_is_flip,
+    outlier.review_has_class_change,
+    outlier.review_has_characteristic_change,
+    outlier.outlier_reason,
     CASE
-        -- If there is an override, use override logic
-        -- If neither override nor sv_is_outlier is populated, leave null
-        WHEN
-            flag_override.is_arms_length IS NOT NULL
-            OR flag_override.is_flip IS NOT NULL
-            OR flag_override.has_class_change IS NOT NULL
-            OR flag_override.has_characteristic_change IS NOT NULL
-            OR flag_override.requires_field_check IS NOT NULL
-            THEN (
-                -- COALESCE is required here because the boolean logic is
-                -- three-valued (TRUE / FALSE / NULL). When overrides exist
-                -- but some override columns are NULL, expressions like FALSE
-                -- OR NULL evaluate to NULL, which would incorrectly return
-                -- is_outlier = NULL instead of FALSE.
-                COALESCE(flag_override.is_arms_length = FALSE, FALSE)
-                OR COALESCE(flag_override.is_flip = TRUE, FALSE)
-                OR COALESCE(flag_override.has_class_change = TRUE, FALSE)
-                OR COALESCE(
-                    flag_override.has_characteristic_change = 'yes_major', FALSE
-                )
-                OR COALESCE(flag_override.requires_field_check = TRUE, FALSE)
+        WHEN outlier.outlier_reason IN (
+                'Review: Major Characteristic Change',
+                'Review: Non-Arms-Length',
+                'Review: Flip'
+            ) OR outlier.outlier_reason LIKE 'Algorithm: Outlier Sale%'
+            THEN TRUE
+        WHEN outlier.outlier_reason IN (
+                'Review: Valid Sale',
+                'Algorithm: Valid Sale'
             )
-        -- If there is no override, default to sv_is_outlier
-        WHEN sales_val.sv_is_outlier IS NOT NULL
-            THEN sales_val.sv_is_outlier
-    END AS is_outlier,
-    -- Combined outlier reasons: manual override reasons + model SV reasons
-    ARRAY_DISTINCT(
-        CONCAT(
-            -- Manual analyst override triggers
-            FILTER(
-                ARRAY[
-                    IF(
-                        COALESCE(flag_override.is_arms_length = FALSE, FALSE),
-                        'Analyst: Non-arms length'
-                    ),
-                    IF(
-                        COALESCE(flag_override.is_flip = TRUE, FALSE),
-                        'Analyst: Flip'
-                    ),
-                    IF(
-                        COALESCE(flag_override.has_class_change = TRUE, FALSE),
-                        'Analyst: Class change'
-                    ),
-                    IF(
-                        COALESCE(
-                            flag_override.has_characteristic_change
-                            = 'yes_major',
-                            FALSE
-                        ),
-                        'Analyst: Characteristic change'
-                    ),
-                    IF(
-                        COALESCE(
-                            flag_override.requires_field_check = TRUE, FALSE
-                        ),
-                        'Analyst: Requires field check'
-                    )
-                ],
-                r -> r IS NOT NULL
-            ),
-
-            -- Sales val statistical model reasons (sv_outlier_reason1-3)
-            FILTER(
-                ARRAY[
-                    CONCAT('SV pipeline: ', sales_val.sv_outlier_reason1),
-                    CONCAT('SV pipeline: ', sales_val.sv_outlier_reason2),
-                    CONCAT('SV pipeline: ', sales_val.sv_outlier_reason3)
-                ],
-                r -> r IS NOT NULL AND TRIM(r) != 'SV pipeline:'
-            )
-        )
-    ) AS outlier_reason,
-    -- Logic similar to the is_outlier field but lets us know explicity
-    -- if the is_outlier column determination is sourced from an analyst
-    -- override or an algorithmic fallback. 
-    CASE
-        WHEN
-            flag_override.is_arms_length IS NOT NULL
-            OR flag_override.is_flip IS NOT NULL
-            OR flag_override.has_class_change IS NOT NULL
-            OR flag_override.has_characteristic_change IS NOT NULL
-            OR flag_override.requires_field_check IS NOT NULL
-            THEN 'analyst'
-
-        WHEN sales_val.sv_is_outlier IS NOT NULL
-            THEN 'algorithm'
-    END AS source_is_outlier
+            THEN FALSE
+        -- Default to including the sale in our valuation models if neither a
+        -- human reviewer nor our algorithm has evaluated the sale
+        WHEN outlier.outlier_reason IS NULL
+            THEN FALSE
+    END AS sale_filter_is_outlier
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
-LEFT JOIN sales_val
-    ON unique_sales.doc_no = sales_val.meta_sale_document_num
-LEFT JOIN {{ source('sale', 'flag_override') }} AS flag_override
-    ON unique_sales.doc_no = flag_override.doc_no
+LEFT JOIN outlier
+    ON unique_sales.doc_no = outlier.doc_no
