@@ -11,9 +11,9 @@ should be possible to reconstruct using the other sales validation tables:
 **Primary Key**: `meta_sale_document_number`, `run_id`, `version`
 {% enddocs %}
 
-# flag_override
+# flag_review
 
-{% docs flag_override %}
+{% docs flag_review %}
 Data built by manual review by analysts that determine whether or not
 we should include sales in the model.
 

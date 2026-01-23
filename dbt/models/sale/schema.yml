@@ -50,8 +50,8 @@ sources:
               meta:
                 description: flag is unique by meta_sale_document_num and version
 
-      - name: flag_override
-        description: '{{ doc("flag_override") }}'
+      - name: flag_review
+        description: '{{ doc("flag_review") }}'
         columns:
           - name: doc_no
             description: '{{ doc("shared_column_document_number") }}'
@@ -77,7 +77,7 @@ sources:
                 a planned change to the home sometime soon in the future.
         data_tests:
           - unique_combination_of_columns:
-              name: sale_flag_override_unique_by_doc_no
+              name: sale_flag_review_unique_by_doc_no
               combination_of_columns:
                 - doc_no
 

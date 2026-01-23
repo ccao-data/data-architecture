@@ -1,4 +1,4 @@
--- View that combines `sale.flag` and `sale.flag_override` to produce one
+-- View that combines `sale.flag` and `sale.flag_review` to produce one
 -- unified view of all sales validation information for a sale based on its
 -- doc number
 
@@ -44,7 +44,7 @@ WITH flag_and_review AS (
             FALSE
         ) AS review_has_major_characteristic_change
     FROM {{ ref('sale.vw_flag') }} AS flag
-    FULL OUTER JOIN {{ source('sale', 'flag_override') }} AS review
+    FULL OUTER JOIN {{ source('sale', 'flag_review') }} AS review
         ON flag.doc_no = review.doc_no
 ),
 
