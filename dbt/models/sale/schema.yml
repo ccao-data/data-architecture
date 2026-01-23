@@ -245,7 +245,7 @@ sources:
                   mydec is unique by document_number for non multi-sales
 
 models:
-  - name: vw_flag
+  - name: sale.vw_flag
     description: '{{ doc("vw_flag") }}'
 
     columns:
@@ -274,7 +274,7 @@ models:
           equals: >
             (
               SELECT COUNT(DISTINCT(meta_sale_document_num))
-              FROM {{ source('sale.flag') }}
+              FROM {{ source('sale', 'flag') }}
             )
       - unique_combination_of_columns:
           name: sale_vw_flag_unique_by_doc_no
