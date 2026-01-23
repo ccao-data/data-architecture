@@ -11,14 +11,22 @@ models:
         description: '{{ doc("shared_column_deed_type") }}'
       - name: doc_no
         description: '{{ doc("shared_column_document_number") }}'
-      - name: has_characteristic_change
-        description: '{{ doc("shared_column_has_characteristic_change") }}'
-      - name: has_class_change
-        description: '{{ doc("shared_column_has_class_change") }}'
-      - name: is_arms_length
-        description: '{{ doc("shared_column_is_arms_length") }}'
-      - name: is_flip
-        description: '{{ doc("shared_column_is_flip") }}'
+      - name: flag_is_heuristic_outlier
+        description: '{{ doc("shared_column_sv_is_heuristic_outlier") }}'
+      - name: flag_is_outlier
+        description: '{{ doc("shared_column_sv_is_outlier") }}'
+      - name: flag_is_ptax_outlier
+        description: '{{ doc("shared_column_sv_is_ptax_outlier") }}'
+      - name: flag_outlier_reasons
+        description: Array of combined algorithm flag reasons
+      - name: flag_run_id
+        description: '{{ doc("shared_column_sv_run_id") }}'
+      - name: flag_version
+        description: '{{ doc("shared_column_sv_version") }}'
+      - name: has_flag
+        description: '{{ doc("shared_column_has_flag") }}'
+      - name: has_review
+        description: '{{ doc("shared_column_has_review") }}'
       - name: is_multisale
         description: '{{ doc("shared_column_sale_is_multisale") }}'
       - name: is_mydec_date
@@ -73,19 +81,25 @@ models:
       - name: num_parcels_sale
         description: '{{ doc("shared_column_num_parcels_sale") }}'
       - name: outlier_reason
-        description: This is an array colum that contains all of the distinct outlier reasons between analyst review and our
-                     algorithmic sales validation model. A nuance is that there are some outlier reasons that don't necessarily
-                     cause the `is_outlier` status to be true.
+        description: '{{ doc("shared_column_outlier_reason") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: requires_field_check
         description: '{{ doc("shared_column_requires_field_check") }}'
+      - name: review_has_characteristic_change
+        description: '{{ doc("shared_column_has_characteristic_change") }}'
+      - name: review_has_class_change
+        description: '{{ doc("shared_column_has_class_change") }}'
+      - name: review_is_arms_length
+        description: '{{ doc("shared_column_is_arms_length") }}'
+      - name: review_is_flip
+        description: '{{ doc("shared_column_is_flip") }}'
       - name: sale_date
         description: '{{ doc("shared_column_sale_date") }}'
       - name: sale_filter_deed_type
         description: Remove quit claim, executor, beneficiary and missing deed types
       - name: sale_filter_is_outlier
-        description: Same as `sv_is_outlier`, but `NULL` values are replaced with `FALSE`
+        description: '{{ doc("shared_column_is_outlier") }}'
       - name: sale_filter_less_than_10k
         description: Indicator for whether sale is less than $10K FMW
       - name: sale_filter_same_sale_within_365
@@ -96,9 +110,6 @@ models:
         description: '{{ doc("shared_column_sale_price") }}'
       - name: seller_name
         description: '{{ doc("shared_column_seller_name") }}'
-      - name: source_is_outlier
-        description: This field tells us if the determination in `is_outlier` was sourced from analyst review or from our algorithmic
-                     sales validation pipeline.
       - name: sv_is_heuristic_outlier
         description: '{{ doc("shared_column_sv_is_heuristic_outlier") }}'
       - name: sv_is_outlier

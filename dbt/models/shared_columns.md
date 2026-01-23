@@ -1692,6 +1692,29 @@ Analyst determination of whether or not the property
 had an incorrect class classification at time of sale.
 {% enddocs %}
 
+## has_flag
+
+{% docs shared_column_has_flag %}
+Whether the sale has algorithm flags in the `sale.flag` table.
+
+If this column is `TRUE`, then all of the `flag_*` columns will
+contain useful, reliable information from the `sale.flag` table.
+If this column is `FALSE`, however, then our sales validation
+algorithm has not evaluated this sale, and you should not rely
+on those columns.
+{% enddocs %}
+
+## has_review
+
+{% docs shared_column_has_review %}
+Whether the sale has an analyst review in the `sale.flag_review` table.
+
+If this column is `TRUE`, then all of the `review_*` columns will
+contain useful, reliable information from the `sale.flag_review` table.
+If this column is `FALSE`, however, then an analyst has not reviewed
+this sale, and you should not rely on those columns.
+{% enddocs %}
+
 ## is_arms_length
 
 {% docs shared_column_is_arms_length %}
@@ -1704,6 +1727,46 @@ an "arm's length, open market" transaction.
 {% docs shared_column_is_flip %}
 Analyst determination of whether or not the sale was
 a "flip".
+{% enddocs %}
+
+## is_outlier
+
+{% docs shared_column_is_outlier %}
+Whether this sale is an outlier, based on the combined information from our
+sales validation algorithm and human reviewers.
+
+This column will default to `FALSE` if the sale has not been reviewed by our
+sales validation algorithm or any human reviewers.
+{% enddocs %}
+
+## outlier_reason
+
+{% docs shared_column_outlier_reason %}
+Human-readable description of the reason behind this sale's outlier status.
+
+This column will be null if the sale has not been evaluated for outlier status
+by our sales validation algorithm or our analyst review process.
+
+Possible values for this variable are:
+
+- `Review: Major Characteristic Change`: Outlier due to analyst reviewer finding
+  a major characteristic problem
+- `Review: Non-Arms-Length`: Outlier due to analyst reviewer finding the
+  transaction was not arm's-length, and the algorithm finding the sale price to
+  be unusual
+- `Review: Flip`: Outlier due to analyst reviewer finding the sale to be a flip,
+  and the algorithm finding the sale price to be unusual
+- `Review: Valid Sale`: Non-outlier due to analyst reviewer finding the sale to
+  be arm's-length and open market with correct characteristics
+- `Algorithm: Outlier Sale`: Outlier due to our sales validation algorithm
+  finding one or more issues with the sale. The exact reasons for the
+  algorithm's decision will be appended to the end of this value as a
+  comma-separated string, like
+  `Algorithm: Outlier Sale, High Price, Statistical Anomaly`
+- `Algorithm: Valid Sale`: Non-outlier due to our sales validation algorithm
+  finding no problems with the sale
+- Null: The sale has not been evaluated by our sales validation algorithm or by
+  an analyst reviewer
 {% enddocs %}
 
 ## requires_field_check

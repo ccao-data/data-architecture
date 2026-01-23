@@ -114,5 +114,17 @@ View that combines `sale.flag` and `sale.flag_review` to produce one
 unified view of all sales validation information for a sale based on its
 doc number.
 
+**Nuance**: Unlike the constituent tables `sale.flag` and `sale.flag_review`,
+the determination columns in this view (like `flag_is_outlier` or
+`review_has_class_change`) will never be null, even if the sale was not flagged
+or was not reviewed by an analyst. This is intended to ease the process of using
+these columns for boolean logic, so that we never have to handle the case where
+a boolean comparison could return null unexpectedly. However, it introduces the
+potential for confusion, in that a sale could have a not-null value for a
+determination column that does not actually correspond to a decision made by
+our algorithm or a reviewer. To determine whether a value in a determination
+column corresponds to a real decision made by our algorithm or a reviewer, use the
+`has_flag` and `has_review` columns.
+
 **Primary Key**: `doc_no`
 {% enddocs %}

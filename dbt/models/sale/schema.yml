@@ -370,15 +370,38 @@ models:
       - name: doc_no
         description: '{{ doc("shared_column_document_number") }}'
       - name: flag_is_heuristic_outlier
+        description: '{{ doc("shared_column_sv_is_heuristic_outlier") }}'
       - name: flag_is_outlier
+        description: '{{ doc("shared_column_sv_is_outlier") }}'
       - name: flag_is_ptax_outlier
+        description: '{{ doc("shared_column_sv_is_ptax_outlier") }}'
       - name: flag_outlier_reasons
+        description: Array of combined algorithm flag reasons
       - name: flag_run_id
+        description: '{{ doc("shared_column_sv_run_id") }}'
       - name: flag_version
+        description: '{{ doc("shared_column_sv_version") }}'
       - name: has_flag
+        description: '{{ doc("shared_column_has_flag") }}'
       - name: has_review
+        description: '{{ doc("shared_column_has_review") }}'
+      - name: is_outlier
+        description: '{{ doc("shared_column_is_outlier") }}'
+      - name: outlier_reason
+        description: '{{ doc("shared_column_outlier_reason") }}'
       - name: review_has_characteristic_change
+        description: '{{ doc("shared_column_has_characteristic_change") }}'
       - name: review_has_class_change
+        description: '{{ doc("shared_column_has_class_change") }}'
       - name: review_has_major_characteristic_change
+        description: |
+          True if `has_class_change` is true or if `has_characteristic_change` is
+          `"yes_major"`, false otherwise.
+
+          This is a convenience column intended to make the outlier determination
+          logic cleaner in downstream views, where "major class change" can
+          reflect either one of the conditions described above.
       - name: review_is_arms_length
+        description: '{{ doc("shared_column_is_arms_length") }}'
       - name: review_is_flip
+        description: '{{ doc("shared_column_is_flip") }}'
