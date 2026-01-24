@@ -10,6 +10,12 @@ source("utils.R")
 # This script retrieves data including ratings from greatschools.org
 # Documentation available here:
 # https://docs.google.com/document/d/1pSe1AeZXGL01m5uG3wwRr9k4pI2Qw52xzPi2NmNrhyI/edit # nolint
+
+################################################################################
+# We no longer have access to this data and this script should not be run unless
+# we actively restore access to new Great Schools data.
+################################################################################
+
 GREAT_SCHOOLS_API_KEY <- Sys.getenv("GREAT_SCHOOLS_API_KEY")
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "school", "great_schools_rating")

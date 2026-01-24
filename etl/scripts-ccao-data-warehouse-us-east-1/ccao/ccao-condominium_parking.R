@@ -6,7 +6,12 @@ library(stringr)
 library(tools)
 source("utils.R")
 
-# This script cleans and uploads condo parking space data for the warehouse
+################################################################################
+# This is static data and this script does not need to be re-run unless the data
+# is no longer availale in the Data Department's warehouse S3 bucket.
+################################################################################
+
+# This script cleans and uploads condo parking space data for the warehouse.
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(

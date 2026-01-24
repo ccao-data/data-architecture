@@ -11,6 +11,10 @@ source("utils.R")
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "school")
 
+# To check if new attendance boundaries are available, search "cps attendance"
+# on the City of Chicago open data portal, and filter using a tag for the
+# current year.
+
 sources_list <- bind_rows(list(
   # CPS ATTENDANCE - ELEMENTARY
   "attendance_ele_0607" = c(
@@ -126,6 +130,12 @@ sources_list <- bind_rows(list(
     "api_url" = "5ihw-cbdn?method=export&format=GeoJSON",
     "boundary" = "cps_attendance_elementary",
     "year" = "2024-2025"
+  ),
+  "attendance_ele_2026" = c(
+    "source" = "https://data.cityofchicago.org/api/geospatial/",
+    "api_url" = "x72b-38qv?method=export&format=GeoJSON",
+    "boundary" = "cps_attendance_elementary",
+    "year" = "2025-2026"
   ),
 
   # CPS ATTENDANCE - SECONDARY
@@ -243,6 +253,12 @@ sources_list <- bind_rows(list(
     "boundary" = "cps_attendance_secondary",
     "year" = "2024-2025"
   ),
+  "attendance_sec_2026" = c(
+    "source" = "https://data.cityofchicago.org/api/geospatial/",
+    "api_url" = "xg7c-d8rm?method=export&format=GeoJSON",
+    "boundary" = "cps_attendance_secondary",
+    "year" = "2025-2026"
+  ),
 
   # LOCATION
   "locations_all_21" = c(
@@ -271,7 +287,7 @@ pwalk(sources_list, function(...) {
 
 # Read privileges for the this drive location are limited.
 # Contact Cook County GIS if permissions need to be changed.
-file_path <- "//10.122.19.14/ArchiveServices"
+file_path <- "//gisemcv1.ccounty.com/ArchiveServices"
 
 crossing(
 

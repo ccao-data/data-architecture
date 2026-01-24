@@ -55,7 +55,7 @@ trimmed_geos AS (
     SELECT
         vpu.pin,
         vpu.year,
-        ARRAY_JOIN(vpu.tax_municipality_name, ', ') AS municipality_name,
+        ARRAY_JOIN(vpu.combined_municipality_name, ', ') AS municipality_name,
         ARRAY_JOIN(
             vpu.tax_school_elementary_district_name, ', ') AS
         school_elementary_district_name,

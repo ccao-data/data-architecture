@@ -26,7 +26,8 @@ raw_files <- aws.s3::get_bucket_df(
 }, simplify = TRUE, USE.NAMES = TRUE)
 
 # List of columns to keep - place number columns before name columns, if only
-# one column is identifed it will be used as both district number and name
+# one column is identifed it will be used as both district number and name. Make
+# sure to add any new raw shapefiles to this list before running the script.
 columns <- list(
   "board_of_review_district_2012" = c("district_n"),
   "board_of_review_district_2023" = c("district_int", "district_txt"),
@@ -61,6 +62,7 @@ columns <- list(
   "municipality_2022" = c("agency", "agency_desc"),
   "municipality_2023" = c("agency", "agency_desc"),
   "municipality_2024" = c("agency", "agency_desc"),
+  "municipality_2025" = c("agency", "agency_desc"),
   "state_representative_district_2010" = c("district_n"),
   "state_representative_district_2023" = c("district_int", "district_txt"),
   "state_senate_district_2010" = c("senatenum", "senatedist"),
@@ -69,7 +71,8 @@ columns <- list(
   "ward_chicago_2015" = c("ward"),
   "ward_chicago_2023" = c("ward"),
   "ward_evanston_2019" = c("ward"),
-  "ward_evanston_2022" = c("ward")
+  "ward_evanston_2022" = c("ward"),
+  "ward_evanston_2025" = c("ward")
 )
 
 # Clean data according to each shapefile's associated columns

@@ -616,6 +616,9 @@ unit_tests:
         rows: *location-crosswalk-fill-year-unit-test-pin-and-year
       - input: ref("location.other")
         rows: *location-crosswalk-fill-year-unit-test-pin-and-year
+      - input: ref("location.municipality_crosswalk")
+        rows:
+          - {cook_municipality_name: "VILLAGE OF MOUNT PROSPECT", tax_municipality_name: "VILLAGE OF MT PROSPECT"}
     expect:
       rows:
         - year: "2019"
@@ -687,6 +690,9 @@ unit_tests:
         rows: *location-vw-pin10-location-fill-test-pin-and-year
       - input: ref("location.other")
         rows: *location-vw-pin10-location-fill-test-pin-and-year
+      - input: ref("location.municipality_crosswalk")
+        rows:
+          - {cook_municipality_name: "VILLAGE OF MOUNT PROSPECT", tax_municipality_name: "VILLAGE OF MT PROSPECT"}
     expect:
       rows:
         - {pin10: "0123456789", year: "2015", access_cmap_walk_total_score: 100}

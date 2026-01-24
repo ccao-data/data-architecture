@@ -37,7 +37,8 @@ pwalk(sources_list, function(...) {
 
 
 ##### SUBDIVISIONS #####
-# Paths for all relevant geodatabases
+# Paths for all relevant geodatabases. This is a layer of a GDB file created and
+# maintained by Cook County GIS.
 data.frame("path" = list.files(file_path, full.names = TRUE)) %>%
   filter(
     str_detect(path, "Current", negate = TRUE) &
