@@ -73,7 +73,7 @@ SELECT
     vps.sale_filter_deed_type,
     {%- for idx in [1, 2, 3] %}
         CASE
-            WHEN CARDINALITY(vps.flag_outlier_reasons >= {{ idx }})
+            WHEN CARDINALITY(vps.flag_outlier_reasons) >= {{ idx }}
                 THEN vps.flag_outlier_reasons[{{ idx }}]
         END AS sv_outlier_reason{{ idx }},
     {% endfor %}
