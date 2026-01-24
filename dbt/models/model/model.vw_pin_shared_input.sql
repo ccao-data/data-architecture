@@ -110,17 +110,30 @@ distressed_communities_index AS (
         AND dci.year <= zcta.year
 ),
 
+-- This CTA creates a crosswalk of which ARI years should be joined to which
+-- census years
+ari_join_years AS (
+    SELECT
+        MIN(ari.year) AS ari_year,
+        tract.year AS join_year
+    FROM {{ source("other", "ari") }} AS ari
+    CROSS JOIN
+        (SELECT DISTINCT year FROM {{ ref("location.census_acs5") }}) AS tract
+    WHERE ari.year >= tract.year
+    GROUP BY tract.year
+),
+
 affordability_risk_index AS (
     SELECT
         tract.pin10,
         ari.ari_score AS ari,
         tract.year
-    FROM {{ source('other', 'ari') }} AS ari
-    LEFT JOIN {{ ref('location.census_acs5') }} AS tract
+    FROM {{ source("other", "ari") }} AS ari
+    LEFT JOIN ari_join_years ON ari.year = ari_join_years.ari_year
+    LEFT JOIN
+        {{ ref("location.census_acs5") }} AS tract
         ON ari.geoid = tract.census_acs5_tract_geoid
-        -- ARI is only available for one year, so we join to census geoids for
-        -- all years after that
-        AND ari.year <= tract.year
+        AND ari_join_years.join_year = tract.year
 ),
 
 tax_bill_amount AS (
