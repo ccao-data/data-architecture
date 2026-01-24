@@ -66,7 +66,7 @@ SELECT
     vps.sale_price,
     vps.sale_date,
     vps.sale_filter_is_outlier,
-    vps.sv_is_outlier,
+    vps.flag_is_outlier AS sv_is_outlier,
     vps.is_multisale,
     vps.sale_filter_same_sale_within_365,
     vps.sale_filter_less_than_10k,

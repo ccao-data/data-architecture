@@ -32,12 +32,7 @@ models:
       - name: is_mydec_date
         description: Indicator for whether or not the observation uses the MyDec sale date
       - name: is_outlier
-        description: |
-          The final determination indicating whether a sale is an
-          outlier that should be excluded from model training.
-
-          Combines information from our statistical sales validation model with
-          information from analysts who review our outliers for correctness.
+        description: '{{ doc("shared_column_is_outlier") }}'
       - name: mydec_deed_type
         description: Deed type from MyDec, more granular than CCAO deed type
       - name: mydec_line_8_current_use
@@ -99,7 +94,7 @@ models:
       - name: sale_filter_deed_type
         description: Remove quit claim, executor, beneficiary and missing deed types
       - name: sale_filter_is_outlier
-        description: '{{ doc("shared_column_is_outlier") }}'
+        description: Deprecated, prefer `is_outlier`.
       - name: sale_filter_less_than_10k
         description: Indicator for whether sale is less than $10K FMW
       - name: sale_filter_same_sale_within_365
@@ -110,16 +105,6 @@ models:
         description: '{{ doc("shared_column_sale_price") }}'
       - name: seller_name
         description: '{{ doc("shared_column_seller_name") }}'
-      - name: sv_is_heuristic_outlier
-        description: '{{ doc("shared_column_sv_is_heuristic_outlier") }}'
-      - name: sv_is_outlier
-        description: '{{ doc("shared_column_sv_is_outlier") }}'
-      - name: sv_is_ptax_outlier
-        description: '{{ doc("shared_column_sv_is_ptax_outlier") }}'
-      - name: sv_run_id
-        description: '{{ doc("shared_column_sv_run_id") }}'
-      - name: sv_version
-        description: '{{ doc("shared_column_sv_version") }}'
       - name: township_code
         description: '{{ doc("shared_column_township_code") }}'
       - name: year

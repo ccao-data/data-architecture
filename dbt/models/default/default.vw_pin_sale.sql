@@ -309,6 +309,7 @@ SELECT
     outlier.review_is_flip,
     outlier.review_has_class_change,
     outlier.review_has_characteristic_change,
+    outlier.is_outlier,
     outlier.outlier_reason
 FROM unique_sales
 LEFT JOIN mydec_sales
