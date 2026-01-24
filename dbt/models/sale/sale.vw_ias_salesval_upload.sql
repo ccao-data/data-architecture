@@ -1,7 +1,7 @@
 WITH ias_sales AS (
     SELECT
         salekey,
-        NULLIF(REPLACE(instruno, 'D', ''), '') AS instruno_clean
+        NULLIF(REPLACE(instruno, 'D', ''), '') AS doc_no
     FROM {{ source('iasworld', 'sales') }}
     WHERE cur = 'Y'
         AND deactivat IS NULL
@@ -16,4 +16,4 @@ SELECT
     sf.run_id
 FROM ias_sales
 INNER JOIN {{ ref('sale.vw_flag') }} AS sf
-    ON ias_sales.instruno_clean = sf.meta_sale_document_num
+    ON ias_sales.doc_no = sf.doc_no
