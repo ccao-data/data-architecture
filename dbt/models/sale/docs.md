@@ -73,8 +73,9 @@ PIN-level sales validation flags created by
 [model-sales-val](https://github.com/ccao-data/model-sales-val).
 
 This view derives the most recent version of flags for each sale in the
-`sale.flag` table, which uses its `version` column as a type 2
-slowly changing dimension. As such, this view is unique by `doc_no`.
+`sale.flag` table, which uses its `version` column as a [type 2 slowly changing
+dimension](https://en.wikipedia.org/wiki/Slowly_changing_dimension#Type_2:_add_new_row).
+As such, this view is unique by `doc_no`.
 
 **Primary Key**: `doc_no`
 {% enddocs %}
