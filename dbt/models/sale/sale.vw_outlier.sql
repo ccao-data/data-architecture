@@ -33,7 +33,7 @@ WITH flag_and_review AS (
             AND review.is_flip IS NULL,
             FALSE
         ) AS has_review,
-        COALESCE(review.is_arms_length, FALSE) AS review_is_arms_length,
+        COALESCE(review.is_arms_length, TRUE) AS review_is_arms_length,
         COALESCE(review.is_flip, FALSE) AS review_is_flip,
         COALESCE(review.has_class_change, FALSE) AS review_has_class_change,
         COALESCE(review.has_characteristic_change, 'no')
