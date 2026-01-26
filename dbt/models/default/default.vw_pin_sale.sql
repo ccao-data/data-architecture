@@ -367,7 +367,69 @@ SELECT
         -- If there is no override, default to sv_is_outlier
         WHEN sales_val.sv_is_outlier IS NOT NULL
             THEN sales_val.sv_is_outlier
-    END AS is_outlier
+    END AS is_outlier,
+    -- Combined outlier reasons: manual override reasons + model SV reasons
+    ARRAY_DISTINCT(
+        CONCAT(
+            -- Manual analyst override triggers
+            FILTER(
+                ARRAY[
+                    IF(
+                        COALESCE(flag_override.is_arms_length = FALSE, FALSE),
+                        'Analyst: Non-arms length'
+                    ),
+                    IF(
+                        COALESCE(flag_override.is_flip = TRUE, FALSE),
+                        'Analyst: Flip'
+                    ),
+                    IF(
+                        COALESCE(flag_override.has_class_change = TRUE, FALSE),
+                        'Analyst: Class change'
+                    ),
+                    IF(
+                        COALESCE(
+                            flag_override.has_characteristic_change
+                            = 'yes_major',
+                            FALSE
+                        ),
+                        'Analyst: Characteristic change'
+                    ),
+                    IF(
+                        COALESCE(
+                            flag_override.requires_field_check = TRUE, FALSE
+                        ),
+                        'Analyst: Requires field check'
+                    )
+                ],
+                r -> r IS NOT NULL
+            ),
+
+            -- Sales val statistical model reasons (sv_outlier_reason1-3)
+            FILTER(
+                ARRAY[
+                    CONCAT('SV pipeline: ', sales_val.sv_outlier_reason1),
+                    CONCAT('SV pipeline: ', sales_val.sv_outlier_reason2),
+                    CONCAT('SV pipeline: ', sales_val.sv_outlier_reason3)
+                ],
+                r -> r IS NOT NULL AND TRIM(r) != 'SV pipeline:'
+            )
+        )
+    ) AS outlier_reason,
+    -- Logic similar to the is_outlier field but lets us know explicity
+    -- if the is_outlier column determination is sourced from an analyst
+    -- override or an algorithmic fallback. 
+    CASE
+        WHEN
+            flag_override.is_arms_length IS NOT NULL
+            OR flag_override.is_flip IS NOT NULL
+            OR flag_override.has_class_change IS NOT NULL
+            OR flag_override.has_characteristic_change IS NOT NULL
+            OR flag_override.requires_field_check IS NOT NULL
+            THEN 'analyst'
+
+        WHEN sales_val.sv_is_outlier IS NOT NULL
+            THEN 'algorithm'
+    END AS source_is_outlier
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
