@@ -98,6 +98,21 @@ if they have exemptions for a given year.
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_pin_exe_long
+
+{% docs view_vw_pin_exe_long %}
+***UNVALIDATED: DO NOT SHARE DATA FROM THIS VIEW***
+---
+Parcel-level exemption amounts in EAV. PINs will only have a row in this view
+if they have exemptions for a given year.
+
+This view is long, meaning a PIN can have multiple rows in a year, one for
+each exemption that the PIN has in that year. For a wide version of the view,
+see `default.vw_pin_exe`.
+
+**Primary Key**: `year`, `pin`, `ptax_exe`
+{% enddocs %}
+
 # vw_pin_exempt
 
 {% docs view_vw_pin_exempt %}
