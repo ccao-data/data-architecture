@@ -110,7 +110,7 @@ distressed_communities_index AS (
         AND dci.year <= zcta.year
 ),
 
--- This CTA creates a crosswalk of which ARI years should be joined to which
+-- This CTE creates a crosswalk of which ARI years should be joined to which
 -- census years
 ari_join_years AS (
     SELECT
