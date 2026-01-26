@@ -532,47 +532,47 @@ unit_tests:
             is_flip: true
     expect:
       rows:
-          - doc_no: flag_outlier_null_no_review
-            outlier_reason: null
-          - doc_no: flag_outlier_null_has_class_change
-            outlier_reason: 'Review: Major Characteristic Change'
-          - doc_no: flag_outlier_null_has_major_characteristic_change
-            outlier_reason: 'Review: Major Characteristic Change'
-          - doc_no: flag_outlier_null_has_minor_characteristic_change
-            outlier_reason: 'Review: Valid Sale'
-          - doc_no: flag_outlier_null_no_characteristic_change
-            outlier_reason: 'Review: Valid Sale'
-          - doc_no: flag_outlier_null_is_not_arms_length
-            outlier_reason: 'Review: Valid Sale'
-          - doc_no: flag_outlier_null_is_flip
-            outlier_reason: 'Review: Valid Sale'
-          - doc_no: flag_outlier_false_no_review
-            outlier_reason: 'Algorithm: Valid Sale'
-          - doc_no: flag_outlier_false_has_class_change
-            outlier_reason: 'Review: Major Characteristic Change'
-          - doc_no: flag_outlier_false_has_major_characteristic_change
-            outlier_reason: 'Review: Major Characteristic Change'
-          - doc_no: flag_outlier_false_has_minor_characteristic_change
-            outlier_reason: 'Review: Valid Sale'
-          - doc_no: flag_outlier_false_no_characteristic_change
-            outlier_reason: 'Review: Valid Sale'
-          - doc_no: flag_outlier_false_is_not_arms_length
-            outlier_reason: 'Review: Valid Sale'
-          - doc_no: flag_outlier_false_is_flip
-            outlier_reason: 'Review: Valid Sale'
-          - doc_no: flag_outlier_true_no_review_no_reasons
-            outlier_reason: 'Algorithm: Outlier Sale'
-          - doc_no: flag_outlier_true_no_review_with_reasons
-            outlier_reason: 'Algorithm: Outlier Sale, High Price, Statistical Anomaly'
-          - doc_no: flag_outlier_true_has_class_change
-            outlier_reason: 'Review: Major Characteristic Change'
-          - doc_no: flag_outlier_true_has_major_characteristic_change
-            outlier_reason: 'Review: Major Characteristic Change'
-          - doc_no: flag_outlier_true_has_minor_characteristic_change
-            outlier_reason: 'Review: Valid Sale'
-          - doc_no: flag_outlier_true_no_characteristic_change
-            outlier_reason: 'Review: Valid Sale'
-          - doc_no: flag_outlier_true_is_not_arms_length
-            outlier_reason: 'Review: Non-Arms-Length'
-          - doc_no: flag_outlier_true_is_flip
-            outlier_reason: 'Review: Flip'
+        - doc_no: flag_outlier_null_no_review
+          outlier_reason: null
+        - doc_no: flag_outlier_null_has_class_change
+          outlier_reason: 'Review: Major Characteristic Change'
+        - doc_no: flag_outlier_null_has_major_characteristic_change
+          outlier_reason: 'Review: Major Characteristic Change'
+        - doc_no: flag_outlier_null_has_minor_characteristic_change
+          outlier_reason: 'Review: Valid Sale'
+        - doc_no: flag_outlier_null_no_characteristic_change
+          outlier_reason: 'Review: Valid Sale'
+        - doc_no: flag_outlier_null_is_not_arms_length
+          outlier_reason: 'Review: Valid Sale'
+        - doc_no: flag_outlier_null_is_flip
+          outlier_reason: 'Review: Valid Sale'
+        - doc_no: flag_outlier_false_no_review
+          outlier_reason: 'Algorithm: Valid Sale'
+        - doc_no: flag_outlier_false_has_class_change
+          outlier_reason: 'Review: Major Characteristic Change'
+        - doc_no: flag_outlier_false_has_major_characteristic_change
+          outlier_reason: 'Review: Major Characteristic Change'
+        - doc_no: flag_outlier_false_has_minor_characteristic_change
+          outlier_reason: 'Review: Valid Sale'
+        - doc_no: flag_outlier_false_no_characteristic_change
+          outlier_reason: 'Review: Valid Sale'
+        - doc_no: flag_outlier_false_is_not_arms_length
+          outlier_reason: 'Review: Valid Sale'
+        - doc_no: flag_outlier_false_is_flip
+          outlier_reason: 'Review: Valid Sale'
+        - doc_no: flag_outlier_true_no_review_no_reasons
+          outlier_reason: 'Algorithm: Outlier Sale'
+        - doc_no: flag_outlier_true_no_review_with_reasons
+          outlier_reason: 'Algorithm: Outlier Sale, High Price, Statistical Anomaly'
+        - doc_no: flag_outlier_true_has_class_change
+          outlier_reason: 'Review: Major Characteristic Change'
+        - doc_no: flag_outlier_true_has_major_characteristic_change
+          outlier_reason: 'Review: Major Characteristic Change'
+        - doc_no: flag_outlier_true_has_minor_characteristic_change
+          outlier_reason: 'Review: Valid Sale'
+        - doc_no: flag_outlier_true_no_characteristic_change
+          outlier_reason: 'Review: Valid Sale'
+        - doc_no: flag_outlier_true_is_not_arms_length
+          outlier_reason: 'Review: Non-Arms-Length'
+        - doc_no: flag_outlier_true_is_flip
+          outlier_reason: 'Review: Flip'
