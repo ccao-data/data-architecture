@@ -196,3 +196,25 @@ sources:
             description: User ID of last maintenance
           - name : whocalc
             description: Batch computation/change
+
+        data_tests:
+          - unique_combination_of_columns:
+              name: iasworld_maildat_unique_by_parid_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+                - mailseq
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: &unique-conditions
+                where: |
+                  CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                  AND cur = 'Y'
+                  AND deactivat IS NULL
+              meta:
+                description: maildat should be unique by parid and taxyr
