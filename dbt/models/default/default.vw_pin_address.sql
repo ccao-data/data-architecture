@@ -2,6 +2,8 @@
 
 WITH mail AS (
     SELECT
+        parid,
+        taxyr,
         NULLIF(
             REGEXP_REPLACE(CONCAT_WS(' ', mail1, mail2), '\s+', ' '), ''
         ) AS mail_address_name,
