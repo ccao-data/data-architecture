@@ -1,5 +1,9 @@
 -- Source of truth view for PIN address, both legal and mailing
 
+-- We need a CTE here since MAILDAT is not unique by PIN and TAXYR - it tracks
+-- changes to mailing addresses within a year for a given PIN using MAILSEQ.
+-- For now, we're chosing to use the final address for a pin in any year where
+-- it has more than one.
 WITH mail AS (
     SELECT
         parid,
@@ -14,8 +18,7 @@ WITH mail AS (
         mstatecode AS mail_address_state,
         NULLIF(mzip1, '00000') AS mail_address_zipcode_1,
         NULLIF(mzip2, '0000') AS mail_address_zipcode_2,
-        mailseq,
-        MAX(mailseq) OVER (PARTITION BY parid, taxyr) AS newest
+        mailseq = MAX(mailseq) OVER (PARTITION BY parid, taxyr) AS newest
     FROM {{ source('iasworld', 'maildat') }}
     WHERE cur = 'Y'
         AND deactivat IS NULL
@@ -92,7 +95,7 @@ LEFT JOIN {{ source('iasworld', 'owndat') }} AS own
 LEFT JOIN mail
     ON par.parid = mail.parid
     AND par.taxyr = mail.taxyr
-    AND mail.mailseq = mail.newest
+    AND mail.newest
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
     -- Remove any parcels with non-numeric characters
