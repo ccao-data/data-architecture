@@ -29,11 +29,11 @@ SELECT
     NULLIF(leg.zip1, '00000') AS prop_address_zipcode_1,
     NULLIF(leg.zip2, '0000') AS prop_address_zipcode_2,
 
-    -- PIN mailing address from OWNDAT
+    -- PIN owner address from OWNDAT
     NULLIF(CONCAT_WS(
         ' ',
         own.own1, own.own2
-    ), '') AS mail_address_name,
+    ), '') AS owner_address_name,
     CASE WHEN NULLIF(own.addr1, '') IS NOT NULL THEN own.addr1
         WHEN NULLIF(own.addr2, '') IS NOT NULL THEN own.addr2
         ELSE NULLIF(CONCAT_WS(
@@ -42,11 +42,23 @@ SELECT
                 own.adrdir, own.adrstr, own.adrsuf,
                 own.unitdesc, own.unitno
             ), '')
-    END AS mail_address_full,
-    own.cityname AS mail_address_city_name,
-    own.statecode AS mail_address_state,
-    NULLIF(own.zip1, '00000') AS mail_address_zipcode_1,
-    NULLIF(own.zip2, '0000') AS mail_address_zipcode_2
+    END AS owner_address_full,
+    own.cityname AS owner_address_city_name,
+    own.statecode AS owner_address_state,
+    NULLIF(own.zip1, '00000') AS owner_address_zipcode_1,
+    NULLIF(own.zip2, '0000') AS owner_address_zipcode_2,
+
+    -- PIN mailing address from MAILDAT
+    NULLIF(
+        REGEXP_REPLACE(CONCAT_WS(' ', mail.mail1, mail.mail2), '\s+', ' '), ''
+    ) AS mail_address_name,
+    NULLIF(
+        REGEXP_REPLACE(CONCAT_WS(' ', mail.maddr1, mail.maddr2), '\s+', ' '), ''
+    ) AS mail_address_full,
+    mail.mcityname AS mail_address_city_name,
+    mail.mstatecode AS mail_address_state,
+    NULLIF(mail.mzip1, '00000') AS mail_address_zipcode_1,
+    NULLIF(mail.mzip2, '0000') AS mail_address_zipcode_2
 
 FROM {{ source('iasworld', 'pardat') }} AS par
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
@@ -59,6 +71,11 @@ LEFT JOIN {{ source('iasworld', 'owndat') }} AS own
     AND par.taxyr = own.taxyr
     AND own.cur = 'Y'
     AND own.deactivat IS NULL
+LEFT JOIN {{ source('iasworld', 'maildat') }} AS mail
+    ON par.parid = mail.parid
+    AND par.taxyr = mail.taxyr
+    AND mail.cur = 'Y'
+    AND mail.deactivat IS NULL
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
     -- Remove any parcels with non-numeric characters

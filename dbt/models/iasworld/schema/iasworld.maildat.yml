@@ -1,0 +1,198 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
+    tags:
+      - load_auto
+      - data_test_iasworld
+
+    tables:
+      - name: maildat
+        description: '{{ doc("table_maildat") }}'
+        freshness:
+          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+        columns:
+          - name : addrtype
+            description: Address type code (N, S, F, R, C)
+          - name : addrvalid
+            description: Flag to denote whether address was validated against validation service
+          - name : attn
+            description: Attention Line
+          - name : begdate
+            description: Beginning effective date for this entry
+          - name : careof
+            description: In Care Of name
+          - name : carrier_rt
+            description: Carrier route - 4 digit suffix
+          - name : chgdate
+            description: Date requested change
+          - name : compartment
+            description: Compartment
+          - name : conv1
+            description: Old data for conversion 1 - NOT TO BE USED IN TRANSACTIONS
+          - name : cur
+            description: Current record indicator
+          - name : deactivat
+            description: Deactivate date
+          - name : delinstalltype
+            description: Delivery Installation Type
+          - name : delinstallval
+            description: Delivery Installation Value
+          - name : delmod
+            description: Mode of Delivery
+          - name : delmodval
+            description: Mode of Delivery Value
+          - name : email
+            description: E-mail address of contact person
+          - name : enddate
+            description: Ending effective date for this entry
+          - name : fax
+            description: Fax number of contact person
+          - name : fedid
+            description: Federal tax ID number
+          - name : floorno
+            description: Floor Number
+          - name : hidename
+            description: Flag to hide name/address from public view (Y)
+          - name : iasw_id
+            description: iasWorld unique row identifier
+          - name : jur
+            description: Jurisdiction
+          - name : landcontr
+            description: Land contract flag
+          - name : ltrcode
+            description: Conveyance letter code
+          - name : maddr1
+            description: Mailing address line 1
+          - name : maddr2
+            description: Maling address line 2
+          - name : maddr3
+            description: Mailing address line 3
+          - name : maddr4
+            description: Address Line 4
+          - name : maddr5
+            description: Address Line 5
+          - name : madradd
+            description: Street number extension
+          - name : madrdir
+            description: Street direction
+          - name : madrgrid
+            description: Grid address number
+          - name : madrno
+            description: Street number
+          - name : madrpre
+            description: Address Number Prefix
+          - name : madrstr
+            description: Street name
+          - name : madrsuf
+            description: Street suffix
+          - name : madrsuf2
+            description: Street suffix #2
+          - name : mail1
+            description: Mailing name line 1
+          - name : mail1_companyname
+            description: Mailing Name 1 Company Name
+          - name : mail1_firstname
+            description: Mailing Name 1 First Name
+          - name : mail1_lastname
+            description: Mailing Name 1 Last Name
+          - name : mail1_middlename
+            description: Mailing Name 1 Middle Name
+          - name : mail1_prefix
+            description: Mailing Name 1 Prefix
+          - name : mail1_suffix
+            description: Mailing Name 1 Suffix
+          - name : mail2
+            description: Mailing name line 2
+          - name : mail2_companyname
+            description: Mailing Name 2 Company Name
+          - name : mail2_firstname
+            description: Mailing Name 2 First Name
+          - name : mail2_lastname
+            description: Mailing Name 2 Last Name
+          - name : mail2_middlename
+            description: Mailing Name 2 Middle Name
+          - name : mail2_prefix
+            description: Mailing Name 2 Prefix
+          - name : mail2_suffix
+            description: Mailing Name 2 Suffix
+          - name : mailcode
+            description: Code identifying relationship to property owner
+          - name : mailseq
+            description: Mailing sequence number
+          - name : mcityname
+            description: City name
+          - name : mcountry
+            description: Country
+          - name : mnamejur
+            description: Stores MNAME.JUR when MOWNNUM is populated in hierarchical jur sites
+          - name : mortco
+            description: Mortgage company number
+          - name : mortno
+            description: Mortgage company account number
+          - name : mownnum
+            description: Mailing pointer to name/address table (MNAME)
+          - name : mpostalcode
+            description: Postal Code (International zip code)
+          - name : mstatecode
+            description: State or province(2 digit)
+          - name : munitdesc
+            description: Type of unit identifier(A, B, U)
+          - name : munitno
+            description: Unit number
+          - name : mzip1
+            description: US postal zip code - 5 digit
+          - name : mzip2
+            description: US postal zip code - 4 digit
+          - name : note1
+            description: Note field 1
+          - name : note2
+            description: Note field 2
+          - name : ownseq
+            description: Owner sequence number
+          - name : parid
+            description: Parcel identification number
+          - name : parlink
+            description: Parcel linkage number
+          - name : paycode
+            description: Payment code
+          - name : phone
+            description: Phone number
+          - name : postal_indx
+            description: Postal index number
+          - name : reasmail
+            description: Reason for mailing change
+          - name : rollover
+            description: Rollover flag
+          - name : seq
+            description: Version number of this record
+          - name : site
+            description: Site
+          - name : skip_addr_validation
+            description: Skip Address Validation
+          - name : ssn
+            description: Social security number
+          - name : stateid
+            description: State tax ID number
+          - name : status
+            description: Processing status
+          - name : taxsusp
+            description: Tax suspension flag
+          - name : taxyr
+            description: Tax year
+          - name : trans_id
+            description: iasWorld transaction number
+          - name : upd_status
+            description: iasWorld update status for this row
+          - name : vldrsc
+            description: No Validation Reason Code
+          - name : wen
+            description: Last maintenance date
+          - name : wencalc
+            description: Date of last batch change
+          - name : who
+            description: User ID of last maintenance
+          - name : whocalc
+            description: Batch computation/change
