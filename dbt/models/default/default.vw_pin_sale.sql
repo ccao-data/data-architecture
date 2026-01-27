@@ -301,7 +301,9 @@ SELECT
     outlier.flag_is_outlier,
     outlier.flag_is_ptax_outlier,
     outlier.flag_is_heuristic_outlier,
-    outlier.flag_outlier_reasons,
+    outlier.flag_outlier_reason1,
+    outlier.flag_outlier_reason2,
+    outlier.flag_outlier_reason3,
     outlier.flag_run_id,
     outlier.flag_version,
     outlier.has_review,
@@ -309,6 +311,7 @@ SELECT
     outlier.review_is_flip,
     outlier.review_has_class_change,
     outlier.review_has_characteristic_change,
+    outlier.review_json,
     outlier.is_outlier,
     outlier.outlier_reason
 FROM unique_sales

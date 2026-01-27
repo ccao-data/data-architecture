@@ -16,8 +16,12 @@ WITH flag_and_review AS (
         COALESCE(flag.sv_is_ptax_outlier, FALSE) AS flag_is_ptax_outlier,
         COALESCE(flag.sv_is_heuristic_outlier, FALSE)
             AS flag_is_heuristic_outlier,
-        flag.run_id AS flag_run_id,
-        flag.version AS flag_version,
+        flag.sv_outlier_reason1 AS flag_outlier_reason1,
+        flag.sv_outlier_reason2 AS flag_outlier_reason2,
+        flag.sv_outlier_reason3 AS flag_outlier_reason3,
+        -- Convenience column that combines all flag reasons into one array
+        -- for easier logic in queries that consume this CTE. We don't select
+        -- this column in the output of this view because it's redundant
         FILTER(
             ARRAY[
                 flag.sv_outlier_reason1,
@@ -26,6 +30,8 @@ WITH flag_and_review AS (
             ],
             r -> r IS NOT NULL
         ) AS flag_outlier_reasons,
+        flag.run_id AS flag_run_id,
+        flag.version AS flag_version,
         NOT COALESCE(
             review.has_class_change IS NULL
             AND review.has_characteristic_change IS NULL
@@ -42,7 +48,13 @@ WITH flag_and_review AS (
             review.has_class_change
             OR review.has_characteristic_change = 'yes_major',
             FALSE
-        ) AS review_has_major_characteristic_change
+        ) AS review_has_major_characteristic_change,
+        JSON_OBJECT( -- noqa: disable=CP02,RF02
+            'is_arms_length' VALUE is_arms_length,
+            'is_flip' VALUE is_flip,
+            'has_class_change' VALUE has_class_change,
+            'has_characteristic_change' VALUE has_characteristic_change
+        ) AS review_json -- noqa: enable=CP02,RF02
     FROM {{ ref('sale.vw_flag') }} AS flag
     FULL OUTER JOIN {{ source('sale', 'flag_review') }} AS review
         ON flag.doc_no = review.doc_no
@@ -187,7 +199,23 @@ outlier_reason AS (
 )
 
 SELECT
-    *,
+    doc_no,
+    has_flag,
+    flag_is_outlier,
+    flag_is_ptax_outlier,
+    flag_is_heuristic_outlier,
+    flag_outlier_reason1,
+    flag_outlier_reason2,
+    flag_outlier_reason3,
+    flag_run_id,
+    flag_version,
+    has_review,
+    review_is_arms_length,
+    review_is_flip,
+    review_has_class_change,
+    review_has_characteristic_change,
+    review_json,
+    outlier_reason,
     -- Cast the verbose outlier reasons to a boolean flag for easier filtering
     CASE
         WHEN outlier_reason = 'Review: Major Characteristic Change'

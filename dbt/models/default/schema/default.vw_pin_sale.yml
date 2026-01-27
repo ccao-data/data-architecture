@@ -17,8 +17,12 @@ models:
         description: '{{ doc("shared_column_sv_is_outlier") }}'
       - name: flag_is_ptax_outlier
         description: '{{ doc("shared_column_sv_is_ptax_outlier") }}'
-      - name: flag_outlier_reasons
-        description: Array of combined algorithm flag reasons
+      - name: flag_outlier_reason1
+        description: '{{ doc("shared_column_sv_outlier_reason") }}'
+      - name: flag_outlier_reason2
+        description: '{{ doc("shared_column_sv_outlier_reason") }}'
+      - name: flag_outlier_reason3
+        description: '{{ doc("shared_column_sv_outlier_reason") }}'
       - name: flag_run_id
         description: '{{ doc("shared_column_sv_run_id") }}'
       - name: flag_version

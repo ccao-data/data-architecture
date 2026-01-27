@@ -375,8 +375,12 @@ models:
         description: '{{ doc("shared_column_sv_is_outlier") }}'
       - name: flag_is_ptax_outlier
         description: '{{ doc("shared_column_sv_is_ptax_outlier") }}'
-      - name: flag_outlier_reasons
-        description: Array of combined algorithm flag reasons
+      - name: flag_outlier_reason1
+        description: '{{ doc("shared_column_sv_outlier_reason") }}'
+      - name: flag_outlier_reason2
+        description: '{{ doc("shared_column_sv_outlier_reason") }}'
+      - name: flag_outlier_reason3
+        description: '{{ doc("shared_column_sv_outlier_reason") }}'
       - name: flag_run_id
         description: '{{ doc("shared_column_sv_run_id") }}'
       - name: flag_version
@@ -410,18 +414,16 @@ models:
         description: '{{ doc("shared_column_has_characteristic_change") }}'
       - name: review_has_class_change
         description: '{{ doc("shared_column_has_class_change") }}'
-      - name: review_has_major_characteristic_change
-        description: |
-          True if `has_class_change` is true or if `has_characteristic_change` is
-          `"yes_major"`, false otherwise.
-
-          This is a convenience column intended to make the outlier determination
-          logic cleaner in downstream views, where "major class change" can
-          reflect either one of the conditions described above.
       - name: review_is_arms_length
         description: '{{ doc("shared_column_is_arms_length") }}'
       - name: review_is_flip
         description: '{{ doc("shared_column_is_flip") }}'
+      - name: review_json
+        description: |
+          Archival object documenting the combined state of all review fields.
+
+          The schema for this object is not guaranteed to be consistent over
+          time, so do not use it for serious analysis or programming tasks.
 
     data_tests:
       - row_count:

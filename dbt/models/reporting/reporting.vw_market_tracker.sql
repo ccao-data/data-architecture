@@ -71,12 +71,9 @@ SELECT
     vps.sale_filter_same_sale_within_365,
     vps.sale_filter_less_than_10k,
     vps.sale_filter_deed_type,
-    {%- for idx in [1, 2, 3] %}
-        CASE
-            WHEN CARDINALITY(vps.flag_outlier_reasons) >= {{ idx }}
-                THEN vps.flag_outlier_reasons[{{ idx }}]
-        END AS sv_outlier_reason{{ idx }},
-    {% endfor %}
+    vps.flag_outlier_reason1 AS sv_outlier_reason1,
+    vps.flag_outlier_reason2 AS sv_outlier_reason2,
+    vps.flag_outlier_reason3 AS sv_outlier_reason3,
     -- Cards 1 and 2 are card numbers for the first two residential cards for a
     -- parcel. They will not always be values of 1 and 2.
     vrc1.card AS card1,
