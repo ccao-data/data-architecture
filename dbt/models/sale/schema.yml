@@ -443,8 +443,8 @@ models:
             - doc_no
 
 unit_tests:
-  - name: sale_vw_outlier_outlier_reason_produces_correct_values
-    description: View should produce the correct outlier reasons
+  - name: sale_vw_outlier_produces_correct_outliers_and_reasons
+    description: View should produce correct outliers with associated reasons
     model: sale.vw_outlier
     given:
       - input: ref("sale.vw_flag")
@@ -484,10 +484,36 @@ unit_tests:
             sv_is_outlier: true
           - doc_no: flag_outlier_true_no_characteristic_change
             sv_is_outlier: true
-          - doc_no: flag_outlier_true_is_not_arms_length
+          - doc_no: flag_outlier_true_is_not_arms_length_no_price_reasons
             sv_is_outlier: true
-          - doc_no: flag_outlier_true_is_flip
+          - doc_no: flag_outlier_true_is_not_arms_length_high_price
             sv_is_outlier: true
+            sv_outlier_reason1: High price per square foot  # View should ignore
+            sv_outlier_reason2: High price
+          - doc_no: flag_outlier_true_is_not_arms_length_high_price_per_sq_ft
+            sv_is_outlier: true
+            sv_outlier_reason2: High price per square foot
+          - doc_no: flag_outlier_true_is_not_arms_length_low_price
+            sv_is_outlier: true
+            sv_outlier_reason3: Low price
+          - doc_no: flag_outlier_true_is_not_arms_length_low_price_per_sq_ft
+            sv_is_outlier: true
+            sv_outlier_reason1: Statistical Anomaly  # View should ignore
+            sv_outlier_reason2: Low price per square foot
+          - doc_no: flag_outlier_true_is_flip_no_price_reasons
+            sv_is_outlier: true
+          - doc_no: flag_outlier_true_is_flip_high_price
+            sv_is_outlier: true
+            sv_outlier_reason1: High price
+          - doc_no: flag_outlier_true_is_flip_high_price_per_sq_ft
+            sv_is_outlier: true
+            sv_outlier_reason1: High price per square foot
+          - doc_no: flag_outlier_true_is_flip_low_price
+            sv_is_outlier: true
+            sv_outlier_reason1: Low price
+          - doc_no: flag_outlier_true_is_flip_low_price_per_sq_ft
+            sv_is_outlier: true
+            sv_outlier_reason1: Low price per square foot
       - input: source("sale", "flag_review")
         rows:
           - doc_no: flag_outlier_null_no_review
@@ -526,53 +552,115 @@ unit_tests:
             has_characteristic_change: yes_minor
           - doc_no: flag_outlier_true_no_characteristic_change
             has_characteristic_change: no
-          - doc_no: flag_outlier_true_is_not_arms_length
+          - doc_no: flag_outlier_true_is_not_arms_length_no_price_reasons
             is_arms_length: false
-          - doc_no: flag_outlier_true_is_flip
+          - doc_no: flag_outlier_true_is_not_arms_length_high_price
+            is_arms_length: false
+          - doc_no: flag_outlier_true_is_not_arms_length_high_price_per_sq_ft
+            is_arms_length: false
+          - doc_no: flag_outlier_true_is_not_arms_length_low_price
+            is_arms_length: false
+          - doc_no: flag_outlier_true_is_not_arms_length_low_price_per_sq_ft
+            is_arms_length: false
+          - doc_no: flag_outlier_true_is_flip_no_price_reasons
+            is_flip: true
+          - doc_no: flag_outlier_true_is_flip_high_price
+            is_flip: true
+          - doc_no: flag_outlier_true_is_flip_high_price_per_sq_ft
+            is_flip: true
+          - doc_no: flag_outlier_true_is_flip_low_price
+            is_flip: true
+          - doc_no: flag_outlier_true_is_flip_low_price_per_sq_ft
             is_flip: true
     expect:
       rows:
         - doc_no: flag_outlier_null_no_review
+          is_outlier: false
           outlier_reason: null
         - doc_no: flag_outlier_null_has_class_change
+          is_outlier: true
           outlier_reason: 'Review: Major Characteristic Change'
         - doc_no: flag_outlier_null_has_major_characteristic_change
+          is_outlier: true
           outlier_reason: 'Review: Major Characteristic Change'
         - doc_no: flag_outlier_null_has_minor_characteristic_change
+          is_outlier: false
           outlier_reason: 'Review: Valid Sale'
         - doc_no: flag_outlier_null_no_characteristic_change
+          is_outlier: false
           outlier_reason: 'Review: Valid Sale'
         - doc_no: flag_outlier_null_is_not_arms_length
+          is_outlier: false
           outlier_reason: 'Review: Valid Sale'
         - doc_no: flag_outlier_null_is_flip
+          is_outlier: false
           outlier_reason: 'Review: Valid Sale'
         - doc_no: flag_outlier_false_no_review
+          is_outlier: false
           outlier_reason: 'Algorithm: Valid Sale'
         - doc_no: flag_outlier_false_has_class_change
+          is_outlier: true
           outlier_reason: 'Review: Major Characteristic Change'
         - doc_no: flag_outlier_false_has_major_characteristic_change
+          is_outlier: true
           outlier_reason: 'Review: Major Characteristic Change'
         - doc_no: flag_outlier_false_has_minor_characteristic_change
+          is_outlier: false
           outlier_reason: 'Review: Valid Sale'
         - doc_no: flag_outlier_false_no_characteristic_change
+          is_outlier: false
           outlier_reason: 'Review: Valid Sale'
         - doc_no: flag_outlier_false_is_not_arms_length
+          is_outlier: false
           outlier_reason: 'Review: Valid Sale'
         - doc_no: flag_outlier_false_is_flip
+          is_outlier: false
           outlier_reason: 'Review: Valid Sale'
         - doc_no: flag_outlier_true_no_review_no_reasons
+          is_outlier: true
           outlier_reason: 'Algorithm: Outlier Sale'
         - doc_no: flag_outlier_true_no_review_with_reasons
+          is_outlier: true
           outlier_reason: 'Algorithm: Outlier Sale, High Price, Statistical Anomaly'
         - doc_no: flag_outlier_true_has_class_change
+          is_outlier: true
           outlier_reason: 'Review: Major Characteristic Change'
         - doc_no: flag_outlier_true_has_major_characteristic_change
+          is_outlier: true
           outlier_reason: 'Review: Major Characteristic Change'
         - doc_no: flag_outlier_true_has_minor_characteristic_change
+          is_outlier: false
           outlier_reason: 'Review: Valid Sale'
         - doc_no: flag_outlier_true_no_characteristic_change
+          is_outlier: false
           outlier_reason: 'Review: Valid Sale'
-        - doc_no: flag_outlier_true_is_not_arms_length
+        - doc_no: flag_outlier_true_is_not_arms_length_no_price_reasons
+          is_outlier: true
           outlier_reason: 'Review: Non-Arms-Length'
-        - doc_no: flag_outlier_true_is_flip
+        - doc_no: flag_outlier_true_is_not_arms_length_high_price
+          is_outlier: true
+          outlier_reason: 'Review: Non-Arms-Length, Algorithm: High price'
+        - doc_no: flag_outlier_true_is_not_arms_length_high_price_per_sq_ft
+          is_outlier: true
+          outlier_reason: 'Review: Non-Arms-Length, Algorithm: High price per square foot'
+        - doc_no: flag_outlier_true_is_not_arms_length_low_price
+          is_outlier: true
+          outlier_reason: 'Review: Non-Arms-Length, Algorithm: Low price'
+        - doc_no: flag_outlier_true_is_not_arms_length_low_price_per_sq_ft
+          is_outlier: true
+          outlier_reason: 'Review: Non-Arms-Length, Algorithm: Low price per square foot'
+        - doc_no: flag_outlier_true_is_flip_no_price_reasons
+          is_outlier: true
           outlier_reason: 'Review: Flip'
+        - doc_no: flag_outlier_true_is_flip_high_price
+          is_outlier: true
+          outlier_reason: 'Review: Flip, Algorithm: High price'
+        - doc_no: flag_outlier_true_is_flip_high_price_per_sq_ft
+          is_outlier: true
+          outlier_reason: 'Review: Flip, Algorithm: High price per square foot'
+        - doc_no: flag_outlier_true_is_flip_low_price
+          is_outlier: true
+          outlier_reason: 'Review: Flip, Algorithm: Low price'
+        - doc_no: flag_outlier_true_is_flip_low_price_per_sq_ft
+          is_outlier: true
+          outlier_reason: 'Review: Flip, Algorithm: Low price per square foot'

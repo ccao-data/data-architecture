@@ -48,6 +48,13 @@ WITH flag_and_review AS (
         ON flag.doc_no = review.doc_no
 ),
 
+{% set price_outlier_reasons = [
+    "High price",
+    "High price per square foot",
+    "Low price",
+    "Low price per square foot",
+] -%}
+
 -- Compare algorithmic flags to human review in order to make a final
 -- determination about whether the sale is an outlier. Since we need to explain
 -- our outlier determinations to data consumers, we start by producing verbose
@@ -84,10 +91,28 @@ outlier_reason AS (
                         CASE
                             WHEN review_is_flip
                                 THEN
-                                'Review: Flip'
+                                CASE
+                                    {%- for price_outlier_reason in price_outlier_reasons %}  -- noqa: LT05
+                                        WHEN CONTAINS(
+                                                flag_outlier_reasons,
+                                                '{{ price_outlier_reason }}'
+                                            )
+                                            THEN 'Review: Flip, Algorithm: {{ price_outlier_reason }}'  -- noqa: LT05
+                                    {%- endfor %}
+                                    ELSE 'Review: Flip'
+                                END
                             WHEN NOT review_is_arms_length
                                 THEN
-                                'Review: Non-Arms-Length'
+                                CASE
+                                    {%- for price_outlier_reason in price_outlier_reasons %}  -- noqa: LT05
+                                        WHEN CONTAINS(
+                                                flag_outlier_reasons,
+                                                '{{ price_outlier_reason }}'
+                                            )
+                                            THEN 'Review: Non-Arms-Length, Algorithm: {{ price_outlier_reason }}'  -- noqa: LT05
+                                    {%- endfor %}
+                                    ELSE 'Review: Non-Arms-Length'
+                                END
                             ELSE
                                 -- If we reach this branch, then the reviewer
                                 -- did not find anything unusual about the
@@ -165,11 +190,10 @@ SELECT
     *,
     -- Cast the verbose outlier reasons to a boolean flag for easier filtering
     CASE
-        WHEN outlier_reason IN (
-                'Review: Major Characteristic Change',
-                'Review: Non-Arms-Length',
-                'Review: Flip'
-            ) OR outlier_reason LIKE 'Algorithm: Outlier Sale%'
+        WHEN outlier_reason = 'Review: Major Characteristic Change'
+            OR outlier_reason LIKE 'Review: Non-Arms-Length%'
+            OR outlier_reason LIKE 'Review: Flip%'
+            OR outlier_reason LIKE 'Algorithm: Outlier Sale%'
             THEN TRUE
         WHEN outlier_reason IN (
                 'Review: Valid Sale',
