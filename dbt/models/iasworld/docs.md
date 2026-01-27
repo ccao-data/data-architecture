@@ -279,6 +279,18 @@ Neighborhood parameter table for calp, valuation models, etc.
 **Primary Key**: `jur`, `ver`, `nbhd`
 {% enddocs %}
 
+# maildat
+
+{% docs table_maildat %}
+Mailing information such as name and mailing address.
+
+### Nuance
+
+- Mailing addresses are not necessarily the same as owner addresses.
+
+**Primary Key**: `jur`, `taxyr`, `parid`
+{% enddocs %}
+
 # oby
 
 {% docs table_oby %}
