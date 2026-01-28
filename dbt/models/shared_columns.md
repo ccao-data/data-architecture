@@ -1841,8 +1841,8 @@ See [model-sales-val](https://github.com/ccao-data/model-sales-val) for more det
 {% docs shared_column_sv_outlier_reason %}
 
 One of three possible reasons that a sale is
-flagged as on outlier. The priority for
-sv_outlier_reason$n column filling is
+flagged as an outlier by our algorithmic sales validation pipeline.
+The priority for `sv_outlier_reason$n` column filling is
 ptax outlier > price outlier > characteristic outlier.
 
 See the [model-sales-val](https://github.com/ccao-data/model-sales-val)
