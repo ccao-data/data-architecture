@@ -419,11 +419,7 @@ models:
       - name: review_is_flip
         description: '{{ doc("shared_column_is_flip") }}'
       - name: review_json
-        description: |
-          Archival object documenting the combined state of all review fields.
-
-          The schema for this object is not guaranteed to be consistent over
-          time, so do not use it for serious analysis or programming tasks.
+        description: '{{ doc("shared_column_review_json") }}'
 
     data_tests:
       - row_count:

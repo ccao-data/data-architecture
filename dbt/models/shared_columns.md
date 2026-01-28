@@ -1785,6 +1785,15 @@ in this column suggests that the analyst believes there
 has been completed work on the home.
 {% enddocs %}
 
+## review_json
+
+{% docs shared_column_review_json %}
+Archival object documenting the combined state of all sale review fields.
+
+The schema for this object is not guaranteed to be consistent over
+time, so do not use it for serious analysis or programming tasks.
+{% enddocs %}
+
 ## sv_is_heuristic_outlier
 
 {% docs shared_column_sv_is_heuristic_outlier %}

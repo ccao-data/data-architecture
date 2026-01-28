@@ -93,6 +93,8 @@ models:
         description: '{{ doc("shared_column_is_arms_length") }}'
       - name: review_is_flip
         description: '{{ doc("shared_column_is_flip") }}'
+      - name: review_json
+        description: '{{ doc("shared_column_review_json") }}'
       - name: sale_date
         description: '{{ doc("shared_column_sale_date") }}'
       - name: sale_filter_deed_type
