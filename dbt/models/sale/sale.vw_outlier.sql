@@ -216,7 +216,10 @@ SELECT
     review_has_characteristic_change,
     review_json,
     outlier_reason,
-    -- Cast the verbose outlier reasons to a boolean flag for easier filtering
+    -- Cast the verbose outlier reasons to a boolean flag for easier filtering.
+    -- See the comments on the logic that produces the outlier reason column
+    -- above to clarify why these particular values indicate outliers or
+    -- valid sales
     CASE
         WHEN outlier_reason = 'Review: Major Characteristic Change'
             OR outlier_reason LIKE 'Review: Non-Arms-Length%'
