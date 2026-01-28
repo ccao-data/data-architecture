@@ -1758,18 +1758,23 @@ Possible values for this variable are:
 
 - `Review: Major Characteristic Change`: Outlier due to analyst reviewer finding
   a major characteristic problem
-- `Review: Non-Arms-Length`: Outlier due to analyst reviewer finding the
-  transaction was not arm's-length, and the algorithm finding the sale price to
-  be unusual
-- `Review: Flip`: Outlier due to analyst reviewer finding the sale to be a flip,
-  and the algorithm finding the sale price to be unusual
+- `Review: Non-Arms-Length, Algorithm: {High price|Low price|High price per square foot|Low price per square foot}`:
+  Outlier due to analyst reviewer finding the transaction was not arm's-length,
+  and the algorithm finding the sale price to be unusual. The string following
+  `Algorithm: ` indicates the specific reason that caused the algorithm to flag
+  the sale as having an unusual sale price.
+- `Review: Flip, Algorithm: {High price|Low price|High price per square foot|Low price per square foot}`:
+  Outlier due to analyst reviewer finding the sale to be a flip,
+  and the algorithm finding the sale price to be unusual. The string following
+  `Algorithm: ` indicates the specific reason that caused the algorithm to flag
+  the sale as having an unusual sale price.
 - `Review: Valid Sale`: Non-outlier due to analyst reviewer finding the sale to
-  be arm's-length and open market with correct characteristics
+  be arm's-length and open-market with correct characteristics
 - `Algorithm: Outlier Sale`: Outlier due to our sales validation algorithm
   finding one or more issues with the sale. The exact reasons for the
   algorithm's decision will be appended to the end of this value as a
   comma-separated string, like
-  `Algorithm: Outlier Sale, High Price, Statistical Anomaly`
+  `Algorithm: Outlier Sale, High Price, Statistical Anomaly`.
 - `Algorithm: Valid Sale`: Non-outlier due to our sales validation algorithm
   finding no problems with the sale
 - Null: The sale has not been evaluated by our sales validation algorithm or by
