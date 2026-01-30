@@ -125,9 +125,9 @@ unit_tests:
             cur: 'Y'
     expect:
       rows:
-          - pin: '01234567890000'
-            year: '2026'
-            exemption_type: exe_homeowner
-            exemption_amount: 200  # Choose the largest amount among CofEs
-            is_cofe: true  # Choose the CofE
-            cofe_date: '2026-01-02'  # Choose the latest date among CofEs
+        - pin: '01234567890000'
+          year: '2026'
+          exemption_type: exe_homeowner
+          exemption_amount: 200  # Choose the largest amount among CofEs
+          is_cofe: true  # Choose the CofE
+          cofe_date: '2026-01-02'  # Choose the latest date among CofEs
