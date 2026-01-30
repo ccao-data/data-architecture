@@ -129,7 +129,7 @@ sources:
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: udate9
-            description: '{{ doc("column_cofe_date") }}'
+            description: '{{ doc("shared_column_cofe_date") }}'
           - name: unit
             description: '{{ doc("column_unit") }}'
           - name: upd_status

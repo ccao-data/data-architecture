@@ -1395,6 +1395,16 @@ are calculated. Tax bills are paid in arrears, so an assessment from TY2023
 will be paid in calendar year 2024
 {% enddocs %}
 
+# Exemptions
+
+## cofe_date
+
+{% docs shared_column_cofe_date %}
+Certificate of Error (CofE) date.
+
+This column has only been in use since November 2025.
+{% enddocs %}
+
 # iasWorld
 
 ## loaded_at

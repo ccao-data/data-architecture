@@ -4,7 +4,7 @@ models:
 
     columns:
       - name: cofe_date
-        description: '{{ doc("column_cofe_date") }}'
+        description: '{{ doc("shared_column_cofe_date") }}'
       - name: exemption_amount
         description: Exemption amount
       - name: exemption_type

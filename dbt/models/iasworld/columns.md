@@ -245,14 +245,6 @@ Possible values for this variable are:
 City name
 {% enddocs %}
 
-## cofe_date
-
-{% docs column_cofe_date %}
-Certificate of Error (CofE) date.
-
-This column has only been in use since November 2025.
-{% enddocs %}
-
 ## cofe_indicator
 
 {% docs column_cofe_indicator %}
