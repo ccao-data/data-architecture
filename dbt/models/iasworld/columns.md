@@ -245,6 +245,18 @@ Possible values for this variable are:
 City name
 {% enddocs %}
 
+## cofe_indicator
+
+{% docs column_cofe_indicator %}
+Certificate of Error (CofE) string indicator.
+
+Possible values include:
+
+- `Y`: Exemption added via CofE
+- `N`: Exemption **not** added via CofE
+- Null: Unknown
+{% enddocs %}
+
 ## comnt
 
 {% docs column_comnt %}

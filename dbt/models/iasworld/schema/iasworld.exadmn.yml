@@ -129,23 +129,13 @@ sources:
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: udate9
-            description: |
-              Certificate of Error (CofE) date.
-
-              This column has only been in use since November 2025.
+            description: '{{ doc("shared_column_cofe_date") }}'
           - name: unit
             description: '{{ doc("column_unit") }}'
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
           - name: user126
-            description: |
-              Certificate of Error (CofE) indicator.
-
-              Possible values include:
-
-              - `Y`: Exemption added via CofE
-              - `N`: Exemption **not** added via CofE
-              - Null: Unknown
+            description: '{{ doc("column_cofe_indicator") }}'
           - name: wen
             description: '{{ doc("shared_column_updated_at") }}'
           - name: who

@@ -1,3 +1,15 @@
+## cofe_indicator_bool
+
+{% docs column_cofe_indicator_bool %}
+Certificate of Error (CofE) boolean indicator.
+
+Possible values include:
+
+- True: Exemption added via CofE
+- False: Exemption **not** added via CofE
+- Null: Unknown
+{% enddocs %}
+
 ## permit_address_full
 
 {% docs column_permit_address_full %}
