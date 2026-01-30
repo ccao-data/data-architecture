@@ -263,7 +263,7 @@ SELECT
     unique_sales.sale_filter_same_sale_within_365,
     unique_sales.sale_filter_less_than_10k,
     unique_sales.sale_filter_deed_type,
-    outlier.is_outlier AS sale_filter_is_outlier,
+    COALESCE(outlier.is_outlier, FALSE) AS sale_filter_is_outlier,
     mydec_sales.mydec_deed_type,
     mydec_sales.sale_filter_ptax_flag,
     mydec_sales.mydec_property_advertised,
@@ -297,7 +297,7 @@ SELECT
     mydec_sales.mydec_homestead_exemption_general_alternative,
     mydec_sales.mydec_homestead_exemption_senior_citizens,
     mydec_sales.mydec_homestead_exemption_senior_citizens_assessment_freeze,
-    outlier.has_flag,
+    COALESCE(outlier.has_flag, FALSE) AS has_flag,
     outlier.flag_is_outlier,
     outlier.flag_is_ptax_outlier,
     outlier.flag_is_heuristic_outlier,
@@ -306,13 +306,13 @@ SELECT
     outlier.flag_outlier_reason3,
     outlier.flag_run_id,
     outlier.flag_version,
-    outlier.has_review,
+    COALESCE(outlier.has_review, FALSE) AS has_review,
     outlier.review_is_arms_length,
     outlier.review_is_flip,
     outlier.review_has_class_change,
     outlier.review_has_characteristic_change,
     outlier.review_json,
-    outlier.is_outlier,
+    COALESCE(outlier.is_outlier, FALSE) AS is_outlier,
     outlier.outlier_reason
 FROM unique_sales
 LEFT JOIN mydec_sales

@@ -29,14 +29,23 @@ models:
         description: '{{ doc("shared_column_sv_version") }}'
       - name: has_flag
         description: '{{ doc("shared_column_has_flag") }}'
+        data_tests:
+          - not_null:
+              name: default_vw_pin_sale_has_flag_not_null
       - name: has_review
         description: '{{ doc("shared_column_has_review") }}'
+        data_tests:
+          - not_null:
+              name: default_vw_pin_sale_has_review_not_null
       - name: is_multisale
         description: '{{ doc("shared_column_sale_is_multisale") }}'
       - name: is_mydec_date
         description: Indicator for whether or not the observation uses the MyDec sale date
       - name: is_outlier
         description: '{{ doc("shared_column_is_outlier") }}'
+        data_tests:
+          - not_null:
+              name: default_vw_pin_sale_is_outlier_not_null
       - name: mydec_deed_type
         description: Deed type from MyDec, more granular than CCAO deed type
       - name: mydec_line_8_current_use
