@@ -57,20 +57,43 @@ WITH exe_raw AS (
         AND code.deactivat IS NULL
     WHERE det.deactivat IS NULL
         AND det.cur = 'Y'
+),
+
+-- There are currently some unexpected dupes in the exemption data right
+-- now. We eventually expect these to get resolved by the data owners, but
+-- in the meantime, we deduplicate based on PIN/year/exemption type, and
+-- prioritize exemptions in those groups that are CofEs and/or have the
+-- highest exemption amount
+exe_group_ranked AS (
+    SELECT
+        pin,
+        year,
+        exemption_type,
+        exemption_amount,
+        is_cofe,
+        cofe_date,
+        ROW_NUMBER() OVER (
+            PARTITION BY pin, year, exemption_type
+            ORDER BY
+                -- Prioritize CofEs first, because they represent corrections
+                is_cofe DESC NULLS LAST,
+                -- If multiple exemptions in a group are CofEs, choose the most
+                -- recent one
+                cofe_date DESC NULLS LAST,
+                -- If multiple CofEs have the same date, choose the one with
+                -- the highest exemption amount. This choice is arbitrary
+                -- but it makes the deduplication deterministic
+                exemption_amount DESC NULLS LAST
+        ) AS rank
+    FROM exe_raw
 )
 
 SELECT
     pin,
     year,
     exemption_type,
-    -- Use the larger exemption_amount when duplicates have different values.
-    -- This decision is arbitrary, we just want to choose one deterministically
-    MAX(exemption_amount) AS exemption_amount,
-    -- Prefer true over false or null for is_cofe, since true values are less
-    -- common
-    MAX(is_cofe) AS is_cofe,
-    -- Choose any non-null cofe_date, since we don't know which one is correct.
-    -- This decision is also arbitrary
-    MAX(cofe_date) AS cofe_date
-FROM exe_raw
-GROUP BY pin, year, exemption_type
+    exemption_amount,
+    is_cofe,
+    cofe_date
+FROM exe_group_ranked
+WHERE rank = 1

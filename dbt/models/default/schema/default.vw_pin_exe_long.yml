@@ -23,3 +23,111 @@ models:
             - pin
             - year
             - exemption_type
+
+unit_tests:
+  - name: default_vw_pin_exe_long_ranks_and_selects_properly_among_duplicates
+    description: >
+      When multiple exemptions have the same PIN, year, and type, view should
+      deduplicate them, prioritizing recent CofEs with higher amounts
+    model: default.vw_pin_exe_long
+    given:
+      - input: source('iasworld', 'exdet')
+        rows:
+          # apother is the exemption amount column, which is factored into
+          # the deduplication process. The non-CofE rows (caseno 1) have the
+          # highest exemption amounts, but we don't expect to see this amount
+          # in the output, because the view should prioritize CofEs
+          - parid: '01234567890000'
+            taxyr: '2026'
+            excode: 'HO'
+            caseno: 1
+            apother: 300
+            cur: 'Y'
+          # CofE row with the highest exemption amount. This is the exemption
+          # amount we'll expect to see in the output
+          - parid: '01234567890000'
+            taxyr: '2026'
+            excode: 'HO'
+            caseno: 2
+            apother: 200
+            cur: 'Y'
+          # CofE row with a lower exemption amount. We don't expect to see this
+          # exemption amount in the output
+          - parid: '01234567890000'
+            taxyr: '2026'
+            excode: 'HO'
+            caseno: 2
+            apother: 100
+            cur: 'Y'
+          # CofE row with null exemption amount, to test null handling
+          - parid: '01234567890000'
+            taxyr: '2026'
+            excode: 'HO'
+            caseno: 2
+            apother: null
+            cur: 'Y'
+      - input: source('iasworld', 'exadmn')
+        rows:
+          # Not CofE, latest date -- view should not pick this date.
+          # We don't expect CofE date to ever be populated for a non-CofE
+          # row but we're testing it just in case that assumption gets
+          # broken in the future
+          - parid: '01234567890000'
+            taxyr: '2026'
+            excode: 'HO'
+            caseno: 1
+            exstat: 'A'
+            user126: 'N'
+            udate9: '2026-01-03 00:00:00'
+            cur: 'Y'
+          # Same as above, but test null handling for CofE indicator
+          - parid: '01234567890000'
+            taxyr: '2026'
+            excode: 'HO'
+            caseno: 1
+            exstat: 'A'
+            user126: null
+            udate9: '2026-01-03 00:00:00'
+            cur: 'Y'
+          # Yes Cofe, earliest date among CofEs -- view should not pick this one
+          - parid: '01234567890000'
+            taxyr: '2026'
+            excode: 'HO'
+            caseno: 2
+            exstat: 'A'
+            user126: 'Y'
+            udate9: '2026-01-01 00:00:00'
+            cur: 'Y'
+          # Same as above, but test null handling for CofE date
+          - parid: '01234567890000'
+            taxyr: '2026'
+            excode: 'HO'
+            caseno: 2
+            exstat: 'A'
+            user126: 'Y'
+            udate9: null
+            cur: 'Y'
+          # Yes CofE, latest date among CofEs -- view should pick this date
+          - parid: '01234567890000'
+            taxyr: '2026'
+            excode: 'HO'
+            caseno: 2
+            exstat: 'A'
+            user126: 'Y'
+            udate9: '2026-01-02 00:00:00'
+            cur: 'Y'
+      - input: source('iasworld', 'excode')
+        rows:
+          # This table doesn't matter for the test, we just need it to ensure
+          # that the joins work
+          - excode: 'HO'
+            taxyr: '2026'
+            cur: 'Y'
+    expect:
+      rows:
+          - pin: '01234567890000'
+            year: '2026'
+            exemption_type: exe_homeowner
+            exemption_amount: 200  # Choose the largest amount among CofEs
+            is_cofe: true  # Choose the CofE
+            cofe_date: '2026-01-02'  # Choose the latest date among CofEs
