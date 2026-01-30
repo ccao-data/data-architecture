@@ -11,9 +11,9 @@ should be possible to reconstruct using the other sales validation tables:
 **Primary Key**: `meta_sale_document_number`, `run_id`, `version`
 {% enddocs %}
 
-# flag_override
+# flag_review
 
-{% docs flag_override %}
+{% docs flag_review %}
 Data built by manual review by analysts that determine whether or not
 we should include sales in the model.
 
@@ -66,6 +66,20 @@ including the statistical bounds, groupings, window sizes, etc.
 **Primary Key**: `run_id`
 {% enddocs %}
 
+# vw_flag
+
+{% docs vw_flag %}
+PIN-level sales validation flags created by
+[model-sales-val](https://github.com/ccao-data/model-sales-val).
+
+This view derives the most recent version of flags for each sale in the
+`sale.flag` table, which uses its `version` column as a [type 2 slowly changing
+dimension](https://en.wikipedia.org/wiki/Slowly_changing_dimension#Type_2:_add_new_row).
+As such, this view is unique by `doc_no`.
+
+**Primary Key**: `doc_no`
+{% enddocs %}
+
 # vw_flag_group
 
 {% docs vw_flag_group %}
@@ -91,4 +105,27 @@ View for sales validation outputs to create an upload format compatible
 with iasWorld.
 
 **Primary Key**: `salekey`, `run_id`
+{% enddocs %}
+
+# vw_outlier
+
+{% docs vw_outlier %}
+
+View that combines `sale.flag` and `sale.flag_review` to produce one
+unified view of all sales validation information for a sale based on its
+doc number.
+
+**Nuance**: Unlike the constituent tables `sale.flag` and `sale.flag_review`,
+the determination columns in this view (like `flag_is_outlier` or
+`review_has_class_change`) will never be null, even if the sale was not flagged
+or was not reviewed by an analyst. This is intended to ease the process of using
+these columns for boolean logic, so that we never have to handle the case where
+a boolean comparison could return null unexpectedly. However, it introduces the
+potential for confusion, in that a sale could have a not-null value for a
+determination column that does not actually correspond to a decision made by
+our algorithm or a reviewer. To determine whether a value in a determination
+column corresponds to a real decision made by our algorithm or a reviewer, use the
+`has_flag` and `has_review` columns.
+
+**Primary Key**: `doc_no`
 {% enddocs %}

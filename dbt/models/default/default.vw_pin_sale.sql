@@ -220,33 +220,6 @@ mydec_sales AS (
     joined back onto unique_sales will create duplicates by pin/sale date. */
     WHERE num_single_day_sales = 1
         OR (year_of_sale > '2020')
-),
-
-max_version_flag AS (
-    SELECT
-        meta_sale_document_num,
-        MAX(version) AS max_version
-    FROM {{ source('sale', 'flag') }}
-    GROUP BY meta_sale_document_num
-),
-
-sales_val AS (
-    SELECT
-        sf.meta_sale_document_num,
-        sf.sv_is_outlier,
-        sf.sv_is_ptax_outlier,
-        sf.sv_is_heuristic_outlier,
-        sf.sv_outlier_reason1,
-        sf.sv_outlier_reason2,
-        sf.sv_outlier_reason3,
-        sf.run_id AS sv_run_id,
-        sf.version AS sv_version
-    FROM
-        {{ source('sale', 'flag') }}
-            AS sf
-    INNER JOIN max_version_flag AS mv
-        ON sf.meta_sale_document_num = mv.meta_sale_document_num
-        AND sf.version = mv.max_version
 )
 
 SELECT
@@ -290,11 +263,7 @@ SELECT
     unique_sales.sale_filter_same_sale_within_365,
     unique_sales.sale_filter_less_than_10k,
     unique_sales.sale_filter_deed_type,
-    -- Our sales validation pipeline only validates sales past 2014 due to MyDec
-    -- limitations. Previous to that values for sv_is_outlier will be NULL, so
-    -- if we want to both exclude detected outliers and include sales prior to
-    -- 2014, we need to code everything NULL as FALSE.
-    COALESCE(sales_val.sv_is_outlier, FALSE) AS sale_filter_is_outlier,
+    COALESCE(outlier.is_outlier, FALSE) AS sale_filter_is_outlier,
     mydec_sales.mydec_deed_type,
     mydec_sales.sale_filter_ptax_flag,
     mydec_sales.mydec_property_advertised,
@@ -328,50 +297,25 @@ SELECT
     mydec_sales.mydec_homestead_exemption_general_alternative,
     mydec_sales.mydec_homestead_exemption_senior_citizens,
     mydec_sales.mydec_homestead_exemption_senior_citizens_assessment_freeze,
-    sales_val.sv_is_outlier,
-    sales_val.sv_is_ptax_outlier,
-    sales_val.sv_is_heuristic_outlier,
-    sales_val.sv_outlier_reason1,
-    sales_val.sv_outlier_reason2,
-    sales_val.sv_outlier_reason3,
-    sales_val.sv_run_id,
-    sales_val.sv_version,
-    flag_override.is_arms_length,
-    flag_override.is_flip,
-    flag_override.has_class_change,
-    flag_override.has_characteristic_change,
-    flag_override.requires_field_check,
-    CASE
-        -- If there is an override, use override logic
-        -- If neither override nor sv_is_outlier is populated, leave null
-        WHEN
-            flag_override.is_arms_length IS NOT NULL
-            OR flag_override.is_flip IS NOT NULL
-            OR flag_override.has_class_change IS NOT NULL
-            OR flag_override.has_characteristic_change IS NOT NULL
-            OR flag_override.requires_field_check IS NOT NULL
-            THEN (
-                -- COALESCE is required here because the boolean logic is
-                -- three-valued (TRUE / FALSE / NULL). When overrides exist
-                -- but some override columns are NULL, expressions like FALSE
-                -- OR NULL evaluate to NULL, which would incorrectly return
-                -- is_outlier = NULL instead of FALSE.
-                COALESCE(flag_override.is_arms_length = FALSE, FALSE)
-                OR COALESCE(flag_override.is_flip = TRUE, FALSE)
-                OR COALESCE(flag_override.has_class_change = TRUE, FALSE)
-                OR COALESCE(
-                    flag_override.has_characteristic_change = 'yes_major', FALSE
-                )
-                OR COALESCE(flag_override.requires_field_check = TRUE, FALSE)
-            )
-        -- If there is no override, default to sv_is_outlier
-        WHEN sales_val.sv_is_outlier IS NOT NULL
-            THEN sales_val.sv_is_outlier
-    END AS is_outlier
+    COALESCE(outlier.has_flag, FALSE) AS has_flag,
+    outlier.flag_is_outlier,
+    outlier.flag_is_ptax_outlier,
+    outlier.flag_is_heuristic_outlier,
+    outlier.flag_outlier_reason1,
+    outlier.flag_outlier_reason2,
+    outlier.flag_outlier_reason3,
+    outlier.flag_run_id,
+    outlier.flag_version,
+    COALESCE(outlier.has_review, FALSE) AS has_review,
+    outlier.review_is_arms_length,
+    outlier.review_is_flip,
+    outlier.review_has_class_change,
+    outlier.review_has_characteristic_change,
+    outlier.review_json,
+    COALESCE(outlier.is_outlier, FALSE) AS is_outlier,
+    outlier.outlier_reason
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
-LEFT JOIN sales_val
-    ON unique_sales.doc_no = sales_val.meta_sale_document_num
-LEFT JOIN {{ source('sale', 'flag_override') }} AS flag_override
-    ON unique_sales.doc_no = flag_override.doc_no
+LEFT JOIN {{ ref('sale.vw_outlier') }} AS outlier
+    ON unique_sales.doc_no = outlier.doc_no
