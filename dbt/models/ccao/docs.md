@@ -32,6 +32,22 @@ MV 08/18/2024.
 **Primary Key**: `pin`, `year`
 {% enddocs %}
 
+# cct_as_cofe_dtl
+
+{% docs table_cct_as_cofe_dtl %}
+Legacy Certificate of Error (CofE) detail table pulled by BoT. Provided via MV 09/28/2025.
+
+**Primary Key**: `pin`, `year`, `key_action_no`
+{% enddocs %}
+
+# cct_as_cofe_hdr
+
+{% docs table_cct_as_cofe_hdr %}
+Legacy Certificate of Error (CofE) header table pulled by BoT. Provided via MV 09/28/2025.
+
+**Primary Key**: `pin`, `year`, `certificate_number`
+{% enddocs %}
+
 # commercial_valuation
 
 {% docs table_commercial_valuation %}

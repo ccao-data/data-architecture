@@ -359,3 +359,369 @@ cc_pifdb_piexemptre_ownr %>%
     hive_style = TRUE,
     compression = "zstd"
   )
+
+
+##### CCT_AS_COFE_HDR
+files_cct_as_cofe_hdr <- aws.s3::get_bucket_df(
+  bucket = AWS_S3_RAW_BUCKET,
+  prefix = "ccao/legacy/CCT_AS_COFE_HDR",
+  max = Inf
+) %>%
+  filter(Size > 0)
+
+cct_as_cofe_hdr <- map_dfr(files_cct_as_cofe_hdr$Key, \(f) {
+  aws.s3::s3read_using(
+    object = f,
+    bucket = AWS_S3_RAW_BUCKET,
+    FUN = readr::read_fwf,
+    trim_ws = TRUE,
+    col_positions = readr::fwf_cols(
+      township_code = c(1, 3),
+      volume = c(5, 7),
+      pin = c(9, 22),
+      process_year = c(24, 27),
+      tax_year = c(29, 32),
+      tax_type = c(34, 34),
+      certificate_number = c(36, 42),
+      date_issued = c(44, 51),
+      control_number = c(53, 57),
+      certificate_issued_by = c(59, 66),
+      segment_counter = c(68, 69)
+    ),
+    col_types = cols(
+      township_code = col_character(),
+      volume = col_character(),
+      pin = col_character(),
+      process_year = col_character(),
+      tax_year = col_character(),
+      tax_type = col_character(),
+      certificate_number = col_character(),
+      date_issued = col_character(),
+      control_number = col_character(),
+      certificate_issued_by = col_character(),
+      segment_counter = col_integer()
+    )
+  ) %>%
+    mutate(
+      year = tax_year,
+      # Parse MMDDYYYY date columns
+      across(
+        starts_with("date_"),
+        \(x) lubridate::mdy(na_if(x, "00000000"))
+      ),
+      source_file = {{ f }}
+    )
+})
+
+cct_as_cofe_hdr %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
+  group_by(year) %>%
+  arrow::write_dataset(
+    path = file.path(
+      output_bucket, "cct_as_cofe_hdr"
+    ),
+    format = "parquet",
+    hive_style = TRUE,
+    compression = "zstd"
+  )
+
+
+##### CCT_AS_COFE_DTL
+files_cct_as_cofe_dtl <- aws.s3::get_bucket_df(
+  bucket = AWS_S3_RAW_BUCKET,
+  prefix = "ccao/legacy/CCT_AS_COFE_DTL",
+  max = Inf
+) %>%
+  filter(Size > 0)
+
+cct_as_cofe_dtl <- map_dfr(files_cct_as_cofe_dtl$Key, \(f) {
+  raw_path <- tempfile(fileext = ".txt")
+  clean_path <- tempfile(fileext = ".txt")
+
+  aws.s3::save_object(
+    object = f,
+    bucket = AWS_S3_RAW_BUCKET,
+    file = raw_path
+  )
+
+  # Convert ASCII nulls to spaces in raw file
+  raw_bytes <- readBin(raw_path, what = "raw", n = file.info(raw_path)$size)
+  clean_bytes <- raw_bytes
+  clean_bytes[clean_bytes == as.raw(0)] <- as.raw(32)
+  writeBin(clean_bytes, clean_path)
+
+  df_raw <- readr::read_fwf(
+    file = clean_path,
+    trim_ws = TRUE,
+    col_positions = readr::fwf_cols(
+      pin = c(1, 14),
+      tax_year = c(16, 19),
+      key_action_no = c(21, 23),
+      coe_type = c(25, 26),
+      coe_status = c(28, 28),
+      coe_reason = c(30, 31),
+      print_indicator = c(33, 33),
+      adjudicated_indicator = c(35, 35),
+      tax_code = c(37, 41),
+      tax_rate = c(43, 51),
+      amount_due = c(53, 65),
+      amount_due_sign = c(67, 67),
+      amount_paid = c(69, 81),
+      amount_paid_sign = c(83, 83),
+      applicant_name = c(85, 106),
+      applicant_address = c(108, 129),
+      applicant_city = c(131, 142),
+      applicant_state = c(144, 145),
+      applicant_zip = c(147, 155),
+      applicant_phone_number = c(157, 167),
+      applicant_name_secondary = c(169, 190),
+      certified_av = c(192, 204),
+      certified_exe_homeowner = c(206, 218),
+      certified_exe_homestead_coop_qty = c(220, 224),
+      certified_exe_homestead = c(226, 238),
+      recommended_av = c(240, 252),
+      recommended_original_eav = c(254, 266),
+      recommended_exe_homeowner_1977_base_value = c(268, 280),
+      recommended_exe_homeowner_proration = c(282, 288),
+      recommended_exe_homeowner_occ_factor = c(290, 294),
+      recommended_exe_homeowner_coop_qty = c(296, 300),
+      recommended_exe_homeowner = c(302, 314),
+      recommended_exe_homestead_coop_qty = c(316, 320),
+      recommended_exe_tax_amount = c(322, 334),
+      recommended_exe_tax_amount_sign = c(336, 336),
+      adjudicated_new_av = c(338, 350),
+      adjudicated_new_eav = c(352, 364),
+      adjudicated_adjusted_tax_amount = c(366, 378),
+      date_to_ba_from_assr = c(380, 387),
+      date_from_ba_to_assr = c(389, 396),
+      date_to_sa_from_assr = c(398, 405),
+      date_from_sa_to_assr = c(407, 414),
+      date_to_treasurer = c(416, 423),
+      date_adjudicated = c(425, 432),
+      amendment_number = c(434, 436),
+      date_amended = c(438, 445),
+      date_updated = c(447, 454),
+      update_id = c(456, 463),
+      date_refunded = c(465, 472),
+      account_number = c(474, 476),
+      d_o_number = c(478, 484),
+      excess_valuation = c(486, 498),
+      amount_of_credit = c(500, 512),
+      amount_of_credit_sign = c(514, 514),
+      refund_amount = c(516, 528),
+      refund_amount_sign = c(530, 530),
+      mmyyyy_date_interest = c(532, 537),
+      interest_percent = c(539, 543),
+      filler = c(545, 553),
+      will_call_name = c(555, 576),
+      will_call_phone_number = c(578, 588),
+      federal_id_number = c(590, 598),
+      interest_amount = c(600, 610),
+      interest_amount_sign = c(612, 612),
+      rsf_resp = c(614, 614),
+      rsf_value = c(616, 624),
+      date_action_issued = c(626, 633),
+      date_track = c(635, 642),
+      tracking_disposition = c(644, 645),
+      certified_sen_freeze_resp = c(647, 647),
+      certified_land_valuation = c(649, 657),
+      certified_building_valuation = c(659, 667),
+      certified_exe_freeze_valuation = c(689, 697),
+      date_interest = c(699, 706),
+      date_check = c(708, 715),
+      check_number = c(717, 723),
+      certified_home_av = c(725, 733),
+      date_treasurer_track = c(735, 742),
+      certified_exe_vetdis = c(744, 748),
+      recommended_exe_vetdis = c(750, 754),
+      certified_exe_homeowner_proration = c(756, 762),
+      certified_exe_homeowner_coop_qty = c(764, 768),
+      certified_exe_homeowner_occ_factor = c(770, 774),
+      cho_resp = c(776, 776),
+      chs_resp = c(778, 778),
+      will_call_zip = c(780, 788),
+      refund_indicator = c(790, 790),
+      recommended_exe_homestead = c(792, 804),
+      homeowner_response = c(806, 806),
+      homestead_response = c(808, 808),
+      certified_eav = c(810, 822),
+      jrno = c(824, 829),
+      amendment_indicator = c(831, 831),
+      recommended_lt_response = c(833, 833),
+      recommended_lt_value = c(835, 843),
+      certified_lt_response = c(845, 845),
+      certified_lt_value = c(847, 855)
+    ),
+    col_types = cols(
+      pin = col_character(),
+      tax_year = col_character(),
+      key_action_no = col_integer(),
+      coe_type = col_character(),
+      coe_status = col_character(),
+      coe_reason = col_character(),
+      print_indicator = col_character(),
+      adjudicated_indicator = col_character(),
+      tax_code = col_character(),
+      tax_rate = col_integer(),
+      amount_due = col_integer(),
+      amount_due_sign = col_character(),
+      amount_paid = col_integer(),
+      amount_paid_sign = col_character(),
+      applicant_name = col_character(),
+      applicant_address = col_character(),
+      applicant_city = col_character(),
+      applicant_state = col_character(),
+      applicant_zip = col_character(),
+      applicant_phone_number = col_character(),
+      applicant_name_secondary = col_character(),
+      certified_av = col_integer(),
+      certified_exe_homeowner = col_integer(),
+      certified_exe_homestead_coop_qty = col_integer(),
+      certified_exe_homestead = col_integer(),
+      recommended_av = col_integer(),
+      recommended_original_eav = col_integer(),
+      recommended_exe_homeowner_1977_base_value = col_integer(),
+      recommended_exe_homeowner_proration = col_integer(),
+      recommended_exe_homeowner_occ_factor = col_double(),
+      recommended_exe_homeowner_coop_qty = col_integer(),
+      recommended_exe_homeowner = col_integer(),
+      recommended_exe_homestead_coop_qty = col_integer(),
+      recommended_exe_tax_amount = col_integer(),
+      recommended_exe_tax_amount_sign = col_character(),
+      adjudicated_new_av = col_integer(),
+      adjudicated_new_eav = col_integer(),
+      adjudicated_adjusted_tax_amount = col_integer(),
+      date_to_ba_from_assr = col_character(),
+      date_from_ba_to_assr = col_character(),
+      date_to_sa_from_assr = col_character(),
+      date_from_sa_to_assr = col_character(),
+      date_to_treasurer = col_character(),
+      date_adjudicated = col_character(),
+      amendment_number = col_character(),
+      date_amended = col_character(),
+      date_updated = col_character(),
+      update_id = col_character(),
+      date_refunded = col_character(),
+      account_number = col_character(),
+      d_o_number = col_character(),
+      excess_valuation = col_integer(),
+      amount_of_credit = col_integer(),
+      amount_of_credit_sign = col_character(),
+      refund_amount = col_integer(),
+      refund_amount_sign = col_character(),
+      mmyyyy_date_interest = col_character(),
+      interest_percent = col_integer(),
+      filler = col_character(),
+      will_call_name = col_character(),
+      will_call_phone_number = col_character(),
+      federal_id_number = col_character(),
+      interest_amount = col_integer(),
+      interest_amount_sign = col_character(),
+      rsf_resp = col_character(),
+      rsf_value = col_integer(),
+      date_action_issued = col_character(),
+      date_track = col_character(),
+      tracking_disposition = col_character(),
+      certified_sen_freeze_resp = col_character(),
+      certified_land_valuation = col_integer(),
+      certified_building_valuation = col_integer(),
+      certified_exe_freeze_valuation = col_integer(),
+      date_interest = col_character(),
+      date_check = col_character(),
+      check_number = col_character(),
+      certified_home_av = col_integer(),
+      date_treasurer_track = col_character(),
+      certified_exe_vetdis = col_integer(),
+      recommended_exe_vetdis = col_integer(),
+      certified_exe_homeowner_proration = col_integer(),
+      certified_exe_homeowner_coop_qty = col_integer(),
+      certified_exe_homeowner_occ_factor = col_integer(),
+      cho_resp = col_character(),
+      chs_resp = col_character(),
+      will_call_zip = col_character(),
+      refund_indicator = col_character(),
+      recommended_exe_homestead = col_integer(),
+      homeowner_response = col_character(),
+      homestead_response = col_character(),
+      certified_eav = col_integer(),
+      jrno = col_character(),
+      amendment_indicator = col_character(),
+      recommended_lt_response = col_character(),
+      recommended_lt_value = col_integer(),
+      certified_lt_response = col_character(),
+      certified_lt_value = col_integer()
+    )
+  )
+  df <- df_raw %>%
+    mutate(
+      year = tax_year,
+      # Clean string columns to remove extraneous whitespace
+      across(
+        c(
+          starts_with("applicant_"),
+          "update_id",
+          "d_o_number",
+          "will_call_name"
+        ),
+        \(x) str_trim(str_squish(x))
+      ),
+      # Replace numeric columns with nulls for all-zero values
+      will_call_phone_number = na_if(will_call_phone_number, "0000000000"),
+      federal_id_number = na_if(federal_id_number, "000000000"),
+      # Parse MMDDYYYY date columns
+      across(
+        starts_with("date_"),
+        \(x) lubridate::mdy(na_if(x, "00000000"))
+      ),
+      # Parse MMYYYY date columns
+      mmyyyy_date_interest = lubridate::my(
+        na_if(mmyyyy_date_interest, "000000")
+      ),
+      # Logical conversion for some response columns
+      across(
+        c("rsf_resp", "certified_sen_freeze_resp"),
+        \(x) {
+          case_when(
+            x == "Y" ~ TRUE,
+            x == "N" ~ FALSE,
+            is.na(x) ~ NA
+          )
+        }
+      ),
+      # Zip code truncation
+      across(ends_with("_zip"), \(x) str_sub(x, 1, 5)),
+      # Numeric scaling for percentages and doubles
+      across(contains("exe_homeowner_proration"), \(x) x / 1000000),
+      across(
+        c(contains("exe_homeowner_occ_factor"), "interest_percent", "tax_rate"),
+        \(x) x / 1000
+      ),
+      across(
+        c(
+          "amount_due", "amount_paid", "recommended_exe_tax_amount",
+          "adjudicated_adjusted_tax_amount", "amount_of_credit",
+          "refund_amount", "interest_amount"
+        ),
+        \(x) x / 100
+      ),
+      source_file = f
+    ) %>%
+    select(-filler)
+
+  # Clean up temp files
+  file.remove(c(raw_path, clean_path))
+
+  df
+})
+
+cct_as_cofe_dtl %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
+  group_by(year) %>%
+  arrow::write_dataset(
+    path = file.path(
+      output_bucket, "cct_as_cofe_dtl"
+    ),
+    format = "parquet",
+    hive_style = TRUE,
+    compression = "zstd"
+  )
