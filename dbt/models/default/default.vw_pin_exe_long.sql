@@ -35,8 +35,8 @@ WITH exe_raw AS (
         END AS exemption_type,
         CAST(det.apother AS INT) AS exemption_amount,
         CASE
-            WHEN TRIM(UPPER(SPLIT_PART(admn.user126, ':', 1))) = 'Y' THEN TRUE
-            WHEN TRIM(UPPER(SPLIT_PART(admn.user126, ':', 1))) = 'N' THEN FALSE
+            WHEN UPPER(SUBSTR(admn.user126, 1, 1)) = 'Y' THEN TRUE
+            WHEN UPPER(SUBSTR(admn.user126, 1, 1)) = 'N' THEN FALSE
         END AS is_cofe,
         DATE_PARSE(SUBSTR(admn.udate9, 1, 10), '%Y-%m-%d') AS cofe_date
     FROM {{ source('iasworld', 'exdet') }} AS det
