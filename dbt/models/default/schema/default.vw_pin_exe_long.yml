@@ -10,7 +10,7 @@ models:
       - name: exemption_type
         description: Exemption type
       - name: is_cofe
-        description: '{{ doc("column_cofe_indicator") }}'
+        description: '{{ doc("column_cofe_indicator_bool") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: year

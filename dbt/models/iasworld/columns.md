@@ -256,7 +256,7 @@ This column has only been in use since November 2025.
 ## cofe_indicator
 
 {% docs column_cofe_indicator %}
-Certificate of Error (CofE) indicator.
+Certificate of Error (CofE) string indicator.
 
 Possible values include:
 
