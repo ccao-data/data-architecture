@@ -189,24 +189,22 @@ dfs$valuations_sale_review_01_30_2026_peter <-
   dfs$valuations_sale_review_01_30_2026_peter %>%
   mutate(
     `Characteristic Change` = case_when(
-      coalesce(
-        grepl(
-          "\\bmajor\\b",
-          `Characteristic Change`,
-          ignore.case = TRUE
-        ), FALSE
+      grepl(
+        "\\bmajor\\b", `Characteristic Change`,
+        ignore.case = TRUE
       ) ~ "yes_major",
-      coalesce(
-        grepl(
-          "\\bminor\\b",
-          `Characteristic Change`,
-          ignore.case = TRUE
-        ), FALSE
+      grepl(
+        "\\bminor\\b", `Characteristic Change`,
+        ignore.case = TRUE
       ) ~ "yes_minor",
+      grepl(
+        "\\bno\\b", `Characteristic Change`,
+        ignore.case = TRUE
+      ) ~ "no",
+      is.na(`Characteristic Change`) ~ NA_character_,
       TRUE ~ "no"
     )
   )
-
 
 dfs_processed <- purrr::imap(
   dfs,
