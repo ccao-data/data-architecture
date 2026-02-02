@@ -17,7 +17,7 @@ source("utils.R")
 
 objs <- get_bucket(
   bucket = "ccao-data-raw-us-east-1",
-  prefix = "sale/flag_override/"
+  prefix = "sale/flag_review/"
 )
 
 tmp_dir <- tempdir()
@@ -230,7 +230,7 @@ dfs_ready_to_write <- purrr::imap(
 )
 
 # Output dir
-out_dir <- "s3://ccao-data-warehouse-us-east-1/sale/flag_override/"
+out_dir <- "s3://ccao-data-warehouse-us-east-1/sale/flag_review/"
 
 purrr::iwalk(
   dfs_ready_to_write,

@@ -8,7 +8,7 @@ library(writexl)
 src_dir <- "O:/CCAODATA/data/sale"
 
 # Output dir
-s3_dir <- "s3://ccao-data-raw-us-east-1/sale/flag_override/"
+s3_dir <- "s3://ccao-data-raw-us-east-1/sale/flag_review/"
 
 # List Excel files
 excel_files <- list.files(
