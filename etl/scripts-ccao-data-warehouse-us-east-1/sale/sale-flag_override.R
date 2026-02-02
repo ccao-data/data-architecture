@@ -46,21 +46,6 @@ for (obj in objs) {
   dfs[[df_name]] <- df
 }
 
-dfs$valuations_sale_review_2026_01_16 <-
-  dfs$valuations_sale_review_2026_01_16 %>%
-  filter(WHOM == "LYDIA") %>%
-  # We were expecting "major" and "minor" inputs, but had to make some manual
-  # corrections here to fit our schema. Our strategy here is to detect SF
-  # char errors as major changes, and all other changes as minor.
-  mutate(
-    characteristic_change = case_when(
-      tolower(`Characteristic Change`) == "no" ~ "no",
-      grepl("sf", `Characteristic Change`, ignore.case = TRUE) ~ "yes major",
-      grepl("yes", `Characteristic Change`, ignore.case = TRUE) ~ "yes minor",
-      TRUE ~ NA_character_
-    )
-  ) %>%
-  select(-`Characteristic Change`)
 
 clean_columns_and_whitespace <- function(df) {
   df %>%
@@ -81,6 +66,32 @@ clean_columns_and_whitespace <- function(df) {
     ) %>%
     mutate(across(where(is.character), stringr::str_trim))
 }
+
+drop_rows_missing_all_review_flags <- function(df) {
+  # With many excel files, particularly of the data received
+  # on 01_30_2026, we are sent multiple excel files that contain ALL
+  # of the south tri sales for 2025. But this work was split out for many
+  # different reviewers. As such, only a small subset of all of the sales
+  # are actually reviewed. To properly capture which sales have gotten a
+  # review, this function excludes doc_no's where there is no value for any
+  # of the key review fields.
+  cols <- c(
+    "sale_is_arms_length",
+    "characteristic_change",
+    "class_change",
+    "flip"
+  )
+
+  # Only apply if the columns exist (they should, post-cleaning)
+  df %>%
+    filter(
+      !if_all(
+        all_of(cols),
+        ~ is.na(.x) | .x == ""
+      )
+    )
+}
+
 
 # Check to make sure we have properly standardized column names
 # for the manual exception of `valuations_sale_review_2025.12.16`
@@ -109,48 +120,10 @@ assert_required_cols <- function(df, df_name = "<unnamed>") {
   df
 }
 
-# We have a hard-coded exception for valuations_sale_review_2025.12.16,
-# since unlike the rest of the files, we aren't using the
-# `characteristic_change` column. In the first round of this collaboration with
-# valuations, we weren't distinguishing between minor and major characteristic
-# changes. For example, a `YES` in `characteristic_change` could have
-# represented a full new floor, or it could have represented a fireplace
-# addition. We don't want to exclude all the sales from the training data with
-# very minor characteristic changes, so we re-scoped and added a minor/major
-# option for this column. As such, for this file specifically we are relying
-# on other columns
-
-dfs$valuations_sale_review_2025.12.16 <-
-  dfs$valuations_sale_review_2025.12.16 %>%
-  clean_columns_and_whitespace() %>%
-  assert_required_cols(df_name) %>%
-  mutate(
-    is_arms_length = coalesce(
-      grepl("YES", sale_is_arms_length, ignore.case = TRUE),
-      FALSE
-    ),
-    is_flip = coalesce(
-      grepl("YES", flip, ignore.case = TRUE),
-      FALSE
-    ),
-    has_class_change = coalesce(
-      grepl("YES", class_change, ignore.case = TRUE),
-      FALSE
-    ),
-    has_characteristic_change = NA,
-    requires_field_check = coalesce(
-      grepl("YES", field_check, ignore.case = TRUE),
-      FALSE
-    ),
-    work_drawer = coalesce(
-      grepl("YES", work_drawer, ignore.case = TRUE),
-      FALSE
-    )
-  )
-
 transform_columns <- function(df) {
   df %>%
     clean_columns_and_whitespace() %>%
+    drop_rows_missing_all_review_flags() %>%
     assert_required_cols(df_name) %>%
     mutate( # nolint
       is_arms_length =
@@ -170,19 +143,23 @@ transform_columns <- function(df) {
       has_characteristic_change = case_when(
         # Regex statement explained:
         # - YES - string match
-        # - [- ]? - matches a space, a hyphen, and doesn't disqualify
-        #   omission (YES-MAJOR, YES MAJOR, YESMAJOR)
-        # - MAJ - string match # [OA] - matches O or A
-        # - [REOT] - matches R, E, O, or T (we see data like 'YES-MAJOE'
-        #   and 'YES-MAJOE')
+        # - [^A-Z]* - matches zero or more non-letter characters between YES
+        #   and MAJ/MIN (captures separators like ":", "-", spaces, "/",
+        #   parentheses, em dashes, etc.,
+        #   while still allowing omission: YESMAJOR / YESMINOR)
+        # - MAJ - string match
+        # - [OA] - matches O or A
+        # - [REOT] - matches R, E, O, or T (we see typos like 'YES-MAJOE'
+        #   and 'YES-MAJOT')
+        # - MIN - string match
+        # - (?:OR|OT) - matches OR or OT (we see typos like 'YES-MINOT')
         grepl(
-          "YES[- ]?MAJ[OA][REOT]",
+          "YES[^A-Z]*MAJ[OA][REOT]",
           characteristic_change,
           ignore.case = TRUE
         ) ~ "yes_major",
-        # Similar strategy to major
         grepl(
-          "YES[- ]?MIN(?:OR|OT)",
+          "YES[^A-Z]*MIN(?:OR|OT)",
           characteristic_change,
           ignore.case = TRUE
         ) ~ "yes_minor",
@@ -201,13 +178,10 @@ transform_columns <- function(df) {
     )
 }
 
-# Keep exception separate from this loop
-exception_df <- "valuations_sale_review_2025.12.16"
-dfs_processed <- imap(
-  dfs[names(dfs) != exception_df],
+dfs_processed <- purrr::imap(
+  dfs,
   ~ transform_columns(.x)
 )
-dfs_processed[[exception_df]] <- dfs[[exception_df]]
 
 dfs_ready_to_write <- purrr::imap(
   dfs_processed,
