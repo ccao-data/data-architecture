@@ -178,6 +178,36 @@ transform_columns <- function(df) {
     )
 }
 
+# Make a small modification to adjust for differing input.
+# This DF holds a large amount of char change data 'YES', which doesn't fit
+# into our schema, which we will ignore. There is some data that just holds
+# 'MAJOR' or 'MINOR' type responses, which we want to capture.
+
+# Instead of building this into the main function, we make the edit here,
+# since it is currently a small edge case of data.
+dfs$valuations_sale_review_01_30_2026_peter <-
+  dfs$valuations_sale_review_01_30_2026_peter %>%
+  mutate(
+    `Characteristic Change` = case_when(
+      coalesce(
+        grepl(
+          "\\bmajor\\b",
+          `Characteristic Change`,
+          ignore.case = TRUE
+        ), FALSE
+      ) ~ "yes_major",
+      coalesce(
+        grepl(
+          "\\bminor\\b",
+          `Characteristic Change`,
+          ignore.case = TRUE
+        ), FALSE
+      ) ~ "yes_minor",
+      TRUE ~ "no"
+    )
+  )
+
+
 dfs_processed <- purrr::imap(
   dfs,
   ~ transform_columns(.x)
