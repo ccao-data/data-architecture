@@ -50,7 +50,7 @@ for (obj in objs) {
 # file valuations_sale_review_2025.12.16
 dfs$valuations_sale_review_01_30_2026_diane <-
   dfs$valuations_sale_review_01_30_2026_diane %>%
-  filter(`Sale Doc No` != '2516802041')
+  filter(`Sale Doc No` != "2516802041")
 
 clean_columns_and_whitespace <- function(df) {
   df %>%
