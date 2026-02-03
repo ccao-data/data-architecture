@@ -52,7 +52,6 @@ dfs$valuations_sale_review_01_30_2026_diane <-
   dfs$valuations_sale_review_01_30_2026_diane %>%
   filter(`Sale Doc No` != '2516802041')
 
-
 clean_columns_and_whitespace <- function(df) {
   df %>%
     janitor::clean_names() %>%
