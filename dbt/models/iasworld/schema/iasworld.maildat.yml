@@ -123,7 +123,7 @@ sources:
           - name : mailseq
             description: Mailing sequence number
           - name : mcityname
-            description: City name
+            description: '{{ doc("shared_column_mail_address_city_name") }}'
           - name : mcountry
             description: Country
           - name : mnamejur
@@ -137,15 +137,15 @@ sources:
           - name : mpostalcode
             description: Postal Code (International zip code)
           - name : mstatecode
-            description: State or province(2 digit)
+            description: '{{ doc("shared_column_mail_address_state") }}'
           - name : munitdesc
             description: Type of unit identifier(A, B, U)
           - name : munitno
             description: Unit number
           - name : mzip1
-            description: US postal zip code - 5 digit
+            description: '{{ doc("shared_column_mail_address_zipcode_1") }}'
           - name : mzip2
-            description: US postal zip code - 4 digit
+            description: '{{ doc("shared_column_mail_address_zipcode_2") }}'
           - name : note1
             description: Note field 1
           - name : note2
