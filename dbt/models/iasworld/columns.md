@@ -1054,3 +1054,14 @@ Zip code, first 5 digits
 {% docs column_zip2 %}
 Zip code suffix, last 4 digits
 {% enddocs %}
+
+## zoning
+
+{% docs column_zoning %}
+Municipal zoning code.
+
+This column is only consistently updated for townships that are up for
+reassessment in the current assessment year. In general, that update
+happens at the beginning of the calendar year. As such, assume that
+these data are out of date.
+{% enddocs %}

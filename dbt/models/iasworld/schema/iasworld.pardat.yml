@@ -338,6 +338,8 @@ sources:
             description: '{{ doc("column_zip1") }}'
           - name: zip2
             description: '{{ doc("column_zip2") }}'
+          - name: zoning
+            description: '{{ doc("column_zoning") }}'
 
         data_tests:
           - expression_is_true:
