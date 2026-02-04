@@ -3,7 +3,8 @@
 -- We need a CTE here since MAILDAT is not unique by PIN and TAXYR - it tracks
 -- changes to mailing addresses within a year for a given PIN using MAILSEQ.
 -- For now, we're chosing to use the final address for a pin in any year where
--- it has more than one.
+-- it has more than one since this seems to align with which addresses surface
+-- on the Treasurer's website.
 WITH mail AS (
     SELECT
         parid,
