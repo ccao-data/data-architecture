@@ -193,7 +193,7 @@ sources:
           - name : wen
             description: '{{ doc("shared_column_updated_at") }}'
           - name : wencalc
-            description: '{{ doc("shared_column_wencalc") }}'
+            description: '{{ doc("column_wencalc") }}'
           - name : who
             description: '{{ doc("shared_column_updated_by") }}'
           - name : whocalc
