@@ -168,27 +168,27 @@ sources:
           - name: nbhd
             description: '{{ doc("shared_column_nbhd_code") }}'
             data_tests:
-            - row_values_match_after_join:
-                name: iasworld_pardat_nbhd_matches_legdat_township
-                external_model: source('iasworld', 'legdat')
-                external_column_name: user1
-                column_alias: nbhd_code
-                external_column_alias: township_code
-                additional_select_columns:
-                  - model.taxyr
-                  - model.parid
-                  - model.who
-                  - model.wen
-                join_condition:
-                  ON  substr(model.nbhd, 1, 2) != external_model.user1
-                  AND model.parid = external_model.parid
-                  AND model.taxyr = external_model.taxyr
-                  AND external_model.cur = 'Y'
-                  AND external_model.deactivat IS NULL
-                config: *unique-conditions
-                meta:
-                  category: relationships
-                  description: nbhd code first 2 digits should match legdat.user1 (township code)
+              - row_values_match_after_join:
+                  name: iasworld_pardat_nbhd_matches_legdat_township
+                  external_model: source('iasworld', 'legdat')
+                  external_column_name: user1
+                  column_alias: nbhd_code
+                  external_column_alias: township_code
+                  additional_select_columns:
+                    - model.taxyr
+                    - model.parid
+                    - model.who
+                    - model.wen
+                  join_condition:
+                    ON  substr(model.nbhd, 1, 2) != external_model.user1
+                    AND model.parid = external_model.parid
+                    AND model.taxyr = external_model.taxyr
+                    AND external_model.cur = 'Y'
+                    AND external_model.deactivat IS NULL
+                  config: *unique-conditions
+                  meta:
+                    category: relationships
+                    description: nbhd code first 2 digits should match legdat.user1 (township code)
           - name: nbhdie
             description: Neighborhood income valuation
           - name: nonfarminc
@@ -338,6 +338,8 @@ sources:
             description: '{{ doc("column_zip1") }}'
           - name: zip2
             description: '{{ doc("column_zip2") }}'
+          - name: zoning
+            description: '{{ doc("column_zoning") }}'
 
         data_tests:
           - expression_is_true:
