@@ -494,9 +494,24 @@ models:
       - &meta_tax_code
         name: meta_tax_code
         description: '{{ doc("shared_column_tax_code") }}'
-      - &meta_township_code
-        name: meta_township_code
+      - name: meta_township_code
         description: '{{ doc("shared_column_township_code") }}'
+        data_tests:
+          - expression_is_true:
+              name: model_pin_shared_input_meta_township_code_matches_meta_nbhd_code
+              expression: = SUBSTR(meta_nbhd_code, 1, 2)
+              config:
+                # Exclude dummy neighborhood codes and non-res classes
+                where: meta_nbhd_code != '99999' and SUBSTR(meta_class, 1, 1) = '2'
+                # A couple thousand of these already exist. We've sent the most
+                # problematic ones over to our data owners for fixing, but in
+                # the meantime, we just want to make sure we don't see new ones.
+                # We should periodically check this count to see if we can
+                # reduce it as our data owners fix the underlying issues
+                error_if: ">2388"
+          - expression_is_true:
+              name: model_pin_shared_input_meta_township_code_matches_meta_tax_code
+              expression: = SUBSTR(meta_tax_code, 1, 2)
       - &meta_township_name
         name: meta_township_name
         description: '{{ doc("shared_column_township_name") }}'
@@ -776,7 +791,9 @@ models:
       - *meta_pin
       - *meta_pin10
       - *meta_tax_code
-      - *meta_township_code
+      - &meta_township_code
+        name: meta_township_code
+        description: '{{ doc("shared_column_township_code") }}'
       - *meta_township_name
       - *meta_triad_code
       - *meta_triad_name
