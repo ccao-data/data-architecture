@@ -498,7 +498,7 @@ models:
         description: '{{ doc("shared_column_township_code") }}'
         data_tests:
           - expression_is_true:
-              name: model_pin_shared_input_meta_township_code_matches_meta_nbhd_code
+              name: model_vw_pin_shared_input_meta_township_code_matches_meta_nbhd_code
               expression: = SUBSTR(meta_nbhd_code, 1, 2)
               config:
                 # Exclude dummy neighborhood codes and non-res classes
@@ -510,7 +510,7 @@ models:
                 # reduce it as our data owners fix the underlying issues
                 error_if: ">2388"
           - expression_is_true:
-              name: model_pin_shared_input_meta_township_code_matches_meta_tax_code
+              name: model_vw_pin_shared_input_meta_township_code_matches_meta_tax_code
               expression: = SUBSTR(meta_tax_code, 1, 2)
       - &meta_township_name
         name: meta_township_name
