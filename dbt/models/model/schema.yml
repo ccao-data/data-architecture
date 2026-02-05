@@ -494,9 +494,22 @@ models:
       - &meta_tax_code
         name: meta_tax_code
         description: '{{ doc("shared_column_tax_code") }}'
-      - &meta_township_code
-        name: meta_township_code
+      - name: meta_township_code
         description: '{{ doc("shared_column_township_code") }}'
+        data_tests:
+          - expression_is_true:
+              name: model_vw_pin_shared_input_meta_township_code_matches_meta_nbhd_code
+              expression: = SUBSTR(meta_nbhd_code, 1, 2)
+              config:
+                # Exclude dummy neighborhood codes, non-res classes, and old
+                # records that we can't update
+                where: >
+                  meta_nbhd_code != '99999'
+                  AND SUBSTR(meta_class, 1, 1) = '2'
+                  AND meta_year >= '2026'
+          - expression_is_true:
+              name: model_vw_pin_shared_input_meta_township_code_matches_meta_tax_code
+              expression: = SUBSTR(meta_tax_code, 1, 2)
       - &meta_township_name
         name: meta_township_name
         description: '{{ doc("shared_column_township_name") }}'
@@ -776,7 +789,9 @@ models:
       - *meta_pin
       - *meta_pin10
       - *meta_tax_code
-      - *meta_township_code
+      - &meta_township_code
+        name: meta_township_code
+        description: '{{ doc("shared_column_township_code") }}'
       - *meta_township_name
       - *meta_triad_code
       - *meta_triad_name
