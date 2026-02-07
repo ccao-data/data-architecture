@@ -11,17 +11,25 @@ def model(dbt, session):
         on_schema_change="append_new_columns",
     )
 
-    # Build the base metadata DataFrame
-    base_query = """
-        SELECT
-          run_id,
-          year,
-          assessment_year,
-          dvc_md5_training_data
-        FROM model.metadata
-        WHERE run_type = 'final'
-    """
-    metadata_df = session.sql(base_query)
+    # Get model metadata for every final model. We do this by inner joining
+    # The `metadata` table to the `final_model` table instead of filtering
+    # the metadata table by `run_type == 'final'` to make it easier to run
+    # tests on this table, since we can control the contents of `final_model`
+    # via a dbt seed
+    metadata_df = (
+        # This table is a dbt source, so there's only one version of it
+        # (prod) and we don't need to use `dbt.this.schema` to handle
+        # the possibility that this code is running in a dev/CI environment
+        session.table("model.metadata")
+        .join(
+            session.table(f"{dbt.this.schema}.final_model")
+            .select("run_id")
+            .distinct(),
+            on="run_id",
+            how="inner",
+        )
+        .select("run_id", "year", "assessment_year", "dvc_md5_training_data")
+    )
 
     if dbt.is_incremental:
         # anti-join out any run_ids already in the target
