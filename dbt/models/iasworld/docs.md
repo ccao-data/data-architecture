@@ -279,6 +279,19 @@ Neighborhood parameter table for calp, valuation models, etc.
 **Primary Key**: `jur`, `ver`, `nbhd`
 {% enddocs %}
 
+# maildat
+
+{% docs table_maildat %}
+Taxpayer information such as name and mailing address.
+
+### Nuance
+
+- Taxpayer mailing addresses are not necessarily the same as property owner
+mailing addresses.
+
+**Primary Key**: `jur`, `taxyr`, `parid`
+{% enddocs %}
+
 # oby
 
 {% docs table_oby %}
@@ -296,6 +309,8 @@ Property owner information such as name and mailing address.
 ### Nuance
 
 - Mailing addresses and owner names have not been regularly updated since 2017.
+- Property owner mailing addresses are not necessarily the same as taxpayer
+mailing addresses.
 
 **Primary Key**: `jur`, `taxyr`, `parid`
 {% enddocs %}
