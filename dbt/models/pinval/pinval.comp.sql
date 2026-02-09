@@ -70,7 +70,8 @@ training_data AS (
     -- that have multiple final models.
     WHERE train.run_id IN (
             '2024-03-17-stupefied-maya',
-            '2025-02-11-charming-eric'
+            '2025-02-11-charming-eric',
+            '2026-02-04-sleepy-ida'
         )
 ),
 
