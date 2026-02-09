@@ -131,7 +131,14 @@ get_pace_feed <- function(feed_date) {
       "/GTFS.zip"
     )
   }
-  s3_uri <- file.path(output_path, "pace", paste0(feed_date, "-gtfs.zip"))
+  s3_uri <- file.path(output_path, "pace", paste0(
+    ifelse(
+      nchar(feed_date) == 10,
+      feed_date,
+      paste0(feed_date, "-01")
+    ),
+    "-gtfs.zip"
+  ))
 
   if (!aws.s3::object_exists(s3_uri)) {
     tmp_file <- tempfile(fileext = ".zip")
