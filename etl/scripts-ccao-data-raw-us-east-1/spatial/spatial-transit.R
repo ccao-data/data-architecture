@@ -112,7 +112,7 @@ walk(metra_feed_dates_list, get_metra_feed)
 pace_feed_dates_list <- c(
   "2015-10-16", "2016-10-15", "2017-10-16", "2018-10-17",
   "2019-10-22", "2020-09-23", "2021-03-15", "2023-09-24",
-  "2024-02-07", "2025-12"
+  "2024-02-07", "2025-12-01"
 )
 
 # Find most recent feed here, under "Feed Location":
@@ -131,14 +131,7 @@ get_pace_feed <- function(feed_date) {
       "/GTFS.zip"
     )
   }
-  s3_uri <- file.path(output_path, "pace", paste0(
-    ifelse(
-      nchar(feed_date) == 10,
-      feed_date,
-      paste0(feed_date, "-01")
-    ),
-    "-gtfs.zip"
-  ))
+  s3_uri <- file.path(output_path, "pace", paste0(feed_date, "-gtfs.zip"))
 
   if (!aws.s3::object_exists(s3_uri)) {
     tmp_file <- tempfile(fileext = ".zip")
