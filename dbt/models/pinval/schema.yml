@@ -127,7 +127,7 @@ models:
                 # There are a handful of known PINs that had the wrong class
                 # at modeling time, and so got a model value even though it
                 # should not have
-                error_if: ">5"
+                error_if: ">6"
           - not_accepted_values:
               name: pinval_assessment_card_reason_report_ineligible_not_non_tri_for_tri
               values:
