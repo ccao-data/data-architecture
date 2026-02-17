@@ -17,14 +17,9 @@ def model(dbt, session):
     # tests on this table, since we can control the contents of `final_model`
     # via a dbt seed
     metadata_df = (
-        # This table is a dbt source, so there's only one version of it
-        # (prod) and we don't need to use `dbt.this.schema` to handle
-        # the possibility that this code is running in a dev/CI environment
-        session.table("model.metadata")
+        dbt.source("model", "metadata")
         .join(
-            session.table(f"{dbt.this.schema}.final_model")
-            .select("run_id")
-            .distinct(),
+            dbt.ref("model.final_model").select("run_id"),
             on="run_id",
             how="inner",
         )
