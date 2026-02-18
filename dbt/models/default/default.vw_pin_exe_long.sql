@@ -34,10 +34,7 @@ WITH exe_raw AS (
             WHEN det.excode = 'WW2' THEN 'exe_wwii'
         END AS exemption_type,
         CAST(det.apother AS INT) AS exemption_amount,
-        CASE
-            WHEN UPPER(SUBSTR(admn.user126, 1, 1)) = 'Y' THEN TRUE
-            WHEN UPPER(SUBSTR(admn.user126, 1, 1)) = 'N' THEN FALSE
-        END AS is_cofe,
+        COALESCE(UPPER(SUBSTR(admn.user126, 1, 1)) = 'Y', FALSE) AS is_cofe,
         DATE_PARSE(SUBSTR(admn.udate9, 1, 10), '%Y-%m-%d') AS cofe_date
     FROM {{ source('iasworld', 'exdet') }} AS det
     -- Ensure only approved exemptions are pulled
@@ -57,13 +54,17 @@ WITH exe_raw AS (
         AND code.deactivat IS NULL
     WHERE det.deactivat IS NULL
         AND det.cur = 'Y'
+        -- There are some exemptions with missing amounts in the data.
+        -- These are probably data errors, but we should filter them out
+        -- regardless
+        AND COALESCE(CAST(det.apother AS INT), 0) > 0
 ),
 
 -- There are currently some unexpected dupes in the exemption data right
 -- now. We eventually expect these to get resolved by the data owners, but
--- in the meantime, we deduplicate based on PIN/year/exemption type, and
--- prioritize exemptions in those groups that are CofEs and/or have the
--- highest exemption amount
+-- in the meantime, we deduplicate based on PIN/year/CofE/exemption type, and
+-- prioritize exemptions in those groups that have the latest CofE date and/or
+-- have the highest exemption amount
 exe_group_ranked AS (
     SELECT
         pin,
@@ -73,16 +74,15 @@ exe_group_ranked AS (
         is_cofe,
         cofe_date,
         ROW_NUMBER() OVER (
-            PARTITION BY pin, year, exemption_type
+            PARTITION BY pin, year, exemption_type, is_cofe
             ORDER BY
-                -- Prioritize CofEs first, because they represent corrections
-                is_cofe DESC NULLS LAST,
                 -- If multiple exemptions in a group are CofEs, choose the most
                 -- recent one
                 cofe_date DESC NULLS LAST,
-                -- If multiple CofEs have the same date, choose the one with
-                -- the highest exemption amount. This choice is arbitrary
-                -- but it makes the deduplication deterministic
+                -- If multiple exemptions have the same CofE date (or no date),
+                -- choose the one with the highest exemption amount. This
+                -- choice is arbitrary but it makes the deduplication
+                -- deterministic
                 exemption_amount DESC NULLS LAST
         ) AS rank
     FROM exe_raw

@@ -110,7 +110,14 @@ This view is long, meaning a PIN can have multiple rows in a year, one for
 each exemption that the PIN has in that year. For a wide version of the view,
 see `default.vw_pin_exe`.
 
-**Primary Key**: `year`, `pin`, `ptax_exe`
+Note that rows are technically unique by Certificate of Error (CofE) status
+in addition to PIN, year, and exemption type. If a PIN has two values
+for the same exemption in the same year, one of which is applied via
+CofE and one of which is not, then this view preserves both values. The
+wide version of this view (`default.vw_pin_exe`), however, will only include
+the CofE value for that exemption.
+
+**Primary Key**: `year`, `pin`, `exemption_type`, `is_cofe`
 {% enddocs %}
 
 # vw_pin_exempt

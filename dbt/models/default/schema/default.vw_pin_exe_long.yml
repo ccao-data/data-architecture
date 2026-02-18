@@ -7,10 +7,16 @@ models:
         description: '{{ doc("shared_column_cofe_date") }}'
       - name: exemption_amount
         description: Exemption amount
+        data_tests:
+          - not_null:
+              name: default_vw_pin_exe_long_exemption_amount_not_null
       - name: exemption_type
         description: Exemption type
       - name: is_cofe
         description: '{{ doc("column_cofe_indicator_bool") }}'
+        data_tests:
+          - not_null:
+              name: default_vw_pin_exe_long_is_cofe_not_null
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: year
@@ -23,28 +29,37 @@ models:
             - pin
             - year
             - exemption_type
+            - is_cofe
 
 unit_tests:
   - name: default_vw_pin_exe_long_ranks_and_selects_properly_among_duplicates
     description: >
-      When multiple exemptions have the same PIN, year, and type, view should
-      deduplicate them, prioritizing recent CofEs with higher amounts
+      When multiple exemptions have the same PIN, year, type, and CofE status,
+      view should deduplicate them, prioritizing recent CofEs with higher amounts
     model: default.vw_pin_exe_long
     given:
       - input: source('iasworld', 'exdet')
         rows:
           # apother is the exemption amount column, which is factored into
-          # the deduplication process. The non-CofE rows (caseno 1) have the
-          # highest exemption amounts, but we don't expect to see this amount
-          # in the output, because the view should prioritize CofEs
+          # the deduplication process.
+          # This is a non-CofE row with the highest overall exemption amount.
+          # We expect to see this exemption amount for the non-CofE output row
           - parid: '01234567890000'
             taxyr: '2026'
             excode: 'HO'
             caseno: 1
             apother: 300
             cur: 'Y'
-          # CofE row with the highest exemption amount. This is the exemption
-          # amount we'll expect to see in the output
+          # Non-CofE row with the lowest exemption amount among non-CofEs.
+          # View should ignore this exemption amount
+          - parid: '01234567890000'
+            taxyr: '2026'
+            excode: 'HO'
+            caseno: 1
+            apother: 100
+            cur: 'Y'
+          # CofE row with the highest exemption amount among CofEs.
+          # This is the exemption amount we'll expect to see in the CofE output
           - parid: '01234567890000'
             taxyr: '2026'
             excode: 'HO'
@@ -68,10 +83,10 @@ unit_tests:
             cur: 'Y'
       - input: source('iasworld', 'exadmn')
         rows:
-          # Not CofE, latest date -- view should not pick this date.
-          # We don't expect CofE date to ever be populated for a non-CofE
-          # row but we're testing it just in case that assumption gets
-          # broken in the future
+          # Not CofE, latest date. View should pick this date for non-CofEs.
+          # We don't expect CofE date to ever be populated for a non-CofE row
+          # but we're testing it just in case that assumption gets broken in
+          # the future
           - parid: '01234567890000'
             taxyr: '2026'
             excode: 'HO'
@@ -80,7 +95,18 @@ unit_tests:
             user126: 'N'
             udate9: '2026-01-03 00:00:00'
             cur: 'Y'
-          # Same as above, but test null handling for CofE indicator
+          # Same as above, but earliest date among non-CofEs -- view should not
+          # pick this one
+          - parid: '01234567890000'
+            taxyr: '2026'
+            excode: 'HO'
+            caseno: 1
+            exstat: 'A'
+            user126: 'N'
+            udate9: '2026-01-01 00:00:00'
+            cur: 'Y'
+          # Same as above, but test null handling for CofE indicator, which
+          # should coalesce to false (non-CofE)
           - parid: '01234567890000'
             taxyr: '2026'
             excode: 'HO'
@@ -129,5 +155,11 @@ unit_tests:
           year: '2026'
           exemption_type: exe_homeowner
           exemption_amount: 200  # Choose the largest amount among CofEs
-          is_cofe: true  # Choose the CofE
+          is_cofe: true  # Choose among CofEs
           cofe_date: '2026-01-02'  # Choose the latest date among CofEs
+        - pin: '01234567890000'
+          year: '2026'
+          exemption_type: exe_homeowner
+          exemption_amount: 300  # Choose the largest amount among non-CofEs
+          is_cofe: false  # Choose among non-CofEs
+          cofe_date: '2026-01-03'  # Choose the latest date among non-CofEs
