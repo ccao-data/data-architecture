@@ -53,7 +53,7 @@ sources:
           - name: carrier_rt
             description: '{{ doc("column_carrier_rt") }}'
           - name: cityname
-            description: '{{ doc("shared_column_mail_address_city_name") }}'
+            description: '{{ doc("shared_column_owner_address_city_name") }}'
           - name: cnamejur
             description: Stores `CNAME.JUR` when ownnum is populated in hierarchical `JUR` sites
           - name: compartment
@@ -216,7 +216,7 @@ sources:
           - name: splitno
             description: '{{ doc("column_splitno") }}'
           - name: statecode
-            description: '{{ doc("shared_column_mail_address_state") }}'
+            description: '{{ doc("shared_column_owner_address_state") }}'
           - name: stateid
             description: State tax ID number
           - name: status
@@ -240,9 +240,9 @@ sources:
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
           - name: zip1
-            description: '{{ doc("shared_column_mail_address_zipcode_1") }}'
+            description: '{{ doc("shared_column_owner_address_zipcode_1") }}'
           - name: zip2
-            description: '{{ doc("shared_column_mail_address_zipcode_2") }}'
+            description: '{{ doc("shared_column_owner_address_zipcode_2") }}'
 
         data_tests:
           - no_extra_whitespace:
