@@ -294,7 +294,7 @@ SELECT
         WHEN
             pin_cd.class_code IS NULL  -- Class is not in our class dict
             OR NOT pin_cd.regression_class
-            OR (pin_cd.modeling_group NOT IN ('SF', 'MF'))
+            OR (pin_cd.modeling_group NOT IN ('SF', 'MF', 'BB'))
             THEN 'non_regression_class'
         WHEN LOWER(uni.triad_name) != LOWER(uni.assessment_triad) THEN 'non_tri'
         WHEN ac.meta_card_num IS NULL THEN 'missing_card'
