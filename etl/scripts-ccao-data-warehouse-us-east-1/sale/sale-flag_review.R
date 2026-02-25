@@ -238,7 +238,7 @@ dfs$valuations_sale_review_01_30_2026_peter <-
 dfs$valuations_sale_review_02_04_2026_lydia_monica <-
   dfs$valuations_sale_review_02_04_2026_lydia_monica %>%
   filter(
-    !`Sale Doc No` %in% dfs$valuations_sale_review_02_04_2026_monica$`Sale Doc No`
+    !`Sale Doc No` %in% dfs$valuations_sale_review_02_04_2026_monica$`Sale Doc No` # nolint
   )
 
 
