@@ -683,10 +683,10 @@ models:
         description: '{{ doc("column_nearest_golf_course_dist_ft") }}'
       - name: nearest_golf_course_id
         description: '{{ doc("column_nearest_golf_course_id") }}'
+      - name: nearest_grocery_store_data_year
+        description: '{{ doc("column_nearest_grocery_store_data_year") }}'
       - name: nearest_grocery_store_dist_ft
         description: '{{ doc("column_nearest_grocery_store_dist_ft") }}'
-      - name: nearest_grocery_store_name
-        description: '{{ doc("column_nearest_grocery_store_name") }}'
       - name: nearest_grocery_store_name
         description: '{{ doc("column_nearest_grocery_store_name") }}'
       - name: nearest_hospital_data_year
