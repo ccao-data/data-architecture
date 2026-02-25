@@ -33,7 +33,6 @@ for (obj in objs) {
   s3_uri <- paste0("s3://ccao-data-raw-us-east-1/", key)
 
   file_name <- basename(key)
-  print(file_name)
   local_path <- file.path(tmp_dir, file_name)
 
   save_s3_to_local(s3_uri, local_path, overwrite = TRUE)
