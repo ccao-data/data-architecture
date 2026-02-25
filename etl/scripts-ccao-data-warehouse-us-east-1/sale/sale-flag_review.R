@@ -53,17 +53,17 @@ dfs$valuations_sale_review_02_04_2026_diane <-
   filter(`Sale Doc No` != "2516802041")
 
 # Another duplicate, we keep the observation that had consistency with the
-# person who sent the workbook, and the `WHOM` column. And we exclude this one
+# person who sent the workbook and the `WHOM` column. And we exclude this one
 # since the whom column in this row was from 'DIANE`, but the workbook was
 # sent showing review from lydia and monica.
 dfs$valuations_sale_review_02_04_2026_lydia_monica <-
   dfs$valuations_sale_review_02_04_2026_lydia_monica %>%
   filter(`Sale Doc No` != "2516702083")
 
-# This excel workbook came the email displaying only data that had the
-# WHOM column marked with 'MONICA'. However, some of the minimized rows
+# This excel workbook sourced from email arrived displaying only data that
+# had the WHOM column marked with 'MONICA'. However, some of the minimized rows
 # had other reviewed data (some by lydia), and those were not being filtered
-# out since our filter is based on NA values in our key fields. This causes
+# out since our filter is based on NA values in our key fields. This caused
 # a lot of duplication and disagreement. Since it doesn't seem like those rows
 # were intended to be used (they were minimized), we filter them out here
 dfs$valuations_sale_review_02_04_2026_monica <-
