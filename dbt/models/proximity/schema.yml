@@ -817,8 +817,6 @@ models:
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_university_dist_ft
         description: '{{ doc("column_nearest_university_dist_ft") }}'
-      - name: nearest_university_gnis_code
-        description: '{{ doc("column_nearest_university_gnis_code") }}'
       - name: nearest_university_name
         description: '{{ doc("column_nearest_university_name") }}'
       - name: nearest_vacant_land_data_year
