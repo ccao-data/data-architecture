@@ -48,9 +48,28 @@ for (obj in objs) {
 
 # This is a duplicate, we prefer the other determination that Jon made from
 # file valuations_sale_review_2025.12.16
-dfs$valuations_sale_review_01_30_2026_diane <-
-  dfs$valuations_sale_review_01_30_2026_diane %>%
+dfs$valuations_sale_review_02_04_2026_diane <-
+  dfs$valuations_sale_review_02_04_2026_diane %>%
   filter(`Sale Doc No` != "2516802041")
+
+# Another duplicate, we keep the observation that had consistency with the
+# person who sent the workbook and the `WHOM` column. And we exclude this one
+# since the whom column in this row was from 'DIANE`, but the workbook was
+# sent showing review from lydia and monica.
+dfs$valuations_sale_review_02_04_2026_lydia_monica <-
+  dfs$valuations_sale_review_02_04_2026_lydia_monica %>%
+  filter(`Sale Doc No` != "2516702083")
+
+# This excel workbook sourced from email arrived displaying only data that
+# had the WHOM column marked with 'MONICA'. However, some of the minimized rows
+# had other reviewed data (some by lydia), and those were not being filtered
+# out since our filter is based on NA values in our key fields. This caused
+# a lot of duplication and disagreement. Since it doesn't seem like those rows
+# were intended to be used (they were minimized), we filter them out here
+dfs$valuations_sale_review_02_04_2026_monica <-
+  dfs$valuations_sale_review_02_04_2026_monica %>%
+  filter(WHOM == "MONICA")
+
 
 clean_columns_and_whitespace <- function(df) {
   df %>%
@@ -211,6 +230,18 @@ dfs$valuations_sale_review_01_30_2026_peter <-
     )
   )
 
+# Remove doc_nos that appear in both lydia_monica and monica files,
+# as the classifications of is_arms_length, is_flip, has_class_change,
+# and has_characteristic_change were determined to be exactly the same
+# across both files — keeping only the monica version to avoid duplicates
+dfs$valuations_sale_review_02_04_2026_lydia_monica <-
+  dfs$valuations_sale_review_02_04_2026_lydia_monica %>%
+  filter(
+    !`Sale Doc No` %in% dfs$valuations_sale_review_02_04_2026_monica$`Sale Doc No` # nolint
+  )
+
+
+# Final pocessing
 dfs_processed <- purrr::imap(
   dfs,
   ~ transform_columns(.x)
