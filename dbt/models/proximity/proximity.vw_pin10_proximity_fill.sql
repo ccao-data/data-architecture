@@ -111,6 +111,7 @@ SELECT
     dist_pin_to_road_highway.nearest_road_highway_speed_limit,
     dist_pin_to_road_highway.nearest_road_highway_surface_type,
     dist_pin_to_road_highway.nearest_road_highway_lanes,
+    dist_pin_to_road_highway.nearest_road_highway_data_year,
 
     dist_pin_to_secondary_road.nearest_secondary_road_osm_id,
     dist_pin_to_secondary_road.nearest_secondary_road_name,
