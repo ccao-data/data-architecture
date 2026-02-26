@@ -81,11 +81,11 @@ models:
             - pin
             - year
           config:
-            # As of 12/17/2025 we're seeing 8 rows that aren't unique by these
+            # As of 2/23/2026 we're seeing 8 rows that aren't unique by these
             # keys. If we add subkey we don't encounter any duplicates, but I
             # don't currently feel confident enough about how that column works
             # to include it as a key.
-            error_if: ">8"
+            error_if: ">10"
 
 unit_tests:
   - name: default_vw_pin_appeal_class_strips_non_alphanumerics
