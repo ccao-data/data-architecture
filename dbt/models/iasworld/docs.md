@@ -310,7 +310,7 @@ Property owner information such as name and mailing address.
 
 - Mailing addresses and owner names have not been regularly updated since 2017.
 - Property owner mailing addresses are not necessarily the same as taxpayer
-mailing addresses.
+  mailing addresses. For taxpayer addresses, see `iasworld.maildat`.
 
 **Primary Key**: `jur`, `taxyr`, `parid`
 {% enddocs %}
