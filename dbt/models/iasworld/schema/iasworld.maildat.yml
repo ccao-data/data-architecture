@@ -212,7 +212,7 @@ sources:
           - name: skip_addr_validation
             description: '{{ doc("column_skip_addr_validation") }}'
           - name: ssn
-            description: Social security number
+            description: '{{ doc("column_ssn") }}'
           - name: stateid
             description: '{{ doc("column_stateid") }}'
           - name: status
@@ -226,7 +226,7 @@ sources:
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
           - name: vldrsc
-            description: No Validation Reason Code
+            description: '{{ doc("column_vldrsc") }}'
           - name: wen
             description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc

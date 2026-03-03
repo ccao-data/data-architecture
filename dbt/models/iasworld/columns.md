@@ -842,7 +842,10 @@ Split/combination tracking number
 ## ssn
 
 {% docs column_ssn %}
-Social security number
+Social security number.
+
+The CCAO Data Team does not store sensitive data in our data lake, so this
+field is always null.
 {% enddocs %}
 
 ## ssn2
@@ -993,6 +996,12 @@ Sketch vector notes
 
 {% docs column_ver %}
 Calculation table version
+{% enddocs %}
+
+## vldrsc
+
+{% docs column_vldrsc %}
+No validation reason code
 {% enddocs %}
 
 ## wallhgt
