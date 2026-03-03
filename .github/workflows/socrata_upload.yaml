@@ -63,7 +63,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
           aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
-          role-duration-seconds: 14400
+          role-duration-seconds: 21600
 
       # Set these env vars as secrets so they get masked in the GitHub
       # Actions logs
