@@ -87,25 +87,25 @@ sources:
           - name: maddr3
             description: Mailing address line 3
           - name: maddr4
-            description: Address Line 4
+            description: '{{ doc("column_addr4") }}'
           - name: maddr5
-            description: Address Line 5
+            description: '{{ doc("column_addr5") }}'
           - name: madradd
             description: Street number extension
           - name: madrdir
-            description: Street direction
+            description: '{{ doc("column_adrdir") }}'
           - name: madrgrid
-            description: Grid address number
+            description: '{{ doc("column_adrgrid") }}'
           - name: madrno
-            description: Street number
+            description: '{{ doc("column_adrno") }}'
           - name: madrpre
-            description: Address Number Prefix
+            description: '{{ doc("column_adrpre") }}'
           - name: madrstr
-            description: Street name
+            description: '{{ doc("column_adrstr") }}'
           - name: madrsuf
-            description: Street suffix
+            description: '{{ doc("column_adrsuf") }}'
           - name: madrsuf2
-            description: Street suffix #2
+            description: '{{ doc("column_adrsuf2") }}'
           - name: mail1
             description: Mailing name line 1
           - name: mail1_companyname
@@ -141,7 +141,7 @@ sources:
           - name: mcityname
             description: '{{ doc("shared_column_mail_address_city_name") }}'
           - name: mcountry
-            description: Country
+            description: '{{ doc("column_country") }}'
           - name: mnamejur
             description: Stores MNAME.JUR when MOWNNUM is populated in hierarchical jur sites
           - name: mortco
@@ -151,13 +151,13 @@ sources:
           - name: mownnum
             description: Mailing pointer to name/address table (MNAME)
           - name: mpostalcode
-            description: Postal Code (International zip code)
+            description: '{{ doc("column_postalcode") }}'
           - name: mstatecode
             description: '{{ doc("shared_column_mail_address_state") }}'
           - name: munitdesc
-            description: Type of unit identifier(A, B, U)
+            description: '{{ doc("column_unitdesc") }}'
           - name: munitno
-            description: Unit number
+            description: '{{ doc("column_unitno") }}'
           - name: mzip1
             description: '{{ doc("shared_column_mail_address_zipcode_1") }}'
           - name: mzip2
