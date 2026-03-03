@@ -287,7 +287,7 @@ Taxpayer information such as name and mailing address.
 ### Nuance
 
 - Taxpayer mailing addresses are not necessarily the same as property owner
-mailing addresses.
+  mailing addresses. For property owner addresses, see `iasworld.owndat`.
 
 **Primary Key**: `jur`, `taxyr`, `parid`
 {% enddocs %}
