@@ -201,7 +201,7 @@ sources:
 
         data_tests:
           - unique_combination_of_columns:
-              name: iasworld_maildat_unique_by_parid_taxyr
+              name: iasworld_maildat_unique_by_parid_taxyr_mailseq
               combination_of_columns:
                 - parid
                 - taxyr
