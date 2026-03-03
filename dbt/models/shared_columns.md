@@ -3,41 +3,77 @@
 ## mail_address_city_name
 
 {% docs shared_column_mail_address_city_name %}
-City name of owner/taxpayer mailing address
+City name of taxpayer mailing address
 {% enddocs %}
 
 ## mail_address_full
 
 {% docs shared_column_mail_address_full %}
-First line (no city, state, ZIP) of owner/taxpayer mailing address.
+First line (no city, state, ZIP) of taxpayer mailing address.
+{% enddocs %}
+
+## mail_address_name
+
+{% docs shared_column_mail_address_name %}
+Full name (single unsplit string) of taxpayer mailing address
+{% enddocs %}
+
+## mail_address_state
+
+{% docs shared_column_mail_address_state %}
+State abbreviation of taxpayer mailing address
+{% enddocs %}
+
+## mail_address_zipcode_1
+
+{% docs shared_column_mail_address_zipcode_1 %}
+ZIP code (first 5 digits) of taxpayer mailing address
+{% enddocs %}
+
+## mail_address_zipcode_2
+
+{% docs shared_column_mail_address_zipcode_2 %}
+ZIP code (last 4 digits) of taxpayer mailing address
+{% enddocs %}
+
+## owner_address_city_name
+
+{% docs shared_column_owner_address_city_name %}
+City name of owner mailing address
+{% enddocs %}
+
+## owner_address_full
+
+{% docs shared_column_owner_address_full %}
+First line (no city, state, ZIP) of owner mailing address.
 
 Concatenated from other columns in the following order: `street_prefix`
 `street_number` `street_direction` `street_name` `street_suffix`
 `unit_prefix` `unit_number`
 {% enddocs %}
 
-## mail_address_name
+## owner_address_name
 
-{% docs shared_column_mail_address_name %}
-Full name (single unsplit string) of owner/taxpayer mailing address
+{% docs shared_column_owner_address_name %}
+Full name (single unsplit string) of owner mailing address
 {% enddocs %}
 
-## mail_address_state
+## owner_address_state
 
-{% docs shared_column_mail_address_state %}
-State abbreviation of owner/taxpayer mailing address
+{% docs shared_column_owner_address_state %}
+State abbreviation of owner mailing address
 {% enddocs %}
 
-## mail_address_zipcode_1
+## owner_address_zipcode_1
 
-{% docs shared_column_mail_address_zipcode_1 %}
-ZIP code (first 5 digits) of owner/taxpayer mailing address
+{% docs shared_column_owner_address_zipcode_1 %}
+ZIP code (first 5 digits) of owner mailing address
 {% enddocs %}
 
-## mail_address_zipcode_2
+## owner_address_zipcode_2
 
-{% docs shared_column_mail_address_zipcode_2 %}
-ZIP code (last 4 digits) of owner/taxpayer mailing address
+{% docs shared_column_owner_address_zipcode_2 %}
+ZIP code (last 4 digits) of owner mailing address
 {% enddocs %}
 
 ## owner_name

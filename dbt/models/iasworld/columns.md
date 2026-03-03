@@ -677,6 +677,12 @@ Owner 2 suffix
 Owner number
 {% enddocs %}
 
+## ownseq
+
+{% docs column_ownseq %}
+Owner sequence number
+{% enddocs %}
+
 ## page
 
 {% docs column_page %}
@@ -848,7 +854,10 @@ Split/combination tracking number
 ## ssn
 
 {% docs column_ssn %}
-Social security number
+Social security number.
+
+The CCAO Data Team does not store sensitive data in our data lake, so this
+field is always null.
 {% enddocs %}
 
 ## ssn2
@@ -861,6 +870,12 @@ Social security number 2
 
 {% docs column_statecode %}
 State or province (2 digit)
+{% enddocs %}
+
+## stateid
+
+{% docs column_stateid %}
+State tax ID number
 {% enddocs %}
 
 ## status
@@ -993,6 +1008,12 @@ Sketch vector notes
 
 {% docs column_ver %}
 Calculation table version
+{% enddocs %}
+
+## vldrsc
+
+{% docs column_vldrsc %}
+No validation reason code
 {% enddocs %}
 
 ## wallhgt

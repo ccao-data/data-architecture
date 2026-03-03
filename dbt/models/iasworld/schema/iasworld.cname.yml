@@ -142,7 +142,7 @@ sources:
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
           - name: vldrsc
-            description: No validation reason code
+            description: '{{ doc("column_vldrsc") }}'
           - name: wen
             description: '{{ doc("shared_column_updated_at") }}'
           - name: who
