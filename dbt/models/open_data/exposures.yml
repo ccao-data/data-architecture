@@ -70,6 +70,9 @@ exposures:
     label: Parcel Proximity
     type: dashboard
     tags:
+      # This asset is technically active, but it only needs to be updated
+      # annually. We use the socrata agent since the entire dataset is refreshed
+      # at once.
       - inactive
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Proximity/ydue-e5u3
     depends_on:
