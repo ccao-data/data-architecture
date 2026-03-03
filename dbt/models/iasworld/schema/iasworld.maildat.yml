@@ -34,6 +34,20 @@ sources:
             description: Old data for conversion 1 - NOT TO BE USED IN TRANSACTIONS
           - name: cur
             description: '{{ doc("column_cur") }}'
+            data_tests:
+              - accepted_values:
+                  name: iasworld_owndat_cur_in_accepted_values
+                  values: ['Y', 'D']
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: delinstalltype
