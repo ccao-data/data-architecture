@@ -665,6 +665,12 @@ Owner 2 suffix
 Owner number
 {% enddocs %}
 
+## ownseq
+
+{% docs column_ownseq %}
+Owner sequence number
+{% enddocs %}
+
 ## page
 
 {% docs column_page %}
@@ -849,6 +855,12 @@ Social security number 2
 
 {% docs column_statecode %}
 State or province (2 digit)
+{% enddocs %}
+
+## stateid
+
+{% docs column_stateid %}
+State tax ID number
 {% enddocs %}
 
 ## status

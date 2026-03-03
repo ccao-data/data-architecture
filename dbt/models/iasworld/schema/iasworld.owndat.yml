@@ -145,7 +145,7 @@ sources:
           - name: ownnum
             description: '{{ doc("shared_column_owner_num") }}'
           - name: ownseq
-            description: Owner sequence number
+            description: '{{ doc("column_ownseq") }}'
           - name: owntype1
             description: Type of owner(individual, guardian, etc) 1
           - name: owntype2
@@ -218,7 +218,7 @@ sources:
           - name: statecode
             description: '{{ doc("shared_column_owner_address_state") }}'
           - name: stateid
-            description: State tax ID number
+            description: '{{ doc("column_stateid") }}'
           - name: status
             description: '{{ doc("column_status") }}'
           - name: taxyr
