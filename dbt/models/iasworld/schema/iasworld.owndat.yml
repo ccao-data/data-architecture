@@ -215,6 +215,8 @@ sources:
             description: '{{ doc("column_skip_addr_validation") }}'
           - name: splitno
             description: '{{ doc("column_splitno") }}'
+          - name: ssn
+            description: '{{ doc("column_ssn") }}'
           - name: statecode
             description: '{{ doc("shared_column_owner_address_state") }}'
           - name: stateid
