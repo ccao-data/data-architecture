@@ -69,6 +69,49 @@ WITH uni AS (
         AND par.class NOT IN ('999')
 ),
 
+all_hies AS (
+    SELECT
+        parid AS pin,
+        taxyr AS year,
+        CAST(taxyr AS INT) AS year_int,
+        CAST(userval1 AS INT) AS hie_start,
+        CAST(userval2 AS INT) AS hie_end
+    FROM {{ source('iasworld', 'addn') }}
+    WHERE lline > 0
+        AND cur = 'Y'
+        AND deactivat IS NULL
+        AND userval1 IS NOT NULL
+        AND userval2 IS NOT NULL
+    UNION ALL
+    SELECT
+        parid AS pin,
+        taxyr AS year,
+        CAST(taxyr AS INT) AS year_int,
+        CAST(user10 AS INT) AS hie_start,
+        CAST(user14 AS INT) AS hie_end
+    FROM {{ source('iasworld', 'oby') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
+        AND user10 IS NOT NULL
+        AND user14 IS NOT NULL
+),
+
+hies AS (
+    SELECT
+        pin,
+        year,
+        SUM(
+            CAST(
+                year_int BETWEEN hie_start AND hie_end - 1 AS INT
+            )
+        ) AS active_hies,
+        SUM(CAST(year_int = hie_end AS INT)) AS expiring_hies
+    FROM all_hies
+    GROUP BY
+        pin,
+        year
+),
+
 acs5 AS (
     SELECT *
     FROM {{ ref('census.vw_acs5_stat') }}
@@ -344,6 +387,10 @@ SELECT
     uni.shp_parcel_mrr_side_ratio,
     uni.shp_parcel_num_vertices,
 
+    -- HEI data
+    hies.active_hies,
+    hies.expiring_hies,
+
     -- ACS5 census data
     acs5.count_sex_total AS acs5_count_sex_total,
     acs5.percent_age_children AS acs5_percent_age_children,
@@ -440,6 +487,9 @@ LEFT JOIN acs5
 LEFT JOIN housing_index
     ON uni.pin10 = housing_index.pin10
     AND uni.year = housing_index.year
+LEFT JOIN hies
+    ON uni.pin = hies.pin
+    AND uni.year = hies.year
 LEFT JOIN distressed_communities_index
     ON uni.pin10 = distressed_communities_index.pin10
     AND uni.year
