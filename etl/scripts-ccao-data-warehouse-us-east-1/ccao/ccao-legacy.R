@@ -409,15 +409,11 @@ cct_as_cofe_hdr <- map_dfr(files_cct_as_cofe_hdr$Key, \(f) {
 })
 
 cct_as_cofe_hdr %>%
-  mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
-  arrow::write_dataset(
-    path = file.path(
-      output_bucket, "cct_as_cofe_hdr"
-    ),
-    format = "parquet",
-    hive_style = TRUE,
-    compression = "zstd"
+  write_partitions_to_s3(
+    file.path(output_bucket, "cct_as_cofe_hdr"),
+    is_spatial = FALSE,
+    overwrite = TRUE
   )
 
 
@@ -710,13 +706,9 @@ cct_as_cofe_dtl <- map_dfr(files_cct_as_cofe_dtl$Key, \(f) {
 })
 
 cct_as_cofe_dtl %>%
-  mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
-  arrow::write_dataset(
-    path = file.path(
-      output_bucket, "cct_as_cofe_dtl"
-    ),
-    format = "parquet",
-    hive_style = TRUE,
-    compression = "zstd"
+  write_partitions_to_s3(
+    file.path(output_bucket, "cct_as_cofe_dtl"),
+    is_spatial = FALSE,
+    overwrite = TRUE
   )
