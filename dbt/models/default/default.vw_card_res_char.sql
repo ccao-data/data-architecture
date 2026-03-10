@@ -175,8 +175,8 @@ SELECT
     COALESCE(pools.in_ground_pool, FALSE) AS char_in_ground_pool,
 
     -- HEI data
-    hies.hei_num_active,
-    hies.hei_num_expiring
+    COALESCE(hies.hei_num_active, 0) AS hei_num_active,
+    COALESCE(hies.hei_num_expiring, 0) AS hei_num_expiring
 
 FROM {{ source('iasworld', 'pardat') }} AS par
 INNER JOIN {{ source('iasworld', 'dweldat') }} AS dwel
