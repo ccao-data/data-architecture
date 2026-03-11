@@ -12,6 +12,10 @@ WITH multicodes AS (
     GROUP BY parid, taxyr
 ),
 
+-- Gather HIE start and end years from both ADDN and OBY tables. We need to
+-- stack them to properly count the number of active and expiring HIEs for each
+-- PIN-year combination below. While OBY, ADDN, and DWELDAT all have card
+-- fields, they do not link across tables, so we count at the PIN level.
 all_hies AS (
     SELECT
         parid AS pin,
@@ -46,6 +50,7 @@ hies AS (
         year,
         SUM(
             CAST(
+                -- Subtract 1 since between is inclusive
                 year_int BETWEEN hie_start AND hie_end - 1 AS INT
             )
         ) AS hei_num_active,
