@@ -12,6 +12,10 @@ Control table for `asmt` admin module - multi-jurisdiction version.
 Residential additions. Stores data about Home Improvement Exemptions (HIEs)
 and other information about `iasworld.dweldat` properties.
 
+### Nuance
+
+- In order to isolate HIEs, condition on `lline > 0`
+
 **Primary Key**: `jur`, `taxyr`, `parid`, `card`, `lline`
 {% enddocs %}
 

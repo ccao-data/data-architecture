@@ -37,6 +37,7 @@ all_hies AS (
         AND deactivat IS NULL
         AND user10 IS NOT NULL
         AND user14 IS NOT NULL
+        AND class = '288'
 ),
 
 hies AS (
