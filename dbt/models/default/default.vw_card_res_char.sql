@@ -50,8 +50,9 @@ hies AS (
         year,
         SUM(
             CAST(
-                -- Subtract 1 since between is inclusive
-                year_int BETWEEN hie_start AND hie_end - 1 AS INT
+                -- HIE adjustments to AVs in iasworld.asmt include the start and
+                -- end years, so we use a between statement here.
+                year_int BETWEEN hie_start AND hie_end AS INT
             )
         ) AS hie_num_active,
         SUM(CAST(year_int = hie_end AS INT)) AS hie_num_expiring
