@@ -114,6 +114,8 @@ forward_fill AS (
         ch.char_ncu,
         ch.char_tp_plan,
         ch.char_recent_renovation,
+        ch.hei_num_active,
+        ch.hei_num_expiring,
 
         -- Land and lot size indicators
         sp.char_land_sf_95_percentile,
@@ -216,6 +218,8 @@ SELECT
     f1.char_ncu,
     f1.char_tp_plan,
     f1.char_recent_renovation,
+    f1.hei_num_active,
+    f1.hei_num_expiring,
     f1.char_land_sf_95_percentile,
     f1.ind_land_gte_95_percentile,
     f1.char_bldg_sf_95_percentile,
