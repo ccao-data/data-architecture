@@ -1122,7 +1122,7 @@ Number of active home improvement exemptions
 ## hie_num_expiring
 
 {% docs shared_column_hie_num_expiring %}
-Number of expiring home improvement exemptions
+Number of home improvement exemptions that will expire after the current year
 {% enddocs %}
 
 # Cook County
