@@ -180,7 +180,7 @@ SELECT
     -- This is not currently being used in open data or modeling.
     COALESCE(pools.in_ground_pool, FALSE) AS char_in_ground_pool,
 
-    -- HEI data
+    -- HIE data
     COALESCE(hies.hie_num_active, 0) AS hie_num_active,
     COALESCE(hies.hie_num_expiring, 0) AS hie_num_expiring
 
