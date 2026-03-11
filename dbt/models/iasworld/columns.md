@@ -431,18 +431,6 @@ Group adjustment value
 Homesite indicator
 {% enddocs %}
 
-## hie_end
-
-{% docs column_hie_end %}
-Home improvement exemption end year
-{% enddocs %}
-
-## hie_start
-
-{% docs column_hie_start %}
-Home improvement exemption start year
-{% enddocs %}
-
 ## iasw_id
 
 {% docs column_iasw_id %}

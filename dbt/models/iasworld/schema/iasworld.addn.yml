@@ -266,9 +266,9 @@ sources:
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
           - name: userval1
-            description: '{{ doc("column_hie_start") }}'
+            description: '{{ doc("shared_column_hie_start") }}'
           - name: userval2
-            description: '{{ doc("column_hie_end") }}'
+            description: '{{ doc("shared_column_hie_end") }}'
           - name: value
             description: Value of the addition
           - name: vect

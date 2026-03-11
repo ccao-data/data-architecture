@@ -1113,6 +1113,18 @@ Possible values for this variable are:
 Year the property was constructed
 {% enddocs %}
 
+## hie_end
+
+{% docs shared_column_hie_end %}
+Home improvement exemption end year
+{% enddocs %}
+
+## hie_start
+
+{% docs shared_column_hie_start %}
+Home improvement exemption start year
+{% enddocs %}
+
 # Cook County
 
 ## card

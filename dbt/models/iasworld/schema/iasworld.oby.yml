@@ -449,9 +449,9 @@ sources:
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
           - name: user10
-            description: '{{ doc("column_hie_start") }}'
+            description: '{{ doc("shared_column_hie_start") }}'
           - name: user14
-            description: '{{ doc("column_hie_end") }}'
+            description: '{{ doc("shared_column_hie_end") }}'
           - name: user16
             description: '{{ doc("shared_column_alternative_cdu") }}'
           - name: valmeth
