@@ -15,6 +15,8 @@ and other information about `iasworld.dweldat` properties.
 ### Nuance
 
 - In order to isolate HIEs, condition on `lline > 0`
+- The characteristic changes in `addn` are applied immediately to the
+corresponding `dweldat` characteristics rather then when HIEs "roll off".
 
 **Primary Key**: `jur`, `taxyr`, `parid`, `card`, `lline`
 {% enddocs %}
