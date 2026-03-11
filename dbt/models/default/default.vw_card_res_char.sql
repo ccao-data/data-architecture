@@ -53,8 +53,8 @@ hies AS (
                 -- Subtract 1 since between is inclusive
                 year_int BETWEEN hie_start AND hie_end - 1 AS INT
             )
-        ) AS hei_num_active,
-        SUM(CAST(year_int = hie_end AS INT)) AS hei_num_expiring
+        ) AS hie_num_active,
+        SUM(CAST(year_int = hie_end AS INT)) AS hie_num_expiring
     FROM all_hies
     GROUP BY
         pin,
@@ -181,8 +181,8 @@ SELECT
     COALESCE(pools.in_ground_pool, FALSE) AS char_in_ground_pool,
 
     -- HEI data
-    COALESCE(hies.hei_num_active, 0) AS hei_num_active,
-    COALESCE(hies.hei_num_expiring, 0) AS hei_num_expiring
+    COALESCE(hies.hie_num_active, 0) AS hie_num_active,
+    COALESCE(hies.hie_num_expiring, 0) AS hie_num_expiring
 
 FROM {{ source('iasworld', 'pardat') }} AS par
 INNER JOIN {{ source('iasworld', 'dweldat') }} AS dwel
