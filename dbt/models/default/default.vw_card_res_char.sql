@@ -12,6 +12,57 @@ WITH multicodes AS (
     GROUP BY parid, taxyr
 ),
 
+-- Gather HIE start and end years from both ADDN and OBY tables. We need to
+-- stack them to properly count the number of active and expiring HIEs for each
+-- PIN-year combination below. While OBY, ADDN, and DWELDAT all have card
+-- fields, we're not linking characteristics here, just counting at the PIN
+-- level.
+all_hies AS (
+    SELECT
+        parid AS pin,
+        taxyr AS year,
+        CAST(taxyr AS INT) AS year_int,
+        CAST(userval1 AS INT) AS hie_start,
+        CAST(userval2 AS INT) AS hie_end
+    FROM {{ source('iasworld', 'addn') }}
+    WHERE lline > 0
+        AND cur = 'Y'
+        AND deactivat IS NULL
+        AND userval1 IS NOT NULL
+        AND userval2 IS NOT NULL
+    UNION ALL
+    SELECT
+        parid AS pin,
+        taxyr AS year,
+        CAST(taxyr AS INT) AS year_int,
+        CAST(user10 AS INT) AS hie_start,
+        CAST(user14 AS INT) AS hie_end
+    FROM {{ source('iasworld', 'oby') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
+        AND user10 IS NOT NULL
+        AND user14 IS NOT NULL
+        AND class = '288'
+),
+
+hies AS (
+    SELECT
+        pin,
+        year,
+        SUM(
+            CAST(
+                -- HIE adjustments to AVs in iasworld.asmt include the start and
+                -- end years, so we use a between statement here.
+                year_int BETWEEN hie_start AND hie_end AS INT
+            )
+        ) AS hie_num_active,
+        SUM(CAST(year_int = hie_end AS INT)) AS hie_num_expiring
+    FROM all_hies
+    GROUP BY
+        pin,
+        year
+),
+
 -- Conditionals in CTE do not ensure distinct outputs
 pools AS (
     SELECT
@@ -129,7 +180,11 @@ SELECT
     -- This is a brand new characteristic being collected by Valuations and we
     -- are not yet confident about its completeness or accuracy.
     -- This is not currently being used in open data or modeling.
-    COALESCE(pools.in_ground_pool, FALSE) AS char_in_ground_pool
+    COALESCE(pools.in_ground_pool, FALSE) AS char_in_ground_pool,
+
+    -- HIE data
+    COALESCE(hies.hie_num_active, 0) AS hie_num_active,
+    COALESCE(hies.hie_num_expiring, 0) AS hie_num_expiring
 
 FROM {{ source('iasworld', 'pardat') }} AS par
 INNER JOIN {{ source('iasworld', 'dweldat') }} AS dwel
@@ -151,6 +206,9 @@ LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
 LEFT JOIN pools
     ON dwel.parid = pools.parid
     AND dwel.taxyr = pools.taxyr
+LEFT JOIN hies
+    ON dwel.parid = hies.pin
+    AND dwel.taxyr = hies.year
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
     AND par.class NOT IN ('999')
