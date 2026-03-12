@@ -304,6 +304,12 @@ Taxpayer information such as name and mailing address.
 Outbuilding table. This is the main storage table for condo unit-level data.
 It also stores other miscellaneous sub-PIN information like HIEs.
 
+### Nuance
+
+- In order to isolate HIEs, condition on `class = '288'`
+- The characteristic changes in `oby` are applied immediately to the
+corresponding `dweldat` characteristics rather then when HIEs "roll off".
+
 **Primary Key**: `jur`, `taxyr`, `parid`, `card`, `lline`
 {% enddocs %}
 
