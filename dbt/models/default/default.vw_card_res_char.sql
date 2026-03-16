@@ -14,16 +14,16 @@ WITH multicodes AS (
 
 -- Gather HIE start and end years from both ADDN and OBY tables. We need to
 -- stack them to properly count the number of active and expiring HIEs for each
--- PIN-year combination below. While OBY, ADDN, and DWELDAT all have card
--- fields, we're not linking characteristics here, just counting at the PIN
--- level.
+-- PIN-year combination below. We define unique start and end dates within cards
+-- as separate HIEs.
 all_hies AS (
-    SELECT
+    SELECT DISTINCT
         parid AS pin,
+        card,
         taxyr AS year,
         CAST(taxyr AS INT) AS year_int,
-        CAST(userval1 AS INT) AS hie_start,
-        CAST(userval2 AS INT) AS hie_end
+        userval1 AS hie_start,
+        userval2 AS hie_end
     FROM {{ source('iasworld', 'addn') }}
     WHERE lline > 0
         AND cur = 'Y'
@@ -31,8 +31,9 @@ all_hies AS (
         AND userval1 IS NOT NULL
         AND userval2 IS NOT NULL
     UNION ALL
-    SELECT
+    SELECT DISTINCT
         parid AS pin,
+        card,
         taxyr AS year,
         CAST(taxyr AS INT) AS year_int,
         CAST(user10 AS INT) AS hie_start,
