@@ -18,7 +18,7 @@ and other information about `iasworld.dweldat` properties.
 - HIEs from `addn` can be joined to dweldat by card
 - The characteristic changes in `addn` are applied immediately to the
 corresponding `dweldat` characteristics rather then when HIEs "roll off".
-- HIEs are defined within start/end year and card
+- Individual HIEs are defined within start/end year and card
 
 **Primary Key**: `jur`, `taxyr`, `parid`, `card`, `lline`
 {% enddocs %}
@@ -313,7 +313,7 @@ It also stores other miscellaneous sub-PIN information like HIEs.
 is the intended behavior
 - The characteristic changes in `oby` are applied immediately to the
 corresponding `dweldat` characteristics rather then when HIEs "roll off".
-- HIEs are defined within start/end year and card
+- Individual HIEs are defined within start/end year and card
 
 **Primary Key**: `jur`, `taxyr`, `parid`, `card`, `lline`
 {% enddocs %}
