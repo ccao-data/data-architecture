@@ -955,6 +955,10 @@ models:
         description: '{{ doc("shared_column_char_use") }}'
       - name: char_yrblt
         description: '{{ doc("shared_column_char_yrblt") }}'
+      - name: hie_num_active
+        description: '{{ doc("shared_column_hie_num_active") }}'
+      - name: hie_num_expiring
+        description: '{{ doc("shared_column_hie_num_expiring") }}'
       - name: ind_bldg_gte_95_percentile
         description: |
           Indicator for a PIN with building square footage larger

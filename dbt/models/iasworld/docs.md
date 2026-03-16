@@ -12,6 +12,14 @@ Control table for `asmt` admin module - multi-jurisdiction version.
 Residential additions. Stores data about Home Improvement Exemptions (HIEs)
 and other information about `iasworld.dweldat` properties.
 
+### Nuance
+
+- In order to isolate HIEs, condition on `lline > 0`
+- HIEs from `addn` can be joined to dweldat by card
+- The characteristic changes in `addn` are applied immediately to the
+corresponding `dweldat` characteristics rather then when HIEs "roll off".
+- Individual HIEs are defined within start/end year and card
+
 **Primary Key**: `jur`, `taxyr`, `parid`, `card`, `lline`
 {% enddocs %}
 
@@ -297,6 +305,15 @@ Taxpayer information such as name and mailing address.
 {% docs table_oby %}
 Outbuilding table. This is the main storage table for condo unit-level data.
 It also stores other miscellaneous sub-PIN information like HIEs.
+
+### Nuance
+
+- In order to isolate HIEs, condition on `class = '288'`
+- HIEs from `oby` cannot necessarily be joined to `dweldat` by card, though that
+is the intended behavior
+- The characteristic changes in `oby` are applied immediately to the
+corresponding `dweldat` characteristics rather then when HIEs "roll off".
+- Individual HIEs are defined within start/end year and card
 
 **Primary Key**: `jur`, `taxyr`, `parid`, `card`, `lline`
 {% enddocs %}

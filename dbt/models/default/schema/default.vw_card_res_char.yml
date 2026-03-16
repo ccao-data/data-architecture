@@ -84,6 +84,10 @@ models:
         description: '{{ doc("shared_column_char_yrblt") }}'
       - name: class
         description: '{{ doc("shared_column_class") }}'
+      - name: hie_num_active
+        description: '{{ doc("shared_column_hie_num_active") }}'
+      - name: hie_num_expiring
+        description: '{{ doc("shared_column_hie_num_expiring") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: pin10
