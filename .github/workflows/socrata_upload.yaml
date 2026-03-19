@@ -84,5 +84,7 @@ jobs:
           OVERWRITE: ${{ inputs.overwrite }}
           YEARS: ${{ inputs.years }}
           WORKFLOW_EVENT_NAME: ${{ github.event_name }}
-          UPLOAD_SCHEDULE: ${{ github.event.schedule == '0 11 1 * *' && 'monthly' || github.event.schedule == '0 11 15 * *' && 'semimonthly' || '' }}
+          UPLOAD_SCHEDULE: >
+            ${{ github.event.schedule == '0 11 1 * *' && 'monthly' ||
+            github.event.schedule == '0 11 15 * *' && 'semimonthly' || '' }}
         run: python ./socrata/socrata_upload.py
