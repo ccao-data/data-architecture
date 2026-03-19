@@ -283,10 +283,10 @@ SELECT
         -- can be a useful signal of something going wrong with our eligibility
         -- criteria, so instead we hardcode this exception.
         AND NOT (ac.meta_pin = '10361150280000' AND ac.assessment_year = '2024')
-	-- Only count as report eligible if pin has a valid regression class
-	AND pin_cd.class_code IS NOT NULL
-	AND pin_cd.regression_class
-	AND pin_cd.modeling_group IN ('SF', 'MF', 'BB')
+        -- Only count as report eligible if pin has a valid regression class
+        AND pin_cd.class_code IS NOT NULL
+        AND pin_cd.regression_class
+        AND pin_cd.modeling_group IN ('SF', 'MF', 'BB')
     ) AS is_report_eligible,
     CASE
         -- In some rare cases the parcel class can be different from
