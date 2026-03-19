@@ -236,8 +236,8 @@ SELECT
     COALESCE(twn.township_name, uni.township_name) AS meta_township_name,
     COALESCE(ac.meta_nbhd_code, uni.nbhd_code) AS meta_nbhd_code,
     LOWER(uni.triad_name) AS meta_triad_name,
-    COALESCE(ac.char_class, uni.class) AS char_class,
     uni.class AS pin_class,
+    COALESCE(ac.char_class, uni.class) AS char_class,
     COALESCE(card_cd.class_desc, pin_cd.class_desc) AS char_class_desc,
     COALESCE(ac.assessment_triad, uni.assessment_triad)
         AS assessment_triad_name,
