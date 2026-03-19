@@ -71,6 +71,10 @@ def parse_assets(assets=None):
 
     os.chdir("./dbt")
 
+    monthly_tag = ""
+    if os.getenv("UPLOAD_SCHEDULE") == "semi-monthly":
+        monthly_tag = "tag:monthly"
+
     DBT = dbtRunner()
     dbt_list_args = [
         "--quiet",
@@ -80,7 +84,7 @@ def parse_assets(assets=None):
         "--resource-types",
         "exposure",
         "--exclude",
-        "tag:inactive",
+        " ".join(filter(None, ["tag:inactive", monthly_tag])),
         "--output",
         "json",
         "--output-keys",
