@@ -120,6 +120,16 @@ There are two cases in which this column might be null:
 
 {% enddocs %}
 
+## pin_class
+
+{% docs column_pinval_pin_class %}
+The property class for the PIN.
+
+Unlike `char_class`, which may vary per card,
+`pin_class` always reflects the class assigned to the PIN in
+`default.vw_pin_universe`.
+{% enddocs %}
+
 ## reason_report_ineligible
 
 {% docs column_pinval_reason_report_ineligible %}
