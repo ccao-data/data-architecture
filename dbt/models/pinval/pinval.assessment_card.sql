@@ -270,19 +270,6 @@ SELECT
         ac.meta_pin IS NOT NULL
         AND ac.meta_card_num IS NOT NULL
         AND LOWER(uni.triad_name) = LOWER(uni.assessment_triad)
-        -- Fix for one 2024 PIN that switched from regression class to
-        -- non-regression class between the date when we ran the final model
-        -- and the date we ran final comps. Without the filter below, this view
-        -- will consider the PIN to be eligible for a report, because it had
-        -- a regression class at the time of final modeling; however, the PIN
-        -- doesn't have any comps, because it had a non-regression class at the
-        -- time of comps.
-        --
-        -- An alternative approach might be to use the presence of comps to
-        -- determine report eligibilty, but eligible reports without comps
-        -- can be a useful signal of something going wrong with our eligibility
-        -- criteria, so instead we hardcode this exception.
-        AND NOT (ac.meta_pin = '10361150280000' AND ac.assessment_year = '2024')
         -- Only count as report eligible if pin has a valid regression class
         AND pin_cd.class_code IS NOT NULL
         AND pin_cd.regression_class
