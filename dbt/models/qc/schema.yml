@@ -361,61 +361,58 @@ models:
       export_format:
         columns:
           - name: Basement Area
-            index: AD
+            index: Z
             data_type: int
           - name: CARD
-            index: M
+            index: L
             data_type: int
-          - name: CONVBLDG
-            index: O
-            data_type: int
+          - name: Condition Factor
+            index: BI
+            data_type: str
           - name: Effective Year
-            index: Q
+            index: N
             data_type: int
           - name: Exemption %
-            index: BJ
+            index: BF
             data_type: float
           - name: EXTERNAL_CALC_RCNLD
-            index: T
+            index: P
             data_type: int
           - name: EXTERNAL_OCCPCT
-            index: U
+            index: Q
             data_type: float
           - name: EXTERNAL_PROPCT
-            index: V
+            index: R
             data_type: float
           - name: EXTERNAL_RCNLD
-            index: W
+            index: S
             data_type: int
           - name: Gross Building Area
-            index: Z
+            index: V
             data_type: float
+          - name: "Investment Rating:"
+            index: BJ
+            data_type: str
+          - name: Location Factor
+            index: BH
+            data_type: str
           - name: Net Rentable Area
-            index: AC
+            index: Y
             data_type: decimal
-          - name: Occ %
-            index: N
-            data_type: float
           - name: OVRRCNLD
             index: J
             data_type: int
           - name: Parking Spaces
-            index: AF
+            index: AB
             data_type: int
-          - name: Proration %
-            index: K
-            data_type: float
           - name: TAXYR
             index: B
             data_type: int
           - name: UNITS
-            index: AB
-            data_type: int
-          - name: USERVAL4
-            index: S
+            index: X
             data_type: int
           - name: YRBLT
-            index: P
+            index: M
             data_type: int
         <<: *qc_report_ic_reference_export_format
 

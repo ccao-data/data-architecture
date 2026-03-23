@@ -17,15 +17,11 @@ SELECT
         COALESCE(minor_subclass.description, '')
     ) AS minor_subclass,
     comdat.ovrrcnld,
-    comdat.user24 AS proration_percent,
     comdat.user16 AS alt_cdu,
     comdat.card,
-    comdat.mktadj,
-    comdat.convbldg,
     comdat.yrblt,
     comdat.effyr,
     comdat.chgrsn,
-    comdat.userval4,
     comdat.external_calc_rcnld,
     comdat.external_occpct,
     comdat.external_propct,
@@ -74,6 +70,9 @@ SELECT
         CASE WHEN comdat.user29 IS NOT NULL THEN ':' ELSE '' END,
         COALESCE(model_group.description, '')
     ) AS model_group,
+    comdat.user30 AS location_factor,
+    comdat.grade AS condition_factor,
+    comdat.user22 AS investment_rating,
     legdat.user1 AS township_code
 FROM {{ source('iasworld', 'comdat') }} AS comdat
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
