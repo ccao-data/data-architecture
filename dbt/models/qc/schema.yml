@@ -361,59 +361,56 @@ models:
       export_format:
         columns:
           - name: Basement Area
-            index: AD
+            index: AC
             data_type: int
           - name: CARD
-            index: M
-            data_type: int
-          - name: CONVBLDG
-            index: O
+            index: L
             data_type: int
           - name: Effective Year
             index: Q
             data_type: int
           - name: Exemption %
-            index: BJ
+            index: BI
             data_type: float
           - name: EXTERNAL_CALC_RCNLD
-            index: T
+            index: S
             data_type: int
           - name: EXTERNAL_OCCPCT
-            index: U
+            index: T
             data_type: float
           - name: EXTERNAL_PROPCT
-            index: V
+            index: U
             data_type: float
           - name: EXTERNAL_RCNLD
-            index: W
+            index: V
             data_type: int
+          - name: GRADE
+            index: N
+            data_type: str
           - name: Gross Building Area
-            index: Z
+            index: Y
             data_type: float
           - name: Net Rentable Area
-            index: AC
+            index: AB
             data_type: decimal
-          - name: Occ %
-            index: N
-            data_type: float
           - name: OVRRCNLD
             index: J
             data_type: int
           - name: Parking Spaces
-            index: AF
+            index: AE
             data_type: int
-          - name: Proration %
-            index: K
-            data_type: float
           - name: TAXYR
             index: B
             data_type: int
           - name: UNITS
-            index: AB
+            index: AA
             data_type: int
-          - name: USERVAL4
-            index: S
-            data_type: int
+          - name: USER22
+            index: O
+            data_type: str
+          - name: USER30
+            index: M
+            data_type: str
           - name: YRBLT
             index: P
             data_type: int
