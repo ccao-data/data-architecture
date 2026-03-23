@@ -366,6 +366,9 @@ models:
           - name: CARD
             index: L
             data_type: int
+          - name: Condition Factor
+            index: BI
+            data_type: str
           - name: Effective Year
             index: N
             data_type: int
@@ -384,12 +387,15 @@ models:
           - name: EXTERNAL_RCNLD
             index: S
             data_type: int
-          - name: Condition Factor
-            index: BI
-            data_type: str
           - name: Gross Building Area
             index: V
             data_type: float
+          - name: "Investment Rating:"
+            index: BJ
+            data_type: str
+          - name: Location Factor
+            index: BH
+            data_type: str
           - name: Net Rentable Area
             index: Y
             data_type: decimal
@@ -405,12 +411,6 @@ models:
           - name: UNITS
             index: X
             data_type: int
-          - name: "Investment Rating:"
-            index: BJ
-            data_type: str
-          - name: Location Factor
-            index: BH
-            data_type: str
           - name: YRBLT
             index: M
             data_type: int
