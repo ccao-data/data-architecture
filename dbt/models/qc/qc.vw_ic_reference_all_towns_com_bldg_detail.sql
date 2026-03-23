@@ -19,9 +19,6 @@ SELECT
     comdat.ovrrcnld,
     comdat.user16 AS alt_cdu,
     comdat.card,
-    comdat.user30,
-    comdat.grade,
-    comdat.user22,
     comdat.yrblt,
     comdat.effyr,
     comdat.chgrsn,
@@ -73,6 +70,9 @@ SELECT
         CASE WHEN comdat.user29 IS NOT NULL THEN ':' ELSE '' END,
         COALESCE(model_group.description, '')
     ) AS model_group,
+    comdat.user30 AS location_factor,
+    comdat.grade AS condition_factor,
+    comdat.user22 AS investment_rating,
     legdat.user1 AS township_code
 FROM {{ source('iasworld', 'comdat') }} AS comdat
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat

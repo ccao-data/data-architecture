@@ -361,58 +361,58 @@ models:
       export_format:
         columns:
           - name: Basement Area
-            index: AC
+            index: Z
             data_type: int
           - name: CARD
             index: L
             data_type: int
           - name: Effective Year
-            index: Q
+            index: N
             data_type: int
           - name: Exemption %
-            index: BI
+            index: BF
             data_type: float
           - name: EXTERNAL_CALC_RCNLD
-            index: S
+            index: P
             data_type: int
           - name: EXTERNAL_OCCPCT
-            index: T
+            index: Q
             data_type: float
           - name: EXTERNAL_PROPCT
-            index: U
+            index: R
             data_type: float
           - name: EXTERNAL_RCNLD
-            index: V
+            index: S
             data_type: int
-          - name: GRADE
-            index: N
+          - name: Condition Factor
+            index: BI
             data_type: str
           - name: Gross Building Area
-            index: Y
+            index: V
             data_type: float
           - name: Net Rentable Area
-            index: AB
+            index: Y
             data_type: decimal
           - name: OVRRCNLD
             index: J
             data_type: int
           - name: Parking Spaces
-            index: AE
+            index: AB
             data_type: int
           - name: TAXYR
             index: B
             data_type: int
           - name: UNITS
-            index: AA
+            index: X
             data_type: int
-          - name: USER22
-            index: O
+          - name: "Investment Rating:"
+            index: BJ
             data_type: str
-          - name: USER30
-            index: M
+          - name: Location Factor
+            index: BH
             data_type: str
           - name: YRBLT
-            index: P
+            index: M
             data_type: int
         <<: *qc_report_ic_reference_export_format
 
