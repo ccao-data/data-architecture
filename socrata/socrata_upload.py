@@ -8,6 +8,7 @@ import time
 from datetime import datetime
 from urllib.parse import quote
 
+import botocore
 import pandas as pd
 import requests
 from dbt.cli.main import dbtRunner
@@ -47,11 +48,17 @@ session.mount(
     "https://datacatalog.cookcountyil.gov", HTTPAdapter(max_retries=retries)
 )
 
+# Configure the botocore client to allow for more pool connections
+client_config = botocore.config.Config(
+    max_pool_connections=50  # Increase from the default of 10
+)
+
 # Connect to Athena
 cursor = connect(
     s3_staging_dir="s3://ccao-athena-results-us-east-1/",
     region_name="us-east-1",
     cursor_class=PandasCursor,
+    config=client_config,
 ).cursor(unload=True)
 
 
