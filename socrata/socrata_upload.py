@@ -8,9 +8,9 @@ import time
 from datetime import datetime
 from urllib.parse import quote
 
-import botocore
 import pandas as pd
 import requests
+from botocore.config import Config
 from dbt.cli.main import dbtRunner
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
@@ -49,9 +49,7 @@ session.mount(
 )
 
 # Configure the botocore client to allow for more pool connections
-client_config = botocore.config.Config(
-    max_pool_connections=50  # Increase from the default of 10
-)
+client_config = Config(max_pool_connections=50)
 
 # Connect to Athena
 cursor = connect(
