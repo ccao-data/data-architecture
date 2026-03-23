@@ -76,7 +76,7 @@ def parse_assets(assets=None):
     # updated once per month. If the upload is running on a monthly schedule,
     # we want to include those assets.
     monthly_tag = (
-        "tag:monthly" if os.getenv("UPLOAD_SCHEDULE") == "semi-monthly" else ""
+        "tag:monthly" if os.getenv("UPLOAD_SCHEDULE") == "semimonthly" else ""
     )
 
     DBT = dbtRunner()
