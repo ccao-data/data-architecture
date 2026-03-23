@@ -2,6 +2,8 @@ exposures:
   - name: appeals
     label: Appeals
     type: dashboard
+    tags:
+      - monthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Appeals/y282-6ig3
     depends_on:
       - ref('open_data.vw_appeal')
@@ -26,6 +28,8 @@ exposures:
   - name: assessed_values
     label: Assessed Values
     type: dashboard
+    tags:
+      - semimonthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Assessed-Values/uzyt-m557
     depends_on:
       - ref('open_data.vw_assessed_value')
@@ -48,6 +52,8 @@ exposures:
   - name: parcel_addresses
     label: Parcel Addresses
     type: dashboard
+    tags:
+      - monthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Addresses/3723-97qp
     depends_on:
       - ref('open_data.vw_parcel_address')
@@ -95,6 +101,8 @@ exposures:
   - name: parcel_sales
     label: Parcel Sales
     type: dashboard
+    tags:
+      - monthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Sales/wvhk-k5uv
     depends_on:
       - ref('open_data.vw_parcel_sale')
@@ -137,6 +145,8 @@ exposures:
   - name: parcel_universe_current_year
     label: Parcel Universe (Current Year Only)
     type: dashboard
+    tags:
+      - monthly
     url: https://datacatalog.cookcountyil.gov/dataset/Assessor-Parcel-Universe-Current-Year-/pabr-t5kh
     depends_on:
       - ref('open_data.vw_parcel_universe_current')
@@ -158,6 +168,8 @@ exposures:
   - name: parcel_universe_historical
     label: Parcel Universe (Historic)
     type: dashboard
+    tags:
+      - monthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Universe/nj4t-kc8j
     depends_on:
       - ref('open_data.vw_parcel_universe_historical')
@@ -179,6 +191,8 @@ exposures:
   - name: permits
     label: Permits
     type: dashboard
+    tags:
+      - monthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Permits/6yjf-dfxs
     depends_on:
       - ref('open_data.vw_permit')
@@ -199,6 +213,8 @@ exposures:
   - name: property_tax_exempt_parcels
     label: Property Tax-Exempt Parcels
     type: dashboard
+    tags:
+      - monthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Property-Tax-Exempt-Parcels/vgzx-68gb
     depends_on:
       - ref('open_data.vw_property_tax_exempt_parcel')
@@ -223,6 +239,7 @@ exposures:
     type: dashboard
     tags:
       - type_condo
+      - monthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Residential-Condominium-Unit-Characteri/3r7i-mrz4
     depends_on:
       - ref('open_data.vw_res_condo_unit_char')
@@ -248,6 +265,7 @@ exposures:
     type: dashboard
     tags:
       - type_res
+      - monthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Single-and-Multi-Family-Improvement-Chara/x54s-btds
     depends_on:
       - ref('open_data.vw_sf_mf_improvement_char')

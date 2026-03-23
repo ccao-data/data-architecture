@@ -71,6 +71,14 @@ def parse_assets(assets=None):
 
     os.chdir("./dbt")
 
+    # If the upload is running on a semi-monthly schedule, we want to exclude
+    # any assets tagged with "tag:monthly" since those are only meant to be
+    # updated once per month. If the upload is running on a monthly schedule,
+    # we want to include those assets.
+    monthly_tag = (
+        "tag:monthly" if os.getenv("UPLOAD_SCHEDULE") == "semimonthly" else ""
+    )
+
     DBT = dbtRunner()
     dbt_list_args = [
         "--quiet",
@@ -80,7 +88,7 @@ def parse_assets(assets=None):
         "--resource-types",
         "exposure",
         "--exclude",
-        "tag:inactive",
+        " ".join(filter(None, ["tag:inactive", monthly_tag])),
         "--output",
         "json",
         "--output-keys",

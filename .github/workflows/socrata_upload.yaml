@@ -24,8 +24,14 @@ on:
         description: Overwrite socrata asset
         required: false
   schedule:
-  # First of every month at 11am UTC (6am UTC-5)
+  # We use these schedules to determine the value of the `UPLOAD_SCHEDULE`
+  # env var below, so make sure to change that env var definition if you
+  # change any of these schedules.
+  # 
+  # Run a monthly job on the first of every month at 11am UTC (6am UTC-5).
     - cron: '0 11 1 * *'
+  # Run a semi-monthly job on the fifteenth of every month at 11am UTC (6am UTC-5).
+    - cron: '0 11 15 * *'
 
 
 env:
@@ -82,4 +88,11 @@ jobs:
           OVERWRITE: ${{ inputs.overwrite }}
           YEARS: ${{ inputs.years }}
           WORKFLOW_EVENT_NAME: ${{ github.event_name }}
+          # Determine if we're running on the monthly or semi-monthly schedule.
+          # These cron expressions are shared by the `on.schedule` workflow
+          # attribute defined above, so make sure to change that attribute
+          # definition alongside any changes you make here
+          UPLOAD_SCHEDULE: >
+            ${{ github.event.schedule == '0 11 1 * *' && 'monthly' ||
+            github.event.schedule == '0 11 15 * *' && 'semimonthly' || '' }}
         run: python ./socrata/socrata_upload.py
