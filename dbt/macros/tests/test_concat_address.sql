@@ -22,3 +22,13 @@
         )
     }}
 {% endmacro %}
+
+{% macro test_concat_address_replaces_multiple_spaces() %}
+    {{
+        assert_equals(
+            "test_concat_address_replaces_spaces_and_control_characters_with_null",
+            concat_address(["chr(15)", "'   '", "chr(15)"]),
+            null,
+        )
+    }}
+{% endmacro %}
