@@ -9,20 +9,8 @@ WITH mail AS (
     SELECT
         parid,
         taxyr,
-        NULLIF(
-            REPLACE(
-                REGEXP_REPLACE(CONCAT_WS(' ', mail1, mail2), '\s+', ' '),
-                CHR(0),
-                ''
-            ), ''
-        ) AS mail_address_name,
-        NULLIF(
-            REPLACE(
-                REGEXP_REPLACE(CONCAT_WS(' ', maddr1, maddr2), '\s+', ' '),
-                CHR(0),
-                ''
-            ), ''
-        ) AS mail_address_full,
+        {{ clean_address(['mail1', 'mail2']) }} AS mail_address_name,
+        {{ clean_address(['maddr1', 'maddr2']) }} AS mail_address_full,
         mcityname AS mail_address_city_name,
         mstatecode AS mail_address_state,
         NULLIF(mzip1, '00000') AS mail_address_zipcode_1,
