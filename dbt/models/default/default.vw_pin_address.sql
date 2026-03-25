@@ -10,10 +10,18 @@ WITH mail AS (
         parid,
         taxyr,
         NULLIF(
-            REGEXP_REPLACE(CONCAT_WS(' ', mail1, mail2), ' {2,}', ' '), ''
+            REPLACE(
+                REGEXP_REPLACE(CONCAT_WS(' ', mail1, mail2), '\s+', ' '),
+                CHAR(0),
+                ''
+            )
         ) AS mail_address_name,
         NULLIF(
-            REGEXP_REPLACE(CONCAT_WS(' ', maddr1, maddr2), ' {2,}', ' '), ''
+            REPLACE(
+                REGEXP_REPLACE(CONCAT_WS(' ', maddr1, maddr2), '\s+', ' '),
+                CHAR(0),
+                ''
+            )
         ) AS mail_address_full,
         mcityname AS mail_address_city_name,
         mstatecode AS mail_address_state,
