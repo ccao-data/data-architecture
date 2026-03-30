@@ -4,10 +4,16 @@
 {% macro concat_address(address_columns) %}
     {% set column_name = address_columns | join(", ") %}
     nullif(
-        regexp_replace(
-            regexp_replace(concat_ws(' ', {{ column_name }}), '[[:cntrl:]]', ''),
-            '\s+',
-            ' '
+        rtrim(
+            ltrim(
+                regexp_replace(
+                    regexp_replace(
+                        concat_ws(' ', {{ column_name }}), '[[:cntrl:]]', ''
+                    ),
+                    '\s+',
+                    ' '
+                )
+            )
         ),
         ''
     )

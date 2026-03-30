@@ -87,7 +87,7 @@ unit_tests:
     given:
       - input: source("iasworld", "maildat")
         rows:
-          - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null, mail1: "LEONARD DUNHAM    8483", mail2: null, maddr1: "   ", maddr2: "  SWC 156TH LLC"}
+          - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null, mail1: "LEONARD DUNHAM    8483", mail2: null, maddr1: "   ", maddr2: "  SWC  156TH LLC", mailseq: 1}
       - input: source("iasworld", "pardat")
         rows:
           - {parid: "00000000000000", taxyr: "2024", class: "200", cur: "Y", deactivat: null}
