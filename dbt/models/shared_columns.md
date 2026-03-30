@@ -1113,18 +1113,6 @@ Possible values for this variable are:
 Year the property was constructed
 {% enddocs %}
 
-## hie_num_active
-
-{% docs shared_column_hie_num_active %}
-Number of active home improvement exemptions
-{% enddocs %}
-
-## hie_num_expiring
-
-{% docs shared_column_hie_num_expiring %}
-Number of home improvement exemptions that will expire after the current year
-{% enddocs %}
-
 # Cook County
 
 ## card
