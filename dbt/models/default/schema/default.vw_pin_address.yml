@@ -81,6 +81,32 @@ models:
             - year
 
 unit_tests:
+  - name: default_vw_pin_address_filters_extra_spaces_from_maildat
+    description: view should filter out extra spaces from maildat
+    model: default.vw_pin_address
+    given:
+      - input: source("iasworld", "maildat")
+        rows:
+          - parid: "00000000000000"
+            taxyr: "2024"
+            cur: "Y"
+            deactivat: null
+            mail1: "LEONARD DUNHAM    8483"
+            mail2: null
+            maddr1: "   "
+            maddr2: "  SWC  156TH LLC"
+            mailseq: 1
+      - input: source("iasworld", "pardat")
+        rows:
+          - {parid: "00000000000000", taxyr: "2024", class: "200", cur: "Y", deactivat: null}
+      - input: source("iasworld", "legdat")
+        rows: &bad-address-pin-row
+          - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null}
+      - input: source("iasworld", "owndat")
+        rows: *bad-address-pin-row
+    expect:
+      rows:
+        - {mail_address_name: "LEONARD DUNHAM 8483", mail_address_full: "SWC 156TH LLC"}
   - name: default_vw_pin_address_filters_invalid_pins
     description: view should filter for only 14-digit numeric PINs
     model: default.vw_pin_address
@@ -98,6 +124,8 @@ unit_tests:
           - {parid: "0", taxyr: "2024", cur: "Y", deactivat: null}
           - {parid: "A", taxyr: "2024", cur: "Y", deactivat: null}
       - input: source("iasworld", "owndat")
+        rows: *invalid-pin-rows
+      - input: source("iasworld", "maildat")
         rows: *invalid-pin-rows
     expect:
       rows:
