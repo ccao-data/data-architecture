@@ -91,10 +91,10 @@ unit_tests:
             taxyr: "2024"
             cur: "Y"
             deactivat: null
-            mail1: "LEONARD DUNHAM    8483"
+            mail1: "FOO    BAR  BAZ"
             mail2: null
             maddr1: "   "
-            maddr2: "  SWC  156TH LLC"
+            maddr2: "  123  S  MAIN ST"
             mailseq: 1
       - input: source("iasworld", "pardat")
         rows:
@@ -106,7 +106,7 @@ unit_tests:
         rows: *bad-address-pin-row
     expect:
       rows:
-        - {mail_address_name: "LEONARD DUNHAM 8483", mail_address_full: "SWC 156TH LLC"}
+        - {mail_address_name: "FOO BAR BAZ", mail_address_full: "123 S MAIN ST"}
   - name: default_vw_pin_address_filters_invalid_pins
     description: view should filter for only 14-digit numeric PINs
     model: default.vw_pin_address
