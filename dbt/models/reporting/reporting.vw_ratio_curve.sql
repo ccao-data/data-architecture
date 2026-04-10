@@ -35,6 +35,7 @@ most_recent_pin AS (
         uni.pin,
         uni.township_name,
         uni.nbhd_code AS neighborhood_number,
+        CAST(YEAR(CURRENT_DATE) AS VARCHAR) AS year,
         ROW_NUMBER() OVER (
             PARTITION BY
                 uni.pin
@@ -48,6 +49,7 @@ SELECT
     vpu.pin,
     vpu.township_name,
     vpu.neighborhood_number,
+    vpv.pre_mailed_tot AS desk_review_value,
     model_vals.model_value,
     model_vals.sale_price,
     model_vals.sale_date,
@@ -55,4 +57,7 @@ SELECT
 FROM most_recent_pin AS vpu
 LEFT JOIN model_vals
     ON vpu.pin = model_vals.pin
+LEFT JOIN {{ ref('default.vw_pin_value') }} AS vpv
+    ON vpu.pin = vpv.pin
+    AND vpv.year = vpu.year
 WHERE vpu.rank = 1
