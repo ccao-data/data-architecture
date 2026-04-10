@@ -3,7 +3,7 @@ WITH final_models AS (
     SELECT
         final_model.run_id,
         towns.township_code
-    FROM {{ source('model', 'final_model') }} AS final_model
+    FROM {{ ref('model.final_model') }} AS final_model
     CROSS JOIN
         UNNEST(final_model.township_code_coverage) AS towns (township_code)
     -- Year will need to be adjusted so that desk review to model values join in
