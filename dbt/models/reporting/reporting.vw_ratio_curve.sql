@@ -57,8 +57,8 @@ SELECT
 FROM most_recent_pin AS vpu
 INNER JOIN model_vals
     ON vpu.pin = model_vals.pin
-LEFT JOIN {{ ref('default.vw_pin_value') }} AS vpv
+INNER JOIN {{ ref('default.vw_pin_value') }} AS vpv
     ON vpu.pin = vpv.pin
     AND vpu.year = vpv.year
-WHERE vpu.rank = 1
     AND vpv.pre_mailed_tot IS NOT NULL
+WHERE vpu.rank = 1
