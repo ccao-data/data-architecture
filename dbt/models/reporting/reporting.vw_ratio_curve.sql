@@ -49,9 +49,9 @@ SELECT
     vpu.pin,
     vpu.township_name,
     vpu.neighborhood_number,
-    vpv.pre_mailed_tot * 10 AS desk_review_value,
-    model_vals.model_value,
-    model_vals.sale_price,
+    CAST(vpv.pre_mailed_tot * 10 AS INT) AS desk_review_value,
+    CAST(model_vals.model_value AS INT) AS model_value,
+    CAST(model_vals.sale_price AS INT) AS sale_price,
     model_vals.sale_date,
     model_vals.sale_document_number
 FROM most_recent_pin AS vpu
