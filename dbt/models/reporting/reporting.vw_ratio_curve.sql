@@ -20,45 +20,30 @@ model_vals AS (
         assessment_pin.pred_pin_final_fmv_round AS model_value,
         assessment_pin.sale_ratio_study_price AS sale_price,
         assessment_pin.sale_ratio_study_date AS sale_date,
-        assessment_pin.sale_ratio_study_document_num AS sale_document_number
+        assessment_pin.sale_ratio_study_document_num AS sale_document_number,
+        assessment_pin.year
     FROM {{ source('model', 'assessment_pin') }} AS assessment_pin
     INNER JOIN final_models
         ON assessment_pin.run_id = final_models.run_id
         AND assessment_pin.township_code = final_models.township_code
-),
-
--- Res Val provides PINs that sometimes only appear in 2025 or 2026 in
--- default.vw_pin_universe. Make sure we grab one and only one row for every PIN
--- that appears in either year, regardless of whether they have a model value.
-most_recent_pin AS (
-    SELECT
-        uni.pin,
-        uni.township_name,
-        uni.nbhd_code AS neighborhood_number,
-        CAST(YEAR(CURRENT_DATE) AS VARCHAR) AS year,
-        ROW_NUMBER() OVER (
-            PARTITION BY
-                uni.pin
-            ORDER BY uni.year DESC
-        ) AS rank
-    FROM {{ ref('default.vw_pin_universe') }} AS uni
-    WHERE CAST(uni.year AS INT) IN (YEAR(CURRENT_DATE) - 1, YEAR(CURRENT_DATE))
 )
 
 SELECT
     vpu.pin,
     vpu.township_name,
-    vpu.neighborhood_number,
+    vpu.nbhd_code AS neighborhood_number,
+    -- These values are slightly different than the desk review values Res Val
+    -- provides due to rounding in iasWorld, but the differences are negligible
     CAST(vpv.pre_mailed_tot * 10 AS BIGINT) AS desk_review_value,
     CAST(model_vals.model_value AS BIGINT) AS model_value,
     CAST(model_vals.sale_price AS BIGINT) AS sale_price,
     model_vals.sale_date,
     model_vals.sale_document_number
-FROM most_recent_pin AS vpu
+FROM {{ ref('default.vw_pin_universe') }} AS vpu
 INNER JOIN model_vals
     ON vpu.pin = model_vals.pin
+    AND vpu.year = model_vals.year
 INNER JOIN {{ ref('default.vw_pin_value') }} AS vpv
     ON vpu.pin = vpv.pin
     AND vpu.year = vpv.year
     AND vpv.pre_mailed_tot IS NOT NULL
-WHERE vpu.rank = 1
