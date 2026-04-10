@@ -33,7 +33,6 @@ model_vals AS (
 most_recent_pin AS (
     SELECT
         uni.pin,
-        uni.class,
         uni.township_name,
         uni.nbhd_code AS neighborhood_number,
         CAST(YEAR(CURRENT_DATE) AS VARCHAR) AS year,
@@ -56,11 +55,10 @@ SELECT
     model_vals.sale_date,
     model_vals.sale_document_number
 FROM most_recent_pin AS vpu
-LEFT JOIN model_vals
+INNER JOIN model_vals
     ON vpu.pin = model_vals.pin
 LEFT JOIN {{ ref('default.vw_pin_value') }} AS vpv
     ON vpu.pin = vpv.pin
     AND vpu.year = vpv.year
 WHERE vpu.rank = 1
-    AND SUBSTR(vpv.pre_mailed_class, 1, 1) = '2'
     AND vpv.pre_mailed_tot IS NOT NULL
