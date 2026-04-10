@@ -6,8 +6,6 @@ WITH final_models AS (
     FROM {{ ref('model.final_model') }} AS final_model
     CROSS JOIN
         UNNEST(final_model.township_code_coverage) AS towns (township_code)
-    -- Year will need to be adjusted so that desk review to model values join in
-    -- R script is 1 to 1.
     WHERE CAST(final_model.year AS INT) = YEAR(CURRENT_DATE)
         AND final_model.type = 'res'
 ),
@@ -40,6 +38,8 @@ SELECT
     model_vals.sale_date,
     model_vals.sale_document_number
 FROM {{ ref('default.vw_pin_universe') }} AS vpu
+-- Inner joins to only pull PINs that have both model and desk review values
+-- This should also ensure that we are only pulling regression class parcels
 INNER JOIN model_vals
     ON vpu.pin = model_vals.pin
     AND vpu.year = model_vals.year
