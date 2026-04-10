@@ -230,6 +230,25 @@ dfs$valuations_sale_review_01_30_2026_peter <-
     )
   )
 
+# Two rows in Jon's 03_05_2026 workbook use free-text values our regexes
+# don't catch, so we rewrite them here before transform_columns() runs:
+# - doc 2516820281: Characteristic Change "YES-FIRE DAMAGE" -> "YES-MAJOR"
+# - doc 2529320200: Class Change "I CHANGED TO 2-10" -> "YES"
+dfs$valuations_sale_review_03_05_2026_jon <-
+  dfs$valuations_sale_review_03_05_2026_jon %>%
+  mutate(
+    `Characteristic Change` = if_else(
+      `Sale Doc No` == "2516820281",
+      "YES-MAJOR",
+      `Characteristic Change`
+    ),
+    `Class Change` = if_else(
+      `Sale Doc No` == "2529320200",
+      "YES",
+      `Class Change`
+    )
+  )
+
 # Remove doc_nos that appear in both lydia_monica and monica files,
 # as the classifications of is_arms_length, is_flip, has_class_change,
 # and has_characteristic_change were determined to be exactly the same
