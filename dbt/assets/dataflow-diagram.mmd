@@ -1,13 +1,13 @@
 flowchart TD
-  A[Mainframe + AS/400] & B[User input] & M[MyDec]--> C[(iasWorld)]
-  C -- service-sqoop-iasworld --> D[(AWS Athena\nwarehouse)]
-  E["Public data sources\n(e.g. Census, OSM, GIS)"] & F["Private data sources\n(e.g. RPIE, sales)"] -- R extraction scripts --> D
-  D -- R transformation scripts --> D
-  D --> I{dbt} --> D
-  D ----> K[AWS Glue jobs]
-  K ---> L(Ratio stats) -- reporting database --> D
-  K ---> N(Sales flagging) -- sale database --> D
-  D --> O[On-prem dev. server] -- Socrata agent --> P[Open data portal]
-  L --> Q[Tableau reports]
-  D -- Scheduled extracts --> Q
-  D -- GitHub Actions --> Z{AWS Batch\nmodeling\ninstances} --> D
+  A[(Mainframe + AS/400)] & B[User input] & M[MyDec]--> C[(iasWorld)]
+  C -- Spark ingest --> D[(AWS Athena\nwarehouse)]
+  E["Public data sources\n(e.g. Census, OSM, GIS)"] & F["Private data sources\n(e.g. foreclosures)"] -- R extraction scripts --> D
+  D --> H{GitHub Actions}
+  H --> I{dbt tables + views} --> D
+  H --> J{AWS Batch\nmodeling\ninstances} --> D
+  H --> L[Socrata open\ndata portal]
+  D --> K[On-prem\ndev server] -- Socrata agent --> L
+  D -- Scheduled extracts --> M[Tableau reports]
+  D --> N[Windows VMs] --> O[Appeal\nworkbooks]
+  N --> P[IC reference\nfiles]
+  D --> Q[ETL scripts] --> D
