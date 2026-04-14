@@ -1,7 +1,7 @@
 flowchart TD
   mainframe[(Mainframe + AS/400)] & input[User input] & mydec[MyDec]--> ias[(iasWorld)]
   ias -- Spark ingest --> athena[(AWS Athena\nwarehouse)]
-  public["Public data sources\n(e.g. Census, OSM, GIS)"] & private["Private data sources\n(e.g. foreclosures)"] -- R extraction scripts --> athena
+  public["Public data sources\n(e.g. IDOR, Census, OSM, GIS)"] & private["Private data sources\n(e.g. foreclosures)"] -- R extraction scripts --> athena
   athena --> github{GitHub Actions}
   github --> dbt{dbt tables + views} --> athena
   github --> batch{AWS Batch\nmodeling\ninstances} --> athena
