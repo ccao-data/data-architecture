@@ -225,12 +225,12 @@ dfs$valuations_sale_review_01_30_2026_peter <-
     )
   )
 
-# Two rows in Jon's 03_05_2026 workbook use free-text values our regexes
+# Two rows in the 03_05_2026 workbook use free-text values our regexes
 # don't catch, so we rewrite them here before transform_columns() runs:
 # - doc 2516820281: Characteristic Change "YES-FIRE DAMAGE" -> "YES-MAJOR"
 # - doc 2529320200: Class Change "I CHANGED TO 2-10" -> "YES"
-dfs$valuations_sale_review_03_05_2026_jon <-
-  dfs$valuations_sale_review_03_05_2026_jon %>%
+dfs$valuations_sale_review_03_05_2026 <-
+  dfs$valuations_sale_review_03_05_2026 %>%
   mutate(
     `Characteristic Change` = str_replace(`Characteristic Change`, "YES-FIRE DAMAGE", "YES-MAJOR") ,
     `Class Change` = str_replace(`Class Change`, "I CHANGED TO 2-10", "YES")
