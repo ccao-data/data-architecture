@@ -232,9 +232,8 @@ dfs$valuations_sale_review_01_30_2026_peter <-
 dfs$valuations_sale_review_03_05_2026 <-
   dfs$valuations_sale_review_03_05_2026 %>%
   mutate(
-    `Characteristic Change` = str_replace(`Characteristic Change`, "YES-FIRE DAMAGE", "YES-MAJOR") ,
+    `Characteristic Change` = str_replace(`Characteristic Change`, "YES-FIRE DAMAGE", "YES-MAJOR"),
     `Class Change` = str_replace(`Class Change`, "I CHANGED TO 2-10", "YES")
-  )
   )
 
 # Remove doc_nos that appear in both lydia_monica and monica files,
