@@ -27,7 +27,7 @@ objs <- get_bucket_df(
 tmp_dir <- tempdir()
 
 dfs <- objs %>%
-  set_names() %>%
+  set_names(tools::file_path_sans_ext(objs)) %>%
   map(\(key) {
     s3_uri <- paste0("s3://ccao-data-raw-us-east-1/sale/flag_review/", key)
 
