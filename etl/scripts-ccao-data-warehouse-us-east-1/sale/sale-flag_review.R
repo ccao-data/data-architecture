@@ -12,6 +12,7 @@ library(aws.s3)
 library(dplyr)
 library(janitor)
 library(readxl)
+library(stringr)
 
 source("utils.R")
 
