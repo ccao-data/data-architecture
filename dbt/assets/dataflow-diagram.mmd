@@ -1,13 +1,13 @@
 flowchart TD
-  A[(Mainframe + AS/400)] & B[User input] & M[MyDec]--> C[(iasWorld)]
-  C -- Spark ingest --> D[(AWS Athena\nwarehouse)]
-  E["Public data sources\n(e.g. Census, OSM, GIS)"] & F["Private data sources\n(e.g. foreclosures)"] -- R extraction scripts --> D
-  D --> H{GitHub Actions}
-  H --> I{dbt tables + views} --> D
-  H --> J{AWS Batch\nmodeling\ninstances} --> D
-  H --> L[Socrata open\ndata portal]
-  D --> K[On-prem\ndev server] -- Socrata agent --> L
-  D -- Scheduled extracts --> M[Tableau reports]
-  D --> N[Windows VMs] --> O[Appeal\nworkbooks]
-  N --> P[IC reference\nfiles]
-  D --> Q[ETL scripts] --> D
+  mainframe[(Mainframe + AS/400)] & input[User input] & mydec[MyDec]--> ias[(iasWorld)]
+  ias -- Spark ingest --> athena[(AWS Athena\nwarehouse)]
+  public["Public data sources\n(e.g. Census, OSM, GIS)"] & private["Private data sources\n(e.g. foreclosures)"] -- R extraction scripts --> athena
+  athena --> github{GitHub Actions}
+  github --> dbt{dbt tables + views} --> athena
+  github --> batch{AWS Batch\nmodeling\ninstances} --> athena
+  github --> socrata[Socrata open\ndata portal]
+  athena --> server[On-prem\ndev server] -- Socrata agent --> socrata
+  athena -- Scheduled extracts --> tableau[Tableau reports]
+  athena --> vm[Windows VMs] --> appeal[Appeal\nworkbooks]
+  vm --> ic[IC reference\nfiles]
+  athena --> etl[ETL scripts] --> athena
