@@ -491,7 +491,13 @@ def socrata_upload(asset_info, overwrite=False, years=None):
 
 
 if __name__ == "__main__":
-    print(f"Running upload for event type: {os.getenv('WORKFLOW_EVENT_NAME')}")
+    event_type = " ".join(
+        filter(
+            None,
+            [os.getenv("UPLOAD_SCHEDULE"), os.getenv("WORKFLOW_EVENT_NAME")],
+        )
+    )
+    print(f"Running upload for event type: {event_type}")
 
     # Retrieve asset(s)
     all_assets = parse_assets(os.getenv("SOCRATA_ASSET"))
