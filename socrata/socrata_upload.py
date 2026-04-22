@@ -76,9 +76,7 @@ def parse_assets(assets=None):
     # updated once per month. If the upload is running on a monthly schedule,
     # we want to include those assets.
     monthly_tag = (
-        "tag:monthly"
-        if str(os.getenv("UPLOAD_SCHEDULE")).strip() == "semimonthly"
-        else ""
+        "tag:monthly" if os.getenv("UPLOAD_SCHEDULE") == "semimonthly" else ""
     )
 
     DBT = dbtRunner()
@@ -496,10 +494,7 @@ if __name__ == "__main__":
     event_type = " ".join(
         filter(
             None,
-            [
-                str(os.getenv("UPLOAD_SCHEDULE")).strip(),
-                os.getenv("WORKFLOW_EVENT_NAME"),
-            ],
+            [os.getenv("UPLOAD_SCHEDULE"), os.getenv("WORKFLOW_EVENT_NAME")],
         )
     )
     print(f"Running upload for event type: {event_type}")
