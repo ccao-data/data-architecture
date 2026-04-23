@@ -1,3 +1,13 @@
+-- Gathers model values, pre-mailed (desk review) values, and sale prices for
+-- PINs that have both model and desk review values in the current year. Lets us
+-- compare sales ratios for model values against desk review values to ensure
+-- desk review is improving output.
+{{
+    config(
+        materialized='table'
+    )
+}}
+
 -- In order to compare desk review values against model values, we need final
 -- model run IDs by township and year
 WITH final_models AS (
@@ -17,7 +27,7 @@ model_vals AS (
     SELECT
         assessment_pin.meta_pin AS pin,
         assessment_pin.pred_pin_final_fmv_round AS model_value,
-        assessment_pin.sale_ratio_study_price AS sale_price,
+        NULLIF(assessment_pin.sale_ratio_study_price, 0) AS sale_price,
         assessment_pin.sale_ratio_study_date AS sale_date,
         assessment_pin.sale_ratio_study_document_num AS sale_document_number,
         assessment_pin.year,
@@ -35,14 +45,18 @@ SELECT
     vpu.pin,
     vpu.township_name,
     vpu.nbhd_code AS neighborhood_number,
+    COALESCE(model_vals.sale_price IS NOT NULL, FALSE)
+        AS has_sale,
+    CAST(model_vals.sale_price AS BIGINT) AS sale_price,
+    model_vals.sale_date,
+    model_vals.sale_document_number,
     -- These values are slightly different than the desk review values Res Val
     -- provides due to rounding in iasWorld, but the differences are negligible
     CAST(vpv.pre_mailed_tot * 10 AS BIGINT) AS desk_review_value,
+    vpv.pre_mailed_tot * 10 / model_vals.sale_price AS desk_review_ratio,
     CAST(model_vals.model_value AS BIGINT) AS model_value,
-    model_vals.run_id,
-    CAST(model_vals.sale_price AS BIGINT) AS sale_price,
-    model_vals.sale_date,
-    model_vals.sale_document_number
+    model_vals.model_value / model_vals.sale_price AS model_ratio,
+    model_vals.run_id
 FROM {{ ref('default.vw_pin_universe') }} AS vpu
 -- Inner joins to only pull PINs that have both model and desk review values
 -- This should also ensure that we are only pulling regression class parcels
