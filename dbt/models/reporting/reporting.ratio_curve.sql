@@ -43,8 +43,10 @@ model_vals AS (
 -- appear in the prior year
 SELECT
     vpu.pin,
+    vpu.triad_name,
     vpu.township_name,
     vpu.nbhd_code AS neighborhood_number,
+    vpu.year,
     COALESCE(model_vals.sale_price IS NOT NULL, FALSE)
         AS has_sale,
     CAST(model_vals.sale_price AS BIGINT) AS sale_price,
