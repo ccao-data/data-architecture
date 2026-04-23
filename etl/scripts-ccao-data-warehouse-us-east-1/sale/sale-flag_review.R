@@ -12,39 +12,35 @@ library(aws.s3)
 library(dplyr)
 library(janitor)
 library(readxl)
+library(stringr)
 
 source("utils.R")
 
-objs <- get_bucket(
+objs <- get_bucket_df(
   bucket = "ccao-data-raw-us-east-1",
   prefix = "sale/flag_review/"
-)
+) %>%
+  filter(grepl("xlsx", Key)) %>%
+  pull(Key) %>%
+  basename()
 
 tmp_dir <- tempdir()
 
-dfs <- list()
+dfs <- objs %>%
+  set_names(tools::file_path_sans_ext(objs)) %>%
+  map(\(key) {
+    s3_uri <- paste0("s3://ccao-data-raw-us-east-1/sale/flag_review/", key)
 
-for (obj in objs) {
-  key <- obj[["Key"]]
-  # I believe this line is needed because get_bucket
-  # also returns prefix objects that end in /
-  if (is.null(key) || grepl("/$", key)) next
+    file_name <- key
+    local_path <- file.path(tmp_dir, file_name)
 
-  s3_uri <- paste0("s3://ccao-data-raw-us-east-1/", key)
+    save_s3_to_local(s3_uri, local_path, overwrite = TRUE)
 
-  file_name <- basename(key)
-  local_path <- file.path(tmp_dir, file_name)
+    df <- read_excel(local_path, guess_max = 20000) %>%
+      mutate(source_file = key)
+  })
 
-  save_s3_to_local(s3_uri, local_path, overwrite = TRUE)
-
-  df <- read_excel(local_path, guess_max = 20000)
-
-  df_name <- make.names(tools::file_path_sans_ext(file_name))
-
-  df <- df %>% mutate(source_file = df_name)
-
-  dfs[[df_name]] <- df
-}
+unlink(tmp_dir) # clean up temp files
 
 # This is a duplicate, we prefer the other determination that Jon made from
 # file valuations_sale_review_2025.12.16
@@ -228,6 +224,19 @@ dfs$valuations_sale_review_01_30_2026_peter <-
       is.na(`Characteristic Change`) ~ NA_character_,
       TRUE ~ "no"
     )
+  )
+
+# Two rows in the 03_05_2026 workbook use free-text values our regexes
+# don't catch, so we rewrite them here before transform_columns() runs:
+# - doc 2516820281: Characteristic Change "YES-FIRE DAMAGE" -> "YES-MAJOR"
+# - doc 2529320200: Class Change "I CHANGED TO 2-10" -> "YES"
+dfs$valuations_sale_review_03_05_2026 <-
+  dfs$valuations_sale_review_03_05_2026 %>%
+  mutate(
+    `Characteristic Change` = str_replace(
+      `Characteristic Change`, "YES-FIRE DAMAGE", "YES-MAJOR"
+    ),
+    `Class Change` = str_replace(`Class Change`, "I CHANGED TO 2-10", "YES")
   )
 
 # Remove doc_nos that appear in both lydia_monica and monica files,

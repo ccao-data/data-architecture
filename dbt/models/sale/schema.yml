@@ -357,11 +357,12 @@ models:
             - run_id
             - doc_no
           config:
-            # This threshold is based on an existing data problem in which there are
-            # 4 violations of this assumption
-            # more details: https://github.com/ccao-data/data-architecture/pull/913#discussion_r2475427865
-            # If there are any more duplicates, we will be pushed over 4 and this test will flag it
-            error_if: ">4"
+            # There are two doc numbers that are incorrectly assigned to at
+            # least one sale, causing test failures if we include them.
+            # We hope to fix this problem in the source data eventually, but
+            # for now we exclude those doc numbers from testing.
+            # More details: https://github.com/ccao-data/data-architecture/pull/913#discussion_r2475427865
+            where: doc_no NOT IN ('1536210019', '2530811032')
 
   - name: sale.vw_outlier
     description: '{{ doc("vw_outlier") }}'
