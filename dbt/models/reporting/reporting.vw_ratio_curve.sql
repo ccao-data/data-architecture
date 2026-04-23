@@ -39,10 +39,10 @@ SELECT
     -- provides due to rounding in iasWorld, but the differences are negligible
     CAST(vpv.pre_mailed_tot * 10 AS BIGINT) AS desk_review_value,
     CAST(model_vals.model_value AS BIGINT) AS model_value,
+    model_vals.run_id,
     CAST(model_vals.sale_price AS BIGINT) AS sale_price,
     model_vals.sale_date,
-    model_vals.sale_document_number,
-    model_vals.run_id
+    model_vals.sale_document_number
 FROM {{ ref('default.vw_pin_universe') }} AS vpu
 -- Inner joins to only pull PINs that have both model and desk review values
 -- This should also ensure that we are only pulling regression class parcels
