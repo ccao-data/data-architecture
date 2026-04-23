@@ -17,8 +17,7 @@ WITH final_models AS (
     FROM {{ ref('model.final_model') }} AS final_model
     CROSS JOIN
         UNNEST(final_model.township_code_coverage) AS towns (township_code)
-    WHERE CAST(final_model.year AS INT) = YEAR(CURRENT_DATE)
-        AND final_model.type = 'res'
+    WHERE final_model.type = 'res'
 ),
 
 -- Use the final model run IDs to grab the model values we need to compare Res

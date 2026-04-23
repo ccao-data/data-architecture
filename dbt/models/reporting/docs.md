@@ -8,6 +8,20 @@ group, township, assessment stage, and year. Feeds public reporting assets.
 **Primary Key**: `year`, `stage_name`, `geo_id`
 {% enddocs %}
 
+# ratio_curve
+
+{% docs table_ratio_curve %}
+View for reporting model and desk review ratios by PIN and year. Feeds the desk
+review ratio curve dashboard.
+
+### Assumptions
+
+- Pre-mailed values match what Res Val used to provide us with as desk review
+values.
+
+**Primary Key**: `year`, `pin`
+{% enddocs %}
+
 # ratio_stats
 
 {% docs table_ratio_stats %}
