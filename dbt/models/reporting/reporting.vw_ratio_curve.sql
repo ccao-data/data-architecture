@@ -1,4 +1,5 @@
--- Final model run IDs by township and year
+-- In order to compare desk review values against model values, we need final
+-- model run IDs by township and year
 WITH final_models AS (
     SELECT
         final_model.run_id,
@@ -10,8 +11,8 @@ WITH final_models AS (
         AND final_model.type = 'res'
 ),
 
--- Use final model run IDs to grab the model values we need to compare Res Val's
--- desk review values against
+-- Use the final model run IDs to grab the model values we need to compare Res
+-- Val's desk review values against
 model_vals AS (
     SELECT
         assessment_pin.meta_pin AS pin,
@@ -19,13 +20,17 @@ model_vals AS (
         assessment_pin.sale_ratio_study_price AS sale_price,
         assessment_pin.sale_ratio_study_date AS sale_date,
         assessment_pin.sale_ratio_study_document_num AS sale_document_number,
-        assessment_pin.year
+        assessment_pin.year,
+        assessment_pin.run_id
     FROM {{ source('model', 'assessment_pin') }} AS assessment_pin
     INNER JOIN final_models
         ON assessment_pin.run_id = final_models.run_id
         AND assessment_pin.township_code = final_models.township_code
 )
 
+-- We are not using the most_recent_pin CTE from the recurring data reqeuests
+-- analysis since we can't really explain why res val provides PINs that only
+-- appear in the prior year
 SELECT
     vpu.pin,
     vpu.township_name,
@@ -36,7 +41,8 @@ SELECT
     CAST(model_vals.model_value AS BIGINT) AS model_value,
     CAST(model_vals.sale_price AS BIGINT) AS sale_price,
     model_vals.sale_date,
-    model_vals.sale_document_number
+    model_vals.sale_document_number,
+    model_vals.run_id
 FROM {{ ref('default.vw_pin_universe') }} AS vpu
 -- Inner joins to only pull PINs that have both model and desk review values
 -- This should also ensure that we are only pulling regression class parcels
