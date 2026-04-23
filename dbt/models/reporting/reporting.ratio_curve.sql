@@ -13,11 +13,11 @@
 WITH final_models AS (
     SELECT
         final_model.run_id,
+        final_model.type,
         towns.township_code
     FROM {{ ref('model.final_model') }} AS final_model
     CROSS JOIN
         UNNEST(final_model.township_code_coverage) AS towns (township_code)
-    WHERE final_model.type = 'res'
 ),
 
 -- Use the final model run IDs to grab the model values we need to compare Res
@@ -30,7 +30,8 @@ model_vals AS (
         assessment_pin.sale_ratio_study_date AS sale_date,
         assessment_pin.sale_ratio_study_document_num AS sale_document_number,
         assessment_pin.year,
-        assessment_pin.run_id
+        assessment_pin.run_id,
+        final_models.type
     FROM {{ source('model', 'assessment_pin') }} AS assessment_pin
     INNER JOIN final_models
         ON assessment_pin.run_id = final_models.run_id
@@ -57,7 +58,8 @@ SELECT
     vpv.pre_mailed_tot * 10 / model_vals.sale_price AS desk_review_ratio,
     CAST(model_vals.model_value AS BIGINT) AS model_value,
     model_vals.model_value / model_vals.sale_price AS model_ratio,
-    model_vals.run_id AS model_run_id
+    model_vals.run_id AS model_run_id,
+    model_vals.type AS model_type
 FROM {{ ref('default.vw_pin_universe') }} AS vpu
 -- Inner joins to only pull PINs that have both model and desk review values
 -- This should also ensure that we are only pulling regression class parcels
