@@ -43,9 +43,9 @@ model_vals AS (
 -- appear in the prior year
 SELECT
     vpu.pin,
-    vpu.triad_name,
-    vpu.township_name,
-    vpu.nbhd_code AS neighborhood_number,
+    vpu.triad_name AS triad,
+    vpu.township_name AS township,
+    vpu.nbhd_code AS neighborhood,
     vpu.year,
     COALESCE(model_vals.sale_price IS NOT NULL, FALSE)
         AS has_sale,
@@ -58,7 +58,7 @@ SELECT
     vpv.pre_mailed_tot * 10 / model_vals.sale_price AS desk_review_ratio,
     CAST(model_vals.model_value AS BIGINT) AS model_value,
     model_vals.model_value / model_vals.sale_price AS model_ratio,
-    model_vals.run_id
+    model_vals.run_id AS model_run_id
 FROM {{ ref('default.vw_pin_universe') }} AS vpu
 -- Inner joins to only pull PINs that have both model and desk review values
 -- This should also ensure that we are only pulling regression class parcels
