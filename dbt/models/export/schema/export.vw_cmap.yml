@@ -33,6 +33,10 @@ models:
         description: '{{ doc("shared_column_exe_homeowner") }}'
       - name: exe_longtime_homeowner
         description: '{{ doc("shared_column_exe_longtime_homeowner") }}'
+      - name: exempt_agency_name
+        description: '{{ doc("shared_column_owner_name") }}'
+      - name: exempt_agency_num
+        description: '{{ doc("shared_column_owner_num") }}'
       - name: exe_muni_built
         description: '{{ doc("shared_column_exe_muni_built") }}'
       - name: exe_senior
