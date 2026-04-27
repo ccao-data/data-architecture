@@ -37,9 +37,9 @@ com AS (
         parid,
         taxyr,
         COUNT(*) AS multi_imp_num,
-        -- Assuming gross building area should be summed across PIN
+        -- Assuming gross building area should be summed within PIN
         SUM(CAST(user20 AS DOUBLE)) AS gross_building_area,
-        -- Assuming net rentable area should be summed across PIN
+        -- Assuming net rentable area should be summed within PIN
         SUM(CAST(user28 AS DOUBLE)) AS net_rentable_area,
         MAX(yrblt) AS yrblt
     FROM {{ source("iasworld", "comdat") }}
