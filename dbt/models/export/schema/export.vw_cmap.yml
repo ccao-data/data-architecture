@@ -3,8 +3,108 @@ models:
     description: '{{ doc("view_vw_cmap") }}'
 
     columns:
+      - name: age
+        description: Age, calculated as year - year_built
+      - name: appealed
+        description: Parcel has an appeal in the given year
+      - name: attic
+        description: '{{ doc("shared_column_char_attic_type") }}'
+      - name: basement
+        description: '{{ doc("shared_column_char_bsmt") }}'
+      - name: beds
+        description: '{{ doc("shared_column_char_beds") }}'
+      - name: building_av
+        description: '{{ doc("shared_column_board_bldg") }}'
+      - name: building_sf
+        description: '{{ doc("shared_column_char_bldg_sf") }}'
+      - name: card
+        description: '{{ doc("shared_column_card") }}'
+      - name: class_code
+        description: '{{ doc("shared_column_class") }}'
+      - name: class_description
+        description: 'A short description of the class code'
+      - name: equalized_total_av
+        description: '{{ doc("shared_column_final_eav") }}'
+      - name: exe_disabled
+        description: '{{ doc("shared_column_exe_disabled") }}'
+      - name: exe_freeze
+        description: '{{ doc("shared_column_exe_freeze") }}'
+      - name: exe_homeowner
+        description: '{{ doc("shared_column_exe_homeowner") }}'
+      - name: exe_longtime_homeowner
+        description: '{{ doc("shared_column_exe_longtime_homeowner") }}'
+      - name: exe_muni_built
+        description: '{{ doc("shared_column_exe_muni_built") }}'
+      - name: exe_senior
+        description: '{{ doc("shared_column_exe_senior") }}'
+      - name: exe_vet_dis_100
+        description: '{{ doc("shared_column_exe_vet_dis_100") }}'
+      - name: exe_vet_dis_50_69
+        description: '{{ doc("shared_column_exe_vet_dis_50_69") }}'
+      - name: exe_vet_dis_ge70
+        description: '{{ doc("shared_column_exe_vet_dis_ge70") }}'
+      - name: exe_vet_dis_lt50
+        description: '{{ doc("shared_column_exe_vet_dis_lt50") }}'
+      - name: exe_vet_returning
+        description: '{{ doc("shared_column_exe_vet_returning") }}'
+      - name: exe_wwii
+        description: '{{ doc("shared_column_exe_wwii") }}'
+      - name: fireplace
+        description: '{{ doc("shared_column_char_frpl") }}'
+      - name: full_bath
+        description: '{{ doc("shared_column_char_fbath") }}'
+      - name: gross_building_area
+        description: 'Gross building area'
+      - name: half_bath
+        description: '{{ doc("shared_column_char_hbath") }}'
+      - name: land_av
+        description: '{{ doc("shared_column_board_land") }}'
+      - name: land_sf
+        description: '{{ doc("shared_column_char_land_sf") }}'
+      - name: mail_address_city_name
+        description: '{{ doc("shared_column_mail_address_city_name") }}'
+      - name: mail_address_full
+        description: '{{ doc("shared_column_mail_address_full") }}'
+      - name: mail_address_name
+        description: '{{ doc("shared_column_mail_address_name") }}'
+      - name: mail_address_state
+        description: '{{ doc("shared_column_mail_address_state") }}'
+      - name: mail_address_zipcode_1
+        description: '{{ doc("shared_column_mail_address_zipcode_1") }}'
+      - name: multi_imp_num
+        description: '{{ doc("shared_column_pin_num_cards") }}'
+      - name: municipality
+        description: Municipality name
+      - name: neighborhood
+        description: '{{ doc("shared_column_nbhd_code") }}'
+      - name: net_rentable_area
+        description: Net rentable area
+      - name: num_apts
+        description: '{{ doc("shared_column_char_ncu") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
+      - name: prop_address_city_name
+        description: '{{ doc("shared_column_prop_address_city_name") }}'
+      - name: prop_address_full
+        description: '{{ doc("shared_column_prop_address_full") }}'
+      - name: prop_address_zipcode_1
+        description: '{{ doc("shared_column_prop_address_zipcode_1") }}'
+      - name: roof_construction
+        description: '{{ doc("shared_column_char_roof_cnst") }}'
+      - name: rooms
+        description: '{{ doc("shared_column_char_rooms") }}'
+      - name: tax_code
+        description: '{{ doc("shared_column_tax_code") }}'
+      - name: total_av
+        description: '{{ doc("shared_column_board_tot") }}'
+      - name: township
+        description: '{{ doc("shared_column_township_name") }}'
+      - name: wall_construction
+        description: '{{ doc("shared_column_char_ext_wall") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
+      - name: year_built
+        description: Year built
 
     data_tests:
       - row_count:

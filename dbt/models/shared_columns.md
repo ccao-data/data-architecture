@@ -458,6 +458,12 @@ match the FMV.
 Calculated full market value.
 {% enddocs %}
 
+## final_eav
+
+{% docs shared_column_final_eav %}
+Final equalized assessed value (EAV).
+{% enddocs %}
+
 ## mailed_bldg
 
 {% docs shared_column_mailed_bldg %}
