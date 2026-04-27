@@ -49,6 +49,8 @@ models:
       +schema: census
     default:
       +schema: default
+    export:
+      +schema: export
     location:
       +schema: location
     model:

@@ -9,7 +9,9 @@ joining on residential characteristics from dweldat, condo characteristics from
 oby, commercial characteristics from comdat, and land sf from our land view. We
 also join on appeals and exemptions. */
 
-
+-- This is our universe of pins. We're using BOR values since CMAP wants final
+-- values and select arbitrary rows within PIN/year since there are unfixable
+-- duplicates in asmt_all.
 WITH asmt AS (
     SELECT
         parid,
@@ -29,14 +31,15 @@ WITH asmt AS (
         taxyr
 ),
 
+-- Aggregate commercial characteristics to pin/year level
 com AS (
     SELECT
         parid,
         taxyr,
         COUNT(*) AS multi_imp_num,
-        -- Assuming this should be summed across PIN
+        -- Assuming gross building area should be summed across PIN
         SUM(CAST(user20 AS DOUBLE)) AS gross_building_area,
-        -- Assuming this should be summed across PIN
+        -- Assuming net rentable area should be summed across PIN
         SUM(CAST(user28 AS DOUBLE)) AS net_rentable_area,
         MAX(yrblt) AS yrblt
     FROM {{ source("iasworld", "comdat") }}
@@ -47,6 +50,7 @@ com AS (
         taxyr
 ),
 
+-- Aggregate condo characteristics to pin/year level
 oby AS (
     SELECT
         parid,
@@ -61,6 +65,7 @@ oby AS (
         taxyr
 ),
 
+-- Card-level residential characteristics
 dwel AS (
     SELECT
         pin AS parid,
@@ -132,6 +137,8 @@ SELECT
     -- town, muni, tax code
     vpu.township_name AS township,
     vpu.nbhd_code AS neighborhood,
+    -- Combined municipality name is an array. Empty arrays indicate
+    -- unincorporated parcels. Null values indicate missing data.
     CASE
         WHEN CARDINALITY(vpu.combined_municipality_name) = 0
             THEN 'UNINCORPORATED'
