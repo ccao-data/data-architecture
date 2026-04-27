@@ -11,10 +11,7 @@ models:
           name: export_vw_cmap_row_count
           equals: >
             (
-              SELECT COUNT(*) DISTINCT
-                asmt_all.parid,
-                dweldat.card,
-                asmt_all.taxyr
+              SELECT COUNT(*)
               FROM (
                 SELECT DISTINCT parid, taxyr
               FROM {{ source("iasworld", "asmt_all") }}
