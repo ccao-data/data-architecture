@@ -1153,6 +1153,22 @@ percentage of fair cash value at which a property is assessed for taxing
 purposes. See `ccao.class_dict` for more information
 {% enddocs %}
 
+## combined_municipality_name
+
+{% docs shared_column_combined_municipality_name %}
+Combines `tax_municipality_name` and `cook_municipality_name`.
+`tax_municipality_name` has both NULL values and empty array values.
+If `tax_municipality_name` value is NULL, we replace it with `cook_municipality_name`.
+If the `tax_municipality_name` is an empty array, we preserve
+this as a representation for unincorporated and do
+not change it. We then run these values through a crosswalk file to
+make sure they align semantically with `tax_municipality_name`.
+
+Values which are NULL represent values which we do not have information for.
+Values which are an empty array represent unincorporated parcels.
+
+{% enddocs %}
+
 ## disabled_persons_exemption_amount
 
 {% docs shared_column_exe_disabled %}

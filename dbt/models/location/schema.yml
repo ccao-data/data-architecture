@@ -347,7 +347,7 @@ models:
       - name: chicago_police_district_num
         description: '{{ doc("column_chicago_police_district_num") }}'
       - name: combined_municipality_name
-        description: '{{ doc("column_combined_municipality_name") }}'
+        description: '{{ doc("shared_column_combined_municipality_name") }}'
       - name: cook_board_of_review_district_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: cook_board_of_review_district_num
