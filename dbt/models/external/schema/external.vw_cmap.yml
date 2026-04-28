@@ -1,5 +1,5 @@
 models:
-  - name: export.vw_cmap
+  - name: external.vw_cmap
     description: '{{ doc("view_vw_cmap") }}'
 
     columns:
@@ -112,7 +112,7 @@ models:
 
     data_tests:
       - row_count:
-          name: export_vw_cmap_row_count
+          name: external_vw_cmap_row_count
           equals: >
             (
               SELECT COUNT(*)
@@ -131,7 +131,7 @@ models:
                 AND dweldat.cur = 'Y'
             )
       - unique_combination_of_columns:
-          name: export_vw_cmap_unique_by_pin_card_and_year
+          name: external_vw_cmap_unique_by_pin_card_and_year
           combination_of_columns:
             - pin
             - year
