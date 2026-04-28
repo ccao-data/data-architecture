@@ -23,7 +23,8 @@ WITH asmt AS (
     FROM {{ source("iasworld", "asmt_all") }}
     WHERE deactivat IS NULL
         AND procname = 'BORVALUE'
-        AND valclass IS NULL -- Class 999 are test pins
+        AND valclass IS NULL
+        -- Class 999 are test pins
         AND class NOT IN ('999')
         AND taxyr IN ('2023', '2024')
     GROUP BY
