@@ -123,7 +123,6 @@ models:
                 AND valclass IS NULL
                 -- Class 999 are test pins
                 AND class NOT IN ('999')
-                AND taxyr IN ('2023', '2024')
               ) AS asmt_all
               LEFT JOIN {{ source("iasworld", "dweldat") }} AS dweldat
                 ON asmt_all.parid = dweldat.parid

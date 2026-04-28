@@ -26,7 +26,7 @@ WITH asmt AS (
         AND valclass IS NULL
         -- Class 999 are test pins
         AND class NOT IN ('999')
-        AND taxyr IN ('2023', '2024')
+
     GROUP BY
         parid,
         taxyr
@@ -190,7 +190,6 @@ SELECT
     dwel.wall_construction,
     dwel.roof_construction,
     dwel.num_apts,
-
     -- appeals
     CASE WHEN appeals.pin IS NOT NULL THEN 'Yes' ELSE 'No' END AS appealed
 FROM asmt
