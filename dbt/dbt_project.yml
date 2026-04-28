@@ -49,7 +49,7 @@ models:
       +schema: census
     default:
       +schema: default
-    export:
+    external:
       +schema: external
     location:
       +schema: location
