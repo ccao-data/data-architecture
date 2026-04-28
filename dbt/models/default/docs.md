@@ -93,7 +93,9 @@ workbooks rather than iasWorld.
 ***UNVALIDATED: DO NOT SHARE DATA FROM THIS VIEW***
 ---
 Parcel-level exemption amounts in EAV. PINs will only have a row in this view
-if they have exemptions for a given year.
+if they have exemptions for a given year. Exemption EAV amounts can indicate
+either a current-year exemption or a Certificate of Error.
+`default.vw_pin_exe_long` can be used to disambiguate between the two.
 
 **Primary Key**: `year`, `pin`
 {% enddocs %}
