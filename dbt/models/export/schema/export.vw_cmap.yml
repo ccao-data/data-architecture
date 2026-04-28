@@ -108,7 +108,7 @@ models:
       - name: year
         description: '{{ doc("shared_column_year") }}'
       - name: year_built
-        description: Year built
+        description: '{{ doc("shared_column_char_yrblt") }}'
 
     data_tests:
       - row_count:
