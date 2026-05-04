@@ -201,7 +201,9 @@ def parse_years_list(athena_asset, years=None, years_active=1):
 
         # For assets with more than 1 active year, we want to update all active
         # years. Append years_active - 1 previous years to the list of years to
-        # update
+        # update. For example, if the max year in an asset is 2024 and
+        # years_active is 3, we want to update 2024, 2023, and 2022 since all
+        # three of those years are active.
         if years_active > 1:
             base_year = years_list[0]
             years_list.extend(
