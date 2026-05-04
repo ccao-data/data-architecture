@@ -18,6 +18,7 @@ exposures:
         - subkey
         - pin
         - year
+      years_active: 1
     description: |
       Land, building, and total assessed values, pre and post-appeal with the Cook County Assessor’s office, for all Cook County parcels, from 1999 to present.
 
@@ -41,6 +42,7 @@ exposures:
       primary_key:
         - pin
         - year
+      years_active: 2
     description: |
       Land, building, and total assessed values for all Cook County parcels, from 1999 to present.
 
@@ -65,6 +67,7 @@ exposures:
       primary_key:
         - pin
         - year
+      years_active: 1
     description: |
       Situs and mailing addresses of Cook County parcels.
 
@@ -91,6 +94,7 @@ exposures:
       primary_key:
         - pin10
         - year
+      years_active: 1
     description: |
       Cook County 10-digit parcels with attached distances to various spatial features.
 
@@ -113,6 +117,7 @@ exposures:
       asset_id: wvhk-k5uv
       primary_key:
         - sale_key
+      years_active: 1
     description: |
       Parcel sales for real property in Cook County, from 1999 to present.
 
@@ -137,6 +142,7 @@ exposures:
       primary_key:
         - pin
         - year
+      years_active: 1
     description: |
       Collection of various different PIN-level physical and assessment-related
       statuses collected and documented across the CCAO and Data Department.
@@ -158,6 +164,7 @@ exposures:
       primary_key:
         - pin
         - year
+      years_active: 1
     description: |
       Most recent year universe of Cook County parcels with attached geographic, governmental, and spatial data.
 
@@ -181,6 +188,7 @@ exposures:
       primary_key:
         - pin
         - year
+      years_active: 1
     description: |
       A complete, historic universe of Cook County parcels with attached geographic, governmental, and spatial data.
 
@@ -206,6 +214,7 @@ exposures:
         - pin
         - permit_number
         - date_issued
+      years_active: 1
     description: |
       Building permits organized by PIN, with extra metadata recorded by CCAO
       permit specialists during the permit processing workflow.
@@ -226,6 +235,7 @@ exposures:
       primary_key:
         - pin
         - year
+      years_active: 1
     description: |
       Parcels with property tax-exempt status across all of Cook County per tax year, from Tax Year 2022 on, with geographic coordinates and addresses.
 
@@ -251,6 +261,7 @@ exposures:
       primary_key:
         - pin
         - year
+      years_active: 1
     description: |
       Residential condominium unit characteristics collected and maintained by the Assessor's office for all of Cook County, from 1999 to present.
 
@@ -278,6 +289,7 @@ exposures:
         - pin
         - card
         - year
+      years_active: 1
     description: |
       Single and multi-family (less than 7 units) property characteristics collected and maintained by the Assessor's Office for all of Cook County, from 1999 to present.
 
