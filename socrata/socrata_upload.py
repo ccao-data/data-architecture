@@ -194,6 +194,10 @@ def parse_years_list(athena_asset, years=None):
             .to_list()
         )
 
+        # For assessed values, we want to update the two most recent years
+        if athena_asset == "open_data.vw_assessed_value":
+            years_list.append(years_list[0] - 1)
+
     else:
         years_list = None
 
