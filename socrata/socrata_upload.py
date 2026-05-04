@@ -470,7 +470,10 @@ def upload(asset_id, sql_query, overwrite, missing_years):
                 data=input_data.iloc[i : i + 10000].to_json(orient="records"),
             )
             overwrite = False
-            print(response.content)
+            formatted_response = re.sub(
+                '\n|{|}|"', "", response.content.decode("utf-8")
+            ).strip()
+            print(formatted_response)
 
         overwrite = False
 
