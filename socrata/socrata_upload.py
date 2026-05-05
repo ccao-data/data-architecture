@@ -141,9 +141,9 @@ def parse_assets(assets: str | None = None) -> dict[str, dict[str, Any]]:
     # If no assets are entered return metadata for all assets otherwise filter
     # by provided assets
     if assets is not None:
-        assets = [asset.strip() for asset in str(assets).split(",")]
+        assets_list = [asset.strip() for asset in str(assets).split(",")]
 
-        all_assets = all_assets[all_assets["label"].isin(assets)]
+        all_assets = all_assets[all_assets["label"].isin(assets_list)]
 
     print("Assets that will be updated:")
     print("\n".join(all_assets["label"]))
