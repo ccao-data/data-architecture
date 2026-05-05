@@ -401,25 +401,23 @@ def check_deleted(input_data: pd.DataFrame, asset_id: str) -> pd.DataFrame:
 
     # Determine which years are present in the input data. We only want to
     # retrieve row_ids for the corresponding years from Socrata.
-    years: str | list[str] = [
-        str(year) for year in input_data["year"].unique().tolist()
-    ]
+    years_list = [str(year) for year in input_data["year"].unique().tolist()]
     # Unfortunately we can have null values for year, so we need to make sure
     # they are handled properly rather than being included in the IN clause
     # below
-    where: str | list[str] = []
-    if "nan" in years:
-        years.remove("nan")
-        where.append("year is NULL")
-    if any(year != "nan" for year in years):
-        years = ", ".join(years)
-        where.append(f"year IN ({years})")
-    where = " or ".join(where)
+    where_list = []
+    if "nan" in years_list:
+        years_list.remove("nan")
+        where_list.append("year is NULL")
+    if any(year != "nan" for year in years_list):
+        years_str = ", ".join(years_list)
+        where_list.append(f"year IN ({years_str})")
+    where_str = " or ".join(where_list)
 
     # Construct the API call to retrieve row_ids for the specified asset and years
     url = (
         f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
-        + quote(f"SELECT row_id WHERE {where} LIMIT 20000000")
+        + quote(f"SELECT row_id WHERE {where_str} LIMIT 20000000")
     )
 
     # Retrieve row_ids from Socrata for the specified asset and years
