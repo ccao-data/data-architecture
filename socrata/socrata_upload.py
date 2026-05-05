@@ -170,19 +170,19 @@ def parse_years(years: str | None = None) -> list[str] | None:
     """
 
     if years == "":
-        years = None
+        years_parsed = None
     if years is not None:
         if years == "all":
-            years = ["all"]
+            years_parsed = ["all"]
         else:
             # Only allow anticipated values
-            years = [
+            years_parsed = [
                 re.sub("[^0-9]", "", year)
                 for year in str(years).split(",")
                 if re.sub("[^0-9]", "", year)
             ]
 
-    return years
+    return years_parsed
 
 
 def parse_years_list(
@@ -401,11 +401,13 @@ def check_deleted(input_data: pd.DataFrame, asset_id: str) -> pd.DataFrame:
 
     # Determine which years are present in the input data. We only want to
     # retrieve row_ids for the corresponding years from Socrata.
-    years = [str(year) for year in input_data["year"].unique().tolist()]
+    years: str | list[str] = [
+        str(year) for year in input_data["year"].unique().tolist()
+    ]
     # Unfortunately we can have null values for year, so we need to make sure
     # they are handled properly rather than being included in the IN clause
     # below
-    where = []
+    where: str | list[str] = []
     if "nan" in years:
         years.remove("nan")
         where.append("year is NULL")
