@@ -363,7 +363,7 @@ def build_query_dict(
 
     # Build a dictionary with queries for each year requested, or no years
     if not years:
-        query_dict = {None: query}
+        query_dict: dict[str | None, str] = {None: query}
 
     else:
         query_dict = {
