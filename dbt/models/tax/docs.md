@@ -12,6 +12,18 @@ Used within the [PTAXSIM](https://github.com/ccao-data/ptaxsim) package and data
 **Primary Key**: `year`, `agency_num`
 {% enddocs %}
 
+# agency_crosswalk
+
+{% docs table_agency_crosswalk %}
+Crosswalk that maps agency numbers that have changed over time to their final, canonical
+representation.
+
+Used primarily to handle the Clerk's 2024 change that switched reporting some agencies to funds.
+See [the PTAXSIM changelog](https://ccao-data.github.io/ptaxsim/news#ptaxsim-1.1.0) for details.
+
+Used within the [PTAXSIM](https://github.com/ccao-data/ptaxsim) package and database.
+{% enddocs %}
+
 # agency_fund
 
 {% docs table_agency_fund %}
@@ -24,6 +36,18 @@ Pulled from the second sheet of the Cook County Clerk's
 Used within the [PTAXSIM](https://github.com/ccao-data/ptaxsim) package and database.
 
 **Primary Key**: `year`, `agency_num`, `fund_num`
+{% enddocs %}
+
+# agency_fund_crosswalk
+
+{% docs table_agency_fund_crosswalk %}
+Crosswalk that maps fund numbers that have changed over time to their final, canonical
+representation.
+
+Used primarily to handle the Clerk's 2024 change that switched reporting some agencies to funds.
+See [the PTAXSIM changelog](https://ccao-data.github.io/ptaxsim/news#ptaxsim-1.1.0) for details.
+
+Used within the [PTAXSIM](https://github.com/ccao-data/ptaxsim) package and database.
 {% enddocs %}
 
 # agency_fund_info
