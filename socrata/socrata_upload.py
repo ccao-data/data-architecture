@@ -508,12 +508,12 @@ def check_missing_years(athena_asset: str, asset_id: str) -> pd.DataFrame:
     # for deletion
     if missing_years or socrata_nulls:
         if missing_years:
-            missing_years = ", ".join(list(missing_years))
-            where = f"year in ({missing_years})"
+            missing_years_str = ", ".join(list(missing_years))
+            where = f"year in ({missing_years_str})"
         if socrata_nulls:
             where = f"{socrata_nulls}"
         if missing_years and socrata_nulls:
-            where = f"year in ({missing_years}) or {socrata_nulls}"
+            where = f"year in ({missing_years_str}) or {socrata_nulls}"
 
         url = (
             f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
