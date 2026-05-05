@@ -163,6 +163,18 @@ sources:
               meta:
                 description: pin_geometry_raw is unique by pin10 start_year and end_year
 
+      - name: pin_tif_distribution
+        description: '{{ doc("table_pin_tif_distribution") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: tax_pin_tif_distribution_unique_by_year_pin_agency_num
+              combination_of_columns:
+                - year
+                - pin
+                - agency_num
+              meta:
+                description: pin_tif_distribution is unique by year, pin, and agency_num
+
       - name: tax_code
         description: '{{ doc("table_tax_code") }}'
         data_tests:
