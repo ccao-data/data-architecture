@@ -6,6 +6,7 @@ import os
 import re
 import time
 from datetime import datetime
+from typing import Any
 from urllib.parse import quote
 
 import pandas as pd
@@ -55,7 +56,7 @@ cursor = connect(
 ).cursor(unload=True)
 
 
-def parse_assets(assets=None):
+def parse_assets(assets: str | None = None) -> dict[str, dict[str, Any]]:
     """
     Retrieve metadata for all socrata assets and filter that data based
     on parsed input assets names.
@@ -143,7 +144,7 @@ def parse_assets(assets=None):
     return all_assets
 
 
-def parse_years(years=None):
+def parse_years(years: str | None = None) -> list[str] | None:
     """
     Make sure the years environmental variable is formatted correctly.
     """
@@ -164,7 +165,11 @@ def parse_years(years=None):
     return years
 
 
-def parse_years_list(athena_asset, years=None, years_active=1):
+def parse_years_list(
+    athena_asset: str,
+    years: list[str] | None = None,
+    years_active: int = 1,
+) -> list[Any] | None:
     """
     Helper function to determine what years need to be iterated over for
     upload.
@@ -216,7 +221,7 @@ def parse_years_list(athena_asset, years=None, years_active=1):
     return years_list
 
 
-def check_overwrite(overwrite=None):
+def check_overwrite(overwrite: str | bool | None = None) -> bool:
     """
     Make sure overwrite environmental variable is typed correctly.
     """
@@ -231,7 +236,11 @@ def check_overwrite(overwrite=None):
     return overwrite
 
 
-def build_query_dict(athena_asset, asset_id, years=None):
+def build_query_dict(
+    athena_asset: str,
+    asset_id: str,
+    years: list[Any] | None = None,
+) -> dict[Any, str]:
     """
     Build a dictionary of Athena compatible SQL queries and their associated
     years. Many of the CCAO's open data assets are too large to pass to Socrata
@@ -302,7 +311,7 @@ def build_query_dict(athena_asset, asset_id, years=None):
     return query_dict
 
 
-def check_deleted(input_data, asset_id):
+def check_deleted(input_data: pd.DataFrame, asset_id: str) -> pd.DataFrame:
     """
     Download row_ids from Socrata asset to check for rows still present in
     Socrata that have been deleted in Athena. If any are found, they will be
@@ -347,7 +356,7 @@ def check_deleted(input_data, asset_id):
     return input_data
 
 
-def check_missing_years(athena_asset, asset_id):
+def check_missing_years(athena_asset: str, asset_id: str) -> pd.DataFrame:
     """
     Check for years that are present on Socrata but not in the current upload,
     and retrieve any row_ids for those years so they can be marked for deletion.
@@ -424,7 +433,12 @@ def check_missing_years(athena_asset, asset_id):
     return years_to_remove
 
 
-def upload(asset_id, sql_query, overwrite, missing_years):
+def upload(
+    asset_id: str,
+    sql_query: dict[Any, str],
+    overwrite: bool,
+    missing_years: pd.DataFrame,
+) -> None:
     """
     Function to perform the upload to Socrata. `puts` or `posts` depending on
     user's choice to overwrite existing data.
@@ -480,7 +494,11 @@ def upload(asset_id, sql_query, overwrite, missing_years):
         overwrite = False
 
 
-def socrata_upload(asset_info, overwrite=False, years=None):
+def socrata_upload(
+    asset_info: dict[str, Any],
+    overwrite: bool = False,
+    years: list[str] | None = None,
+) -> None:
     """
     Wrapper function for building SQL query, retrieving data from Athena, and
     uploading it to Socrata. Allows users to specify target Athena and Socrata
