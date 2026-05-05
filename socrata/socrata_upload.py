@@ -118,8 +118,13 @@ def parse_assets(assets=None):
         all_assets["depends_on.nodes"].str[0].str.split(pat=".", n=2).str[-1]
     )
 
-    all_assets = all_assets[["label", "meta.asset_id", "athena_asset"]].rename(
-        columns={"meta.asset_id": "asset_id"}
+    all_assets = all_assets[
+        ["label", "meta.asset_id", "meta.years_active", "athena_asset"]
+    ].rename(
+        columns={
+            "meta.asset_id": "asset_id",
+            "meta.years_active": "years_active",
+        }
     )
 
     # If no assets are entered return metadata for all assets otherwise filter
@@ -130,7 +135,7 @@ def parse_assets(assets=None):
         all_assets = all_assets[all_assets["label"].isin(assets)]
 
     print("Assets that will be updated:")
-    print(all_assets["label"])
+    print("\n".join(all_assets["label"]))
 
     # Return a dict with labels as keys
     all_assets = all_assets.set_index("label").to_dict("index")
@@ -159,7 +164,7 @@ def parse_years(years=None):
     return years
 
 
-def parse_years_list(athena_asset, years=None):
+def parse_years_list(athena_asset, years=None, years_active=1):
     """
     Helper function to determine what years need to be iterated over for
     upload.
@@ -193,6 +198,17 @@ def parse_years_list(athena_asset, years=None):
             .as_pandas()["year"]
             .to_list()
         )
+
+        # For assets with more than 1 active year, we want to update all active
+        # years. Append years_active - 1 previous years to the list of years to
+        # update. For example, if the max year in an asset is 2024 and
+        # years_active is 3, we want to update 2024, 2023, and 2022 since all
+        # three of those years are active.
+        if years_active > 1:
+            base_year = years_list[0]
+            years_list.extend(
+                base_year - offset for offset in range(1, years_active)
+            )
 
     else:
         years_list = None
@@ -456,7 +472,10 @@ def upload(asset_id, sql_query, overwrite, missing_years):
                 data=input_data.iloc[i : i + 10000].to_json(orient="records"),
             )
             overwrite = False
-            print(response.content)
+            formatted_response = re.sub(
+                '\n|{|}|"', "", response.content.decode("utf-8")
+            ).strip()
+            print(formatted_response)
 
         overwrite = False
 
@@ -471,11 +490,17 @@ def socrata_upload(asset_info, overwrite=False, years=None):
     (update rather than overwrite).
     """
 
-    athena_asset, asset_id = asset_info["athena_asset"], asset_info["asset_id"]
+    athena_asset, asset_id, years_active = (
+        asset_info["athena_asset"],
+        asset_info["asset_id"],
+        asset_info["years_active"],
+    )
 
     missing_years = check_missing_years(athena_asset, asset_id)
 
-    years_list = parse_years_list(years=years, athena_asset=athena_asset)
+    years_list = parse_years_list(
+        years=years, athena_asset=athena_asset, years_active=years_active
+    )
 
     sql_query = build_query_dict(
         athena_asset=athena_asset,
