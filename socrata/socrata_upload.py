@@ -58,8 +58,18 @@ cursor = connect(
 
 def parse_assets(assets: str | None = None) -> dict[str, dict[str, Any]]:
     """
-    Retrieve metadata for all socrata assets and filter that data based
-    on parsed input assets names.
+    Retrieve metadata for all Socrata assets and filter that data based
+    on parsed input asset names.
+
+    Args:
+        assets: Comma-separated string of asset label names to filter to.
+            If None or empty, metadata for all active assets is returned.
+
+    Returns:
+        A dict keyed by asset label, where each value is a dict containing
+        the keys ``asset_id`` (Socrata dataset ID), ``years_active`` (number
+        of years that should be kept current), and ``athena_asset`` (fully
+        qualified Athena view name).
     """
 
     if assets == "":
@@ -146,7 +156,17 @@ def parse_assets(assets: str | None = None) -> dict[str, dict[str, Any]]:
 
 def parse_years(years: str | None = None) -> list[str] | None:
     """
-    Make sure the years environmental variable is formatted correctly.
+    Parse and validate the years environment variable.
+
+    Args:
+        years: A comma-separated string of four-digit year values, the
+            special string ``"all"`` to select every available year, or
+            None/empty string to indicate no year filter (use the default
+            scheduled-run behaviour instead).
+
+    Returns:
+        A list of year strings (e.g. ``["2022", "2023"]``), the single-
+        element list ``["all"]``, or None if no years were provided.
     """
 
     if years == "":
@@ -171,8 +191,26 @@ def parse_years_list(
     years_active: int = 1,
 ) -> list[Any] | None:
     """
-    Helper function to determine what years need to be iterated over for
-    upload.
+    Determine the list of years to iterate over for an upload.
+
+    When ``years`` is ``["all"]``, every distinct year present in the Athena
+    asset is returned. When the workflow is triggered on a schedule and no
+    explicit years are provided, only the most recent year(s) up to
+    ``years_active`` are returned. Otherwise returns None, which signals that
+    the data should be queried without a year filter.
+
+    Args:
+        athena_asset: Fully qualified Athena view name (e.g.
+            ``"open_data.view_name"``). Used to query distinct or max year values
+            when needed.
+        years: Output of :func:`parse_years` — a list of year strings,
+            ``["all"]``, or None.
+        years_active: Number of consecutive recent years that should be kept
+            current for this asset. Defaults to 1.
+
+    Returns:
+        A list of year values to query, or None if the asset should be
+        queried without a year filter.
     """
 
     if years is not None:
@@ -223,7 +261,20 @@ def parse_years_list(
 
 def check_overwrite(overwrite: str | bool | None = None) -> bool:
     """
-    Make sure overwrite environmental variable is typed correctly.
+    Normalize the overwrite environment variable to a Python bool.
+
+    GitHub Actions passes all workflow inputs as strings, so this function
+    handles string-to-bool coercion in addition to None/empty values.
+
+    Args:
+        overwrite: The raw value of the ``OVERWRITE`` environment variable.
+            Accepts ``True``/``False`` booleans, the strings ``"true"`` or
+            ``"false"``, or None/empty string (treated as False).
+
+    Returns:
+        True if the upload should fully overwrite the existing Socrata
+        dataset (HTTP PUT); False if it should upsert rows instead
+        (HTTP POST).
     """
 
     if not overwrite or overwrite == "":
@@ -242,9 +293,25 @@ def build_query_dict(
     years: list[Any] | None = None,
 ) -> dict[Any, str]:
     """
-    Build a dictionary of Athena compatible SQL queries and their associated
-    years. Many of the CCAO's open data assets are too large to pass to Socrata
-    without chunking.
+    Build a mapping of year keys to Athena SQL queries for a given asset.
+
+    Compares column names between the Athena view and the live Socrata dataset
+    to detect schema drift. Columns present in Athena but missing on Socrata
+    generate a warning; columns missing in Athena but present on Socrata raise
+    an exception (since those columns would be left unpopulated). The final
+    query selects only the columns shared by both sides.
+
+    Args:
+        athena_asset: Fully qualified Athena view name (e.g.
+            ``"open_data.view_name"``).
+        asset_id: Socrata dataset ID (e.g. ``"wxyz-1234"``).
+        years: List of year values to produce individual per-year queries for,
+            or None to produce a single unfiltered query.
+
+    Returns:
+        A dict mapping year values (or None for an unfiltered query) to SQL
+        query strings. NaN year values produce a ``"nan"`` key whose query
+        filters on ``year IS NULL``.
     """
 
     # Retrieve column names and types from Athena
@@ -313,9 +380,23 @@ def build_query_dict(
 
 def check_deleted(input_data: pd.DataFrame, asset_id: str) -> pd.DataFrame:
     """
-    Download row_ids from Socrata asset to check for rows still present in
-    Socrata that have been deleted in Athena. If any are found, they will be
-    passed to Socrata with the ":deleted" column set to true.
+    Flag rows that exist on Socrata but have been removed from Athena.
+
+    Fetches all ``row_id`` values currently stored in the Socrata asset for
+    the years present in ``input_data``, then outer-joins them against the
+    incoming data. Any row that exists on Socrata but is absent from
+    ``input_data`` has its ``:deleted`` column set to True so that Socrata
+    will remove it during the next upsert.
+
+    Args:
+        input_data: DataFrame of rows retrieved from Athena for the current
+            upload batch. Must contain ``row_id`` and ``year`` columns.
+        asset_id: Socrata dataset ID (e.g. ``"wxyz-1234"``).
+
+    Returns:
+        The input DataFrame with a ``:deleted`` column added. Rows that
+        should be removed from Socrata have ``:deleted`` set to True; all
+        other rows have it set to None.
     """
 
     # Determine which years are present in the input data. We only want to
@@ -358,10 +439,25 @@ def check_deleted(input_data: pd.DataFrame, asset_id: str) -> pd.DataFrame:
 
 def check_missing_years(athena_asset: str, asset_id: str) -> pd.DataFrame:
     """
-    Check for years that are present on Socrata but not in the current upload,
-    and retrieve any row_ids for those years so they can be marked for deletion.
-    This is only relevant when year values that were previously present have
-    been *removed* from an Athena view.
+    Retrieve row IDs for years that exist on Socrata but have been dropped
+    from the Athena view.
+
+    This handles the case where an entire year's worth of data is removed
+    from an Athena view. Because :func:`check_deleted` only inspects years
+    present in the current upload batch, it would not catch stale years that
+    are no longer represented in Athena at all. The returned DataFrame is
+    appended to the final upload payload so those rows are deleted from
+    Socrata.
+
+    Args:
+        athena_asset: Fully qualified Athena view name (e.g.
+            ``"open_data.view_name"``).
+        asset_id: Socrata dataset ID (e.g. ``"wxyz-1234"``).
+
+    Returns:
+        A DataFrame containing ``row_id`` and ``:deleted`` (always True)
+        for every row in Socrata whose year is absent from the Athena view.
+        Returns an empty DataFrame if no such rows exist.
     """
 
     # Grab a list of *all* years currently present in Athena asset
@@ -440,8 +536,26 @@ def upload(
     missing_years: pd.DataFrame,
 ) -> None:
     """
-    Function to perform the upload to Socrata. `puts` or `posts` depending on
-    user's choice to overwrite existing data.
+    Execute Athena queries and upload the results to a target Socrata dataset.
+
+    Iterates over each query in ``sql_query``, fetches the corresponding data
+    from Athena, optionally checks for deleted rows, and sends batched
+    requests to the Socrata API in chunks of 10,000 rows. Uses HTTP PUT for
+    the first batch when ``overwrite`` is True (replacing all existing rows),
+    then switches to HTTP POST (upsert) for all subsequent batches.
+
+    Args:
+        asset_id: Socrata dataset ID (e.g. ``"wxyz-1234"``).
+        sql_query: Mapping of year keys to SQL query strings, as produced by
+            :func:`build_query_dict`.
+        overwrite: If True, the first request will use HTTP PUT to replace
+            existing data; subsequent requests always use HTTP POST.
+        missing_years: DataFrame of row IDs (with ``:deleted`` set to True)
+            for years that no longer exist in Athena, as produced by
+            :func:`check_missing_years`. Appended to the final upload batch.
+
+    Returns:
+        None
     """
 
     url = "https://datacatalog.cookcountyil.gov/resource/" + asset_id + ".json"
@@ -500,12 +614,27 @@ def socrata_upload(
     years: list[str] | None = None,
 ) -> None:
     """
-    Wrapper function for building SQL query, retrieving data from Athena, and
-    uploading it to Socrata. Allows users to specify target Athena and Socrata
-    assets, whether the data on Socrata should be overwritten or updated, and
-    whether or not to chunk the upload by year. By default the function will
-    query a given Athena asset by year for all years and upload via `post`
-    (update rather than overwrite).
+    Orchestrate a full upload cycle for a single Socrata asset.
+
+    Coordinates :func:`check_missing_years`, :func:`parse_years_list`,
+    :func:`build_query_dict`, and :func:`upload` to fetch data from Athena
+    and push it to the Socrata open data portal. By default, rows are upserted
+    (HTTP POST) and only the most recent active year(s) are updated when
+    running on a schedule.
+
+    Args:
+        asset_info: Dict containing ``athena_asset`` (Athena view name),
+            ``asset_id`` (Socrata dataset ID), and ``years_active`` (number
+            of recent years to keep current). Typically a value from the dict
+            returned by :func:`parse_assets`.
+        overwrite: If True, the existing Socrata dataset is fully replaced
+            (HTTP PUT) rather than upserted. Defaults to False.
+        years: List of year strings to upload, ``["all"]`` for every
+            available year, or None to use the scheduled-run default
+            (most recent ``years_active`` years). Defaults to None.
+
+    Returns:
+        None
     """
 
     athena_asset, asset_id, years_active = (
