@@ -12,6 +12,20 @@ Used within the [PTAXSIM](https://github.com/ccao-data/ptaxsim) package and data
 **Primary Key**: `year`, `agency_num`
 {% enddocs %}
 
+# agency_crosswalk
+
+{% docs table_agency_crosswalk %}
+Crosswalk that maps agency numbers that have changed over time to their final, canonical
+representation.
+
+Used primarily to handle the Clerk's 2024 change that switched reporting some agencies to funds.
+See [the PTAXSIM changelog](https://ccao-data.github.io/ptaxsim/news#ptaxsim-1.1.0) for details.
+
+Used within the [PTAXSIM](https://github.com/ccao-data/ptaxsim) package and database.
+
+**Primary Key**: `agency_num`
+{% enddocs %}
+
 # agency_fund
 
 {% docs table_agency_fund %}
@@ -24,6 +38,20 @@ Pulled from the second sheet of the Cook County Clerk's
 Used within the [PTAXSIM](https://github.com/ccao-data/ptaxsim) package and database.
 
 **Primary Key**: `year`, `agency_num`, `fund_num`
+{% enddocs %}
+
+# agency_fund_crosswalk
+
+{% docs table_agency_fund_crosswalk %}
+Crosswalk that maps fund numbers that have changed over time to their final, canonical
+representation.
+
+Used primarily to handle the Clerk's 2024 change that switched reporting some agencies to funds.
+See [the PTAXSIM changelog](https://ccao-data.github.io/ptaxsim/news#ptaxsim-1.1.0) for details.
+
+Used within the [PTAXSIM](https://github.com/ccao-data/ptaxsim) package and database.
+
+**Primary Key**: `agency_num`, `fund_num`
 {% enddocs %}
 
 # agency_fund_info
@@ -94,6 +122,19 @@ Used within the [PTAXSIM](https://github.com/ccao-data/ptaxsim) package and data
 **Primary Key**: `pin`, `year`
 {% enddocs %}
 
+# pin_tif_distribution
+
+{% docs table_pin_tif_distribution %}
+TIF EAV, frozen EAV, and distribution percentage by PIN.
+
+This table is only populated with years starting in 2024, when the Clerk changed
+their TIF distribution methodology to calculate TIF increment at the PIN level.
+
+Used within the [PTAXSIM](https://github.com/ccao-data/ptaxsim) package and database.
+
+**Primary Key**: `year`, `pin`, `agency_num`
+{% enddocs %}
+
 # tax_code
 
 {% docs table_tax_code %}
@@ -129,6 +170,9 @@ Used within the [PTAXSIM](https://github.com/ccao-data/ptaxsim) package and data
 
 {% docs table_tif_distribution %}
 TIF EAV, frozen EAV, and distribution percentage by tax code.
+
+This table is only populated with years up to 2024, when the Clerk changed
+their TIF distribution methodology to calculate TIF increment at the PIN level.
 
 Used within the [PTAXSIM](https://github.com/ccao-data/ptaxsim) package and database.
 
