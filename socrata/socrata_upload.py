@@ -194,7 +194,7 @@ def parse_years_list(
     athena_asset: str,
     years: list[str] | None = None,
     years_active: int = 1,
-) -> list[int | float] | None:
+) -> list[str | int | None] | None:
     """
     Determine the list of years to iterate over for an upload.
 
@@ -215,8 +215,11 @@ def parse_years_list(
 
     Returns:
         A list of year values to query, or None if the asset should be
-        queried without a year filter. Year values are integers; NaN
-        (``float('nan')``) is used to represent null years from Athena.
+        queried without a year filter. The function can return a list of
+        integers, strings, or None values. It is helpful to be able to return
+        integers so they can be checked for NaN values that exist in Athena, and
+        strings for user input to avoid errors created by non-integer user
+        input.
     """
 
     if years is not None:
@@ -293,8 +296,8 @@ def check_overwrite(overwrite: str | bool | None = None) -> bool:
 def build_query_dict(
     athena_asset: str,
     asset_id: str,
-    years: list[int | float] | None = None,
-) -> dict[str | None, str]:
+    years: list[str | int | None] | None = None,
+) -> dict[int | str | None, str]:
     """
     Build a mapping of year keys to Athena SQL queries for a given asset.
 
@@ -366,11 +369,11 @@ def build_query_dict(
 
     # Build a dictionary with queries for each year requested, or no years
     if not years:
-        query_dict: dict[str | None, str] = {None: query}
+        query_dict: dict[int | str | None, str] = {None: query}
 
     else:
         query_dict = {
-            str(year): f"{query} WHERE year = {year}"
+            year: f"{query} WHERE year = {year}"
             for year in years
             if not pd.isna(year)
         }
@@ -535,7 +538,7 @@ def check_missing_years(athena_asset: str, asset_id: str) -> pd.DataFrame:
 
 def upload(
     asset_id: str,
-    sql_query: dict[str | None, str],
+    sql_query: dict[int | str | None, str],
     overwrite: bool,
     missing_years: pd.DataFrame,
 ) -> None:
