@@ -6,7 +6,7 @@ import os
 import re
 import time
 from datetime import datetime
-from typing import Any
+from typing import TypedDict
 from urllib.parse import quote
 
 import pandas as pd
@@ -56,7 +56,13 @@ cursor = connect(
 ).cursor(unload=True)
 
 
-def parse_assets(assets: str | None = None) -> dict[str, dict[str, Any]]:
+class AssetInfo(TypedDict):
+    asset_id: str
+    years_active: int
+    athena_asset: str
+
+
+def parse_assets(assets: str | None = None) -> dict[str, AssetInfo]:
     """
     Retrieve metadata for all Socrata assets and filter that data based
     on parsed input asset names.
@@ -363,7 +369,7 @@ def build_query_dict(
 
     # Build a dictionary with queries for each year requested, or no years
     if not years:
-        query_dict: dict[str | None, str] = {None: query}
+        query_dict: dict[int | str | None, str] = {None: query}
 
     else:
         query_dict = {
@@ -372,7 +378,7 @@ def build_query_dict(
             if not pd.isna(year)
         }
 
-        if any(pd.isna(years)):
+        if any(pd.isna(year) for year in years):
             query_dict.update({"nan": f"{query} WHERE year IS NULL"})
 
     return query_dict
@@ -532,7 +538,7 @@ def check_missing_years(athena_asset: str, asset_id: str) -> pd.DataFrame:
 
 def upload(
     asset_id: str,
-    sql_query: dict[Any, str],
+    sql_query: dict[int | str | None, str],
     overwrite: bool,
     missing_years: pd.DataFrame,
 ) -> None:
@@ -547,8 +553,8 @@ def upload(
 
     Args:
         asset_id: Socrata dataset ID (e.g. ``"wxyz-1234"``).
-        sql_query: Mapping of year keys to SQL query strings, as produced by
-            :func:`build_query_dict`.
+        sql_query: Mapping of year keys (int, ``"nan"``, or None) to SQL
+            query strings, as produced by :func:`build_query_dict`.
         overwrite: If True, the first request will use HTTP PUT to replace
             existing data; subsequent requests always use HTTP POST.
         missing_years: DataFrame of row IDs (with ``:deleted`` set to True)
@@ -610,7 +616,7 @@ def upload(
 
 
 def socrata_upload(
-    asset_info: dict[str, Any],
+    asset_info: AssetInfo,
     overwrite: bool = False,
     years: list[str] | None = None,
 ) -> None:
