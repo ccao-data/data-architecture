@@ -194,7 +194,7 @@ def parse_years_list(
     athena_asset: str,
     years: list[str] | None = None,
     years_active: int = 1,
-) -> list[str | int | None] | None:
+) -> list[int | float | None] | None:
     """
     Determine the list of years to iterate over for an upload.
 
@@ -215,11 +215,9 @@ def parse_years_list(
 
     Returns:
         A list of year values to query, or None if the asset should be
-        queried without a year filter. The function can return a list of
-        integers, strings, or None values. It is helpful to be able to return
-        integers so they can be checked for NaN values that exist in Athena, and
-        strings for user input to avoid errors created by non-integer user
-        input.
+        queried without a year filter. Returned values may be integers,
+        floats, or None depending on how Athena/pandas represents year values
+        (for example, nullable values can appear as NaN-like values).
     """
 
     if years is not None:
@@ -296,8 +294,8 @@ def check_overwrite(overwrite: str | bool | None = None) -> bool:
 def build_query_dict(
     athena_asset: str,
     asset_id: str,
-    years: list[str | int | None] | None = None,
-) -> dict[int | str | None, str]:
+    years: list[int | float | None] | None = None,
+) -> dict[int | float | str | None, str]:
     """
     Build a mapping of year keys to Athena SQL queries for a given asset.
 
@@ -311,13 +309,14 @@ def build_query_dict(
         athena_asset: Fully qualified Athena view name (e.g.
             ``"open_data.view_name"``).
         asset_id: Socrata dataset ID (e.g. ``"wxyz-1234"``).
-        years: List of year values to produce individual per-year queries for,
-            or None to produce a single unfiltered query.
+        years: List of year values (ints, floats, or None) to produce
+            individual per-year queries for, or None to produce a single
+            unfiltered query.
 
     Returns:
-        A dict mapping year values (or None for an unfiltered query) to SQL
-        query strings. NaN year values produce a ``"nan"`` key whose query
-        filters on ``year IS NULL``.
+        A dict mapping year keys to SQL query strings. Keys are integers,
+        floats, None (for an unfiltered query), or the string ``"nan"`` when
+        null year values are present (which maps to a ``year IS NULL`` query).
     """
 
     # Retrieve column names and types from Athena
@@ -369,7 +368,7 @@ def build_query_dict(
 
     # Build a dictionary with queries for each year requested, or no years
     if not years:
-        query_dict: dict[int | str | None, str] = {None: query}
+        query_dict: dict[int | float | str | None, str] = {None: query}
 
     else:
         query_dict = {
@@ -538,7 +537,7 @@ def check_missing_years(athena_asset: str, asset_id: str) -> pd.DataFrame:
 
 def upload(
     asset_id: str,
-    sql_query: dict[int | str | None, str],
+    sql_query: dict[int | float | str | None, str],
     overwrite: bool,
     missing_years: pd.DataFrame,
 ) -> None:
@@ -553,8 +552,8 @@ def upload(
 
     Args:
         asset_id: Socrata dataset ID (e.g. ``"wxyz-1234"``).
-        sql_query: Mapping of year keys (int, ``"nan"``, or None) to SQL
-            query strings, as produced by :func:`build_query_dict`.
+        sql_query: Mapping of year keys (int, float, ``"nan"``, or None) to
+            SQL query strings, as produced by :func:`build_query_dict`.
         overwrite: If True, the first request will use HTTP PUT to replace
             existing data; subsequent requests always use HTTP POST.
         missing_years: DataFrame of row IDs (with ``:deleted`` set to True)
