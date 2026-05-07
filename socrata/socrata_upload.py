@@ -39,8 +39,8 @@ retries = Retry(
     total=5,
     backoff_factor=0.1,
     status_forcelist=[500, 502, 503, 504],
-    # Set default allowed methods for retries to include POST, since the Socrata API
-    # uses idempotent POST requests
+    # Set default allowed methods for retries to include POST, since the Socrata
+    # API uses idempotent POST requests
     allowed_methods=Retry.DEFAULT_ALLOWED_METHODS | {"POST"},
 )
 
@@ -169,18 +169,17 @@ def parse_years(years: str | None = None) -> list[str] | None:
         element list ``["all"]``, or None if no years were provided.
     """
 
-    if years == "":
+    if not years:
         years_parsed = None
-    if years is not None:
-        if years == "all":
-            years_parsed = ["all"]
-        else:
-            # Only allow anticipated values
-            years_parsed = [
-                re.sub("[^0-9]", "", year)
-                for year in str(years).split(",")
-                if re.sub("[^0-9]", "", year)
-            ]
+    elif years == "all":
+        years_parsed = ["all"]
+    else:
+        # Only allow anticipated values
+        years_parsed = [
+            re.sub("[^0-9]", "", year)
+            for year in str(years).split(",")
+            if re.sub("[^0-9]", "", year)
+        ]
 
     return years_parsed
 
@@ -189,7 +188,7 @@ def parse_years_list(
     athena_asset: str,
     years: list[str] | None = None,
     years_active: int = 1,
-) -> list[Any] | None:
+) -> list[str | int | None] | None:
     """
     Determine the list of years to iterate over for an upload.
 
@@ -201,8 +200,8 @@ def parse_years_list(
 
     Args:
         athena_asset: Fully qualified Athena view name (e.g.
-            ``"open_data.view_name"``). Used to query distinct or max year values
-            when needed.
+            ``"open_data.view_name"``). Used to query distinct or max year
+            values when needed.
         years: Output of :func:`parse_years` — a list of year strings,
             ``["all"]``, or None.
         years_active: Number of consecutive recent years that should be kept
@@ -210,7 +209,11 @@ def parse_years_list(
 
     Returns:
         A list of year values to query, or None if the asset should be
-        queried without a year filter.
+        queried without a year filter. The function can return a list of
+        integers, strings, or None values. It is helpful to be able to return
+        integers so they can be checked for NaN values that exist in Athena, and
+        strings for user input to avoid errors created by non-integer user
+        input.
     """
 
     if years is not None:
@@ -225,7 +228,8 @@ def parse_years_list(
                 .to_list()
             )
         else:
-            years_list = years
+            # Ensure the returned year values are integers
+            years_list = [int(year) for year in years]
 
     elif not years and os.getenv("WORKFLOW_EVENT_NAME") == "schedule":
         # Update most recent year only on scheduled workflow. In some
@@ -277,21 +281,17 @@ def check_overwrite(overwrite: str | bool | None = None) -> bool:
         (HTTP POST).
     """
 
-    if not overwrite or overwrite == "":
-        overwrite = False
-
     # Github inputs are passed as strings rather than booleans
     if isinstance(overwrite, str):
-        overwrite = overwrite == "true"
-
-    return overwrite
+        return overwrite == "true"
+    return bool(overwrite)
 
 
 def build_query_dict(
     athena_asset: str,
     asset_id: str,
-    years: list[Any] | None = None,
-) -> dict[Any, str]:
+    years: list[str | int | None] | None = None,
+) -> dict[int | str | None, str]:
     """
     Build a mapping of year keys to Athena SQL queries for a given asset.
 
@@ -414,7 +414,8 @@ def check_deleted(input_data: pd.DataFrame, asset_id: str) -> pd.DataFrame:
         where_list.append(f"year IN ({years_str})")
     where_str = " or ".join(where_list)
 
-    # Construct the API call to retrieve row_ids for the specified asset and years
+    # Construct the API call to retrieve row_ids for the specified asset and
+    # years
     url = (
         f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
         + quote(f"SELECT row_id WHERE {where_str} LIMIT 20000000")
@@ -504,8 +505,8 @@ def check_missing_years(athena_asset: str, asset_id: str) -> pd.DataFrame:
         socrata_nulls = "year is NULL"
     missing_years = {item for item in missing_years if item is not None}
 
-    # If there are any missing years, retrieve their row_ids so they can be marked
-    # for deletion
+    # If there are any missing years, retrieve their row_ids so they can be
+    # marked for deletion
     if missing_years or socrata_nulls:
         if missing_years:
             missing_years_str = ", ".join(list(missing_years))
