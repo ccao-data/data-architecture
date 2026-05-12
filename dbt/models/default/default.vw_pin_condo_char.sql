@@ -9,7 +9,21 @@ should only be the case while condo characteristics are pulled from excel
 workbooks rather than iasWorld.
 */
 
-WITH aggregate_land AS (
+WITH par AS (
+    SELECT
+        parid,
+        taxyr,
+        REGEXP_REPLACE(class, '[^[:alnum:]]', '') AS class,
+        tieback,
+        tiebldgpct,
+        note2,
+        unitno
+    FROM {{ source('iasworld', 'pardat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
+),
+
+aggregate_land AS (
     SELECT
         pin AS parid,
         year AS taxyr,
@@ -64,7 +78,7 @@ chars AS (
                 (oby.card IS NULL OR com.card IS NULL)
                 THEN COALESCE(oby.card, com.card)
             WHEN
-                REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') = '299'
+                par.class = '299'
                 THEN oby.card
             WHEN par.class = '399' THEN com.card
         END AS card,
@@ -79,25 +93,47 @@ chars AS (
                 THEN 0
             ELSE 1.0
         END AS tieback_proration_rate,
+        -- Card proration logic is year-dependent because source fields changed.
+        -- < 2024: use legacy fields (oby.user20 for class 299, com.user24 for
+        -- class 399).
+        -- >= 2024: use replacement field external_propct from oby/comdat.
+        -- For mismatched joins or missing class-specific values, fall back to
+        -- whichever table has a non-NULL proration value for that year.
         CASE
-            WHEN (oby.user20 IS NULL OR com.user24 IS NULL)
-                THEN CAST(COALESCE(oby.user20, com.user24) AS DOUBLE) / 100.0
-            WHEN
-                REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') = '299'
-                THEN CAST(oby.user20 AS DOUBLE) / 100.0
-            WHEN
-                par.class = '399'
-                THEN CAST(com.user24 AS DOUBLE) / 100.0
+            WHEN par.taxyr < '2024'
+                -- Legacy proration columns
+                THEN
+                CAST(
+                    COALESCE(
+                        CASE
+                            WHEN par.class = '299' THEN oby.user20
+                            WHEN par.class = '399' THEN com.user24
+                        END,
+                        oby.user20,
+                        com.user24
+                    ) AS DOUBLE
+                ) / 100.0
+            ELSE
+                -- Current proration columns (2024+)
+                COALESCE(
+                    CASE
+                        WHEN par.class = '299' THEN oby.external_propct
+                        WHEN par.class = '399' THEN com.external_propct
+                    END,
+                    oby.external_propct,
+                    com.external_propct,
+                    0
+                ) / 100.0
         END AS card_proration_rate,
         oby.lline,
         COALESCE(oby.num_lines, com.num_lines) AS num_lines,
         SUBSTR(par.parid, 1, 10) AS pin10,
-        REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') AS class,
+        par.class,
         par.taxyr AS year,
         leg.user1 AS township_code,
         CASE
             WHEN
-                REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') = '299'
+                par.class = '299'
                 THEN oby.user16
             WHEN
                 par.class = '399' AND nonlivable.flag != '399 GR'
@@ -109,7 +145,7 @@ chars AS (
         -- Very rarely use 'effyr' rather than 'yrblt' when 'yrblt' is NULL
         CASE
             WHEN
-                REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') = '299'
+                par.class = '299'
                 THEN COALESCE(
                     oby.yrblt, oby.effyr, com.yrblt, com.effyr
                 )
@@ -122,7 +158,7 @@ chars AS (
         MAX(
             CASE
                 WHEN
-                    REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') = '299'
+                    par.class = '299'
                     THEN COALESCE(
                         oby.yrblt, oby.effyr, com.yrblt, com.effyr
                     )
@@ -147,12 +183,7 @@ chars AS (
         par.note2 AS note,
         COALESCE(SUM(
             CASE
-                WHEN
-                    REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') NOT IN (
-                        '299', '399'
-                    )
-                    THEN 1
-                ELSE 0
+                WHEN par.class NOT IN ('299', '399') THEN 1 ELSE 0
             END
         )
             OVER (
@@ -160,7 +191,7 @@ chars AS (
             )
         > 0, FALSE)
             AS bldg_is_mixed_use
-    FROM {{ source('iasworld', 'pardat') }} AS par
+    FROM par
 
     -- Left joins because par contains both 299s & 399s (oby and comdat
     -- do not) and pin_condo_char doesn't contain all condos
@@ -186,9 +217,7 @@ chars AS (
         nonlivable detection, but upon human review have been deemed livable. */
     LEFT JOIN {{ source('ccao', 'pin_nonlivable') }} AS nonlivable
         ON par.parid = nonlivable.pin
-    WHERE par.cur = 'Y'
-        AND par.deactivat IS NULL
-        AND (oby.row_no = 1 OR com.row_no = 1)
+    WHERE (oby.row_no = 1 OR com.row_no = 1)
 ),
 
 filled AS (

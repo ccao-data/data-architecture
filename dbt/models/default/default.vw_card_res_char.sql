@@ -45,7 +45,10 @@ SELECT
         WHEN par.tiebldgpct IS NOT NULL THEN par.tiebldgpct / 100.0
         ELSE 1.0
     END AS tieback_proration_rate,
-    CAST(dwel.user24 AS DOUBLE) / 100.0 AS card_proration_rate,
+    CASE
+        WHEN dwel.taxyr < '2024' THEN CAST(dwel.user24 AS DOUBLE) / 100 ELSE
+            COALESCE(dwel.external_propct, 0) / 100.0
+    END AS card_proration_rate,
     multicodes.pin_is_multicard,
     multicodes.pin_num_cards,
     COALESCE(aggregate_land.num_landlines > 1, FALSE) AS pin_is_multiland,
