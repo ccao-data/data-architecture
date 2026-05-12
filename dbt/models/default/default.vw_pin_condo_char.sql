@@ -106,23 +106,18 @@ chars AS (
                 CAST(
                     COALESCE(
                         CASE
-                            WHEN
-                                par.class = '299'
-                                THEN oby.user20
+                            WHEN par.class = '299' THEN oby.user20
                             WHEN par.class = '399' THEN com.user24
                         END,
                         oby.user20,
                         com.user24
                     ) AS DOUBLE
                 ) / 100.0
-
             ELSE
                 -- Current proration columns (2024+)
                 COALESCE(
                     CASE
-                        WHEN
-                            par.class = '299'
-                            THEN oby.external_propct
+                        WHEN par.class = '299' THEN oby.external_propct
                         WHEN par.class = '399' THEN com.external_propct
                     END,
                     oby.external_propct,
