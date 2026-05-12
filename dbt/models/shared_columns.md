@@ -1575,7 +1575,8 @@ on price from higher tax burdens
 Proration rate for a card on a given PIN.
 
 Prorated cards split their total value across multiple PINs. An example is
-something like a building that crosses multiple PINs
+something like a building that crosses multiple PINs. Constructed using `user24`
+pre-2024 and `external_propct` 2024 and on.
 {% enddocs %}
 
 ## external_occpct
@@ -1592,8 +1593,9 @@ and we expect it to eventually become the standard.
 {% docs shared_column_external_propct %}
 Calculated proration rate used for computing fields like `external_rcnld`.
 
-This field is used in the new system for calculating proration and occupancy,
-and we expect it to eventually become the standard.
+This field is used in the new system for calculating proration and occupancy.
+As of 2024 this is the maintained card proration column in iasWorld and `user24`
+has been deprecated outside of pre-2024 `comdat`, `dweldat`, and `oby` data.
 {% enddocs %}
 
 ## lline

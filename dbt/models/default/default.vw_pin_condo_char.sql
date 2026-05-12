@@ -80,14 +80,35 @@ chars AS (
             ELSE 1.0
         END AS tieback_proration_rate,
         CASE
-            WHEN (oby.user20 IS NULL OR com.user24 IS NULL)
-                THEN CAST(COALESCE(oby.user20, com.user24) AS DOUBLE) / 100.0
-            WHEN
-                REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') = '299'
-                THEN CAST(oby.user20 AS DOUBLE) / 100.0
-            WHEN
-                par.class = '399'
-                THEN CAST(com.user24 AS DOUBLE) / 100.0
+            WHEN par.taxyr < '2024'
+                THEN
+                CAST(
+                    COALESCE(
+                        CASE
+                            WHEN
+                                REGEXP_REPLACE(par.class, '[^[:alnum:]]', '')
+                                = '299'
+                                THEN oby.user20
+                            WHEN par.class = '399' THEN com.user24
+                        END,
+                        oby.user20,
+                        com.user24
+                    ) AS DOUBLE
+                ) / 100.0
+
+            ELSE
+                COALESCE(
+                    CASE
+                        WHEN
+                            REGEXP_REPLACE(par.class, '[^[:alnum:]]', '')
+                            = '299'
+                            THEN oby.external_propct
+                        WHEN par.class = '399' THEN com.external_propct
+                    END,
+                    oby.external_propct,
+                    com.external_propct,
+                    0
+                ) / 100.0
         END AS card_proration_rate,
         oby.lline,
         COALESCE(oby.num_lines, com.num_lines) AS num_lines,
