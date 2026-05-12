@@ -1594,8 +1594,9 @@ and we expect it to eventually become the standard.
 Calculated proration rate used for computing fields like `external_rcnld`.
 
 This field is used in the new system for calculating proration and occupancy.
-As of 2024 this is the maintained card proration column in iasWorld and `user24`
-has been deprecated outside of pre-2024 `comdat`, `dweldat`, and `oby` data.
+As of 2024 this is the maintained card proration column in iasWorld and
+`user24`/`user20` have been deprecated outside of pre-2024 `comdat`, `dweldat`,
+and `oby` data.
 {% enddocs %}
 
 ## lline
