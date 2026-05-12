@@ -79,8 +79,15 @@ chars AS (
                 THEN 0
             ELSE 1.0
         END AS tieback_proration_rate,
+        -- Card proration logic is year-dependent because source fields changed.
+        -- < 2024: use legacy fields (oby.user20 for class 299, com.user24 for
+        -- class 399).
+        -- >= 2024: use replacement field external_propct from oby/comdat.
+        -- For mismatched joins or missing class-specific values, fall back to
+        -- whichever table has a non-NULL proration value for that year.
         CASE
             WHEN par.taxyr < '2024'
+                -- Legacy proration columns
                 THEN
                 CAST(
                     COALESCE(
@@ -97,6 +104,7 @@ chars AS (
                 ) / 100.0
 
             ELSE
+                -- Current proration columns (2024+)
                 COALESCE(
                     CASE
                         WHEN
