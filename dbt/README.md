@@ -105,11 +105,8 @@ care of that for you.)
 Run the following commands in this directory:
 
 ```bash
-uv venv
-source .venv/bin/activate
-uv python install
-uv pip install .
-dbt deps
+uv sync --frozen --all-extras
+uv run --frozen dbt deps
 ```
 
 ### Useful commands
@@ -779,8 +776,7 @@ a major event in the Valuations calendar like the close of a township.
 
 The [`export_models` script](./scripts/export_models.py) is the foundation for
 our QC reports. The script expects certain Python requirements, which can be installed
-by running `uv pip install .[dbt_tests]` in a virtual
-environment.
+by running `uv sync --frozen --extra dbt_tests`.
 
 The script exposes a few options that help to export the right data:
 
@@ -817,7 +813,7 @@ We run town close reports using the [`scripts/export_qc_town_close_reports.py`
 script](./scripts/export_qc_town_close_reports.py), which builds on top of
 `export_models`. As such, `export_qc_town_close_reports` expects the same set
 of Python requirements as `export_models`, which can be installed in a virtual
-environment by running `uv pip install .[dbt_tests]`.
+environment by running `uv sync --frozen --extra dbt_tests`.
 
 The script exposes the following options, many of which are the same as
 `export_models`:
