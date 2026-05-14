@@ -11,7 +11,7 @@ env:
   UV_FROZEN: "1"
 
 jobs:
-   build-daily-dbt-models:
+  build-daily-dbt-models:
     runs-on: ubuntu-latest
     # These permissions are needed to interact with GitHub's OIDC Token endpoint
     # so that we can authenticate with AWS
