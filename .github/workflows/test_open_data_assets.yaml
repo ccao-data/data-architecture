@@ -10,6 +10,10 @@ on:
     # in order to make scheduling simpler.
     - cron: '30 4 2 * *'
 
+env:
+  PYTHONUNBUFFERED: "1"
+  UV_FROZEN: "1"
+
 jobs:
   test-open-data-assets:
     runs-on: ubuntu-latest
@@ -29,12 +33,15 @@ jobs:
           aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
 
       - name: Compile dbt manifest
-        run: dbt compile
+        run: uv run dbt compile
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
       - name: Test that open data row counts match Athena views
-        run: python ../.github/scripts/test_open_data_assets.py target/manifest.json
+        run: |
+          uv run \
+            python3 ../.github/scripts/test_open_data_assets.py \
+            target/manifest.json
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 

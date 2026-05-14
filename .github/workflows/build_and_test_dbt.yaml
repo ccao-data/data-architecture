@@ -14,6 +14,10 @@ on:
         default: 'default.vw_pin_sale default.vw_pin_universe'
         type: string
 
+env:
+  PYTHONUNBUFFERED: "1"
+  UV_FROZEN: "1"
+
 jobs:
   build-and-test-dbt:
     runs-on: ubuntu-latest
@@ -63,7 +67,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
 
       - name: Test dbt macros
-        run: dbt run-operation test_all
+        run: uv run dbt run-operation test_all
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
@@ -77,7 +81,13 @@ jobs:
           if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
             if [[ $MANUALLY_DISPATCHED == 'true' ]]; then
               echo "Running build on manually selected resources"
-              dbt build -t "$TARGET" -s ${{ inputs.models }} --defer --state "$STATE_DIR" --resource-types model seed
+              uv run \
+                dbt build \
+                --target "$TARGET" \
+                --select ${{ inputs.models }} \
+                --defer \
+                --state "$STATE_DIR" \
+                --resource-types model seed
             elif [[ $TARGET == 'prod' ]]; then
               # Rebuild children of modified resources in prod, since schema
               # changes might cause those children to become stale.
@@ -88,14 +98,28 @@ jobs:
               # can't accidentally modify downstream model schemas without
               # those child models _also_ being modified
               echo "Running build on modified/new resources and their children"
-              dbt build -t "$TARGET" -s state:modified+ state:new --state "$STATE_DIR" --resource-types model seed
+              uv run \
+                dbt build \
+                --target "$TARGET" \
+                --select state:modified+ state:new \
+                --state "$STATE_DIR" \
+                --resource-types model seed
             else
               echo "Running build on modified/new resources only"
-              dbt build -t "$TARGET" -s state:modified state:new --defer --state "$STATE_DIR" --resource-types model seed
+              uv run \
+                dbt build \
+                --target "$TARGET" \
+                --select state:modified state:new \
+                --defer \
+                --state "$STATE_DIR" \
+                --resource-types model seed
             fi
           else
             echo "Running build on all resources"
-            dbt build -t "$TARGET" --resource-types model seed
+            uv run \
+              dbt build \
+              --target "$TARGET" \
+              --resource-types model seed
           fi
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
@@ -105,14 +129,30 @@ jobs:
           if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
             if [[ $MANUALLY_DISPATCHED == 'true' ]]; then
               echo "Running tests on manually selected resources"
-              dbt test -t "$TARGET" -s ${{ inputs.models }} --exclude "tag:data_test_iasworld" --indirect-selection cautious --defer --state "$STATE_DIR"
+              uv run \
+                dbt test \
+                --target "$TARGET" \
+                --select ${{ inputs.models }} \
+                --exclude "tag:data_test_iasworld" \
+                --indirect-selection cautious \
+                --defer \
+                --state "$STATE_DIR"
             else
               echo "Running tests on modified/new resources only"
-              dbt test -t "$TARGET" --selector select_data_test_new_or_modified_non_iasworld --defer --state "$STATE_DIR"
+              uv run \
+                dbt test \
+                --target "$TARGET" \
+                --selector select_data_test_new_or_modified_non_iasworld \
+                --defer \
+                --state "$STATE_DIR"
             fi
           else
             echo "Running tests on all resources"
-            dbt test -t "$TARGET" --exclude "tag:data_test_iasworld" --indirect-selection cautious
+            uv run \
+              dbt test \
+              --target "$TARGET" \
+              --exclude "tag:data_test_iasworld" \
+              --indirect-selection cautious
           fi
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash

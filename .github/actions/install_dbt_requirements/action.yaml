@@ -24,9 +24,7 @@ runs:
       - name: Install Python dependencies
         working-directory: ${{ inputs.dbt_project_dir }}
         shell: bash
-        run: uv pip install .
-        env:
-          UV_SYSTEM_PYTHON: 1
+        run: uv sync --frozen
 
       - name: Cache dbt requirements
         uses: actions/cache@v4
@@ -37,4 +35,4 @@ runs:
       - name: Install dbt requirements
         working-directory: ${{ inputs.dbt_project_dir }}
         shell: bash
-        run: dbt deps
+        run: uv run --frozen dbt deps
