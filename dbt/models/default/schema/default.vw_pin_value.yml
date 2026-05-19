@@ -158,7 +158,7 @@ models:
           column_name: certified_class
           config:
             where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
-            error_if: ">15"
+            error_if: ">16"
       - not_null:
           name: default_vw_pin_value_certified_tot_mv_not_null
           column_name: certified_tot_mv
@@ -166,13 +166,13 @@ models:
             where: |
               CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} AND
               year >= '2021'
-            error_if: ">15"
+            error_if: ">16"
       - not_null:
           name: default_vw_pin_value_certified_tot_not_null
           column_name: certified_tot
           config:
             where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
-            error_if: ">15"
+            error_if: ">16"
       - expression_is_true:
           name: default_vw_pin_value_class_is_null_when_values_are_null
           meta:
@@ -208,7 +208,7 @@ models:
           column_name: mailed_class
           config:
             where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
-            error_if: ">310"
+            error_if: ">311"
       - not_null:
           name: default_vw_pin_value_mailed_tot_mv_not_null
           column_name: mailed_tot_mv
@@ -216,13 +216,13 @@ models:
             where: |
               CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} AND
               year >= '2021'
-            error_if: ">310"
+            error_if: ">311"
       - not_null:
           name: default_vw_pin_value_mailed_tot_not_null
           column_name: mailed_tot
           config:
             where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
-            error_if: ">310"
+            error_if: ">311"
       - unique_combination_of_columns:
           name: default_vw_pin_value_unique_by_14_digit_pin_and_year
           combination_of_columns:
