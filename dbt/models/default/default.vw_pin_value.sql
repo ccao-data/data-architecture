@@ -39,6 +39,10 @@ WITH stages AS (
         AND valclass IS NULL
         -- Class 999 are test pins
         AND class NOT IN ('999')
+        AND (
+            procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+            OR procname IS NULL
+        )
     GROUP BY parid, taxyr
 ),
 
