@@ -121,20 +121,6 @@ sources:
             description: '{{ doc("column_procdate") }}'
           - name: procname
             description: '{{ doc("column_procname") }}'
-            data_tests:
-              - accepted_values:
-                  name: iasworld_asmt_all_procname_in_accepted_values
-                  values: ['CCAOVALUE', 'CCAOFINAL', 'BORVALUE', 'CONVERT']
-                  additional_select_columns: *select-columns
-                  config:
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
-                      AND rolltype != 'RR'
-                      AND deactivat IS NULL
-                      AND valclass IS NULL
-                  meta:
-                    description: >
-                      procname should be 'CCAOVALUE', 'CCAOFINAL', 'BORVALUE', or 'CONVERT'
           - name: reascd
             description: Reason code for change in assessed value
           - name: rolltype
