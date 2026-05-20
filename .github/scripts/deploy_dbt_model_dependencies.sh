@@ -43,7 +43,7 @@ echo "Parsing dbt Python model dependencies for target '$target'"
 s3_dependency_dir="s3://ccao-athena-dependencies-us-east-1"
 
 # Compile the DAG so that we have up-to-date info on dependencies
-dbt compile --quiet --target "$target"
+uv run --frozen dbt compile --quiet --target "$target"
 
 # Extract the config.packages attribute from only the models
 # where it is set

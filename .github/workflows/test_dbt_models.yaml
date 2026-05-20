@@ -35,7 +35,7 @@ on:
 
 env:
   PYTHONUNBUFFERED: "1"
-  UV_SYSTEM_PYTHON: 1
+  UV_FROZEN: "1"
 
 jobs:
   test-dbt-models:
@@ -79,10 +79,10 @@ jobs:
           path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
           key: ${{ env.CACHE_KEY }}
 
-      - name: Install Python dependencies
+      - name: Install Python dependencies for tests
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
-        run: uv pip install ".[dbt_tests]"
+        run: uv sync --extra dbt_tests
 
       - name: Run tests
         run: |
@@ -91,7 +91,9 @@ jobs:
             DEFER_OPTION="--defer --state $STATE_DIR"
           fi
           # shellcheck disable=SC2086
-          dbt test --target "$TARGET" \
+          uv run \
+            dbt test \
+            --target "$TARGET" \
             $SELECT_OPTION \
             $DEFER_OPTION
         working-directory: ${{ env.PROJECT_DIR }}

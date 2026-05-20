@@ -6,6 +6,10 @@ on:
     # Every day at 8am (2pm UTC-5)
     - cron: '0 13 * * *'
 
+env:
+  PYTHONUNBUFFERED: "1"
+  UV_FROZEN: "1"
+
 jobs:
   test-dbt-source-freshness:
     runs-on: ubuntu-latest
@@ -25,7 +29,7 @@ jobs:
           aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
 
       - name: Test source freshness
-        run: dbt source freshness --target "$TARGET"
+        run: uv run dbt source freshness --target "$TARGET"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 

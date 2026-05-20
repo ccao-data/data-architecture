@@ -20,9 +20,6 @@ dbt_tests = [
   "simplejson~=3.19.2",
   "watchtower>=3.4.0",
 ]
-ci_checks = [
-  "pyyaml==6.0.2",
-]
 
 [tool.setuptools]
 packages = []

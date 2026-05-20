@@ -7,6 +7,10 @@ on:
     types: [completed]
   workflow_dispatch:
 
+env:
+  PYTHONUNBUFFERED: "1"
+  UV_FROZEN: "1"
+
 jobs:
   deploy-dbt-docs:
     runs-on: ubuntu-latest
@@ -48,7 +52,7 @@ jobs:
 
       - name: Generate docs
         run: |
-          dbt docs generate --target prod
+          uv run dbt docs generate --target prod
           # Editing index.html to inject a custom stylesheet and change the site metadata
           sed -i 's|</head>|\t<link rel="stylesheet" href="./assets/ccao-style.css" />\n</head>|' target/index.html
           sed -i 's|</head>|\t<script defer src="./assets/ccao-script.js"></script>\n</head>|' target/index.html

@@ -3,6 +3,8 @@ name = "socrata"
 version = "0.0.1"
 requires-python = ">=3.11"
 dependencies = [
+  "dbt-athena-community==1.8.4",
+  "dbt-core==1.9.1",
   "PyAthena~=3.9.0",
   "pandas~=2.2.2",
   "pyarrow~=17.0.0",

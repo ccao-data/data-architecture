@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version < '3.12'",
@@ -220,9 +220,6 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-ci-checks = [
-    { name = "pyyaml" },
-]
 dbt-tests = [
     { name = "lxml" },
     { name = "numpy" },
@@ -244,11 +241,10 @@ requires-dist = [
     { name = "pandas", marker = "extra == 'dbt-tests'", specifier = "~=2.2.2" },
     { name = "pyarrow", marker = "extra == 'dbt-tests'", specifier = "==15.0.2" },
     { name = "pyathena", marker = "extra == 'dbt-tests'", specifier = "~=3.8.3" },
-    { name = "pyyaml", marker = "extra == 'ci-checks'", specifier = "==6.0.2" },
     { name = "simplejson", marker = "extra == 'dbt-tests'", specifier = "~=3.19.2" },
     { name = "watchtower", marker = "extra == 'dbt-tests'", specifier = ">=3.4.0" },
 ]
-provides-extras = ["dbt-tests", "ci-checks"]
+provides-extras = ["dbt-tests"]
 
 [[package]]
 name = "dbt-adapters"
