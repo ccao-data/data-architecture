@@ -747,7 +747,8 @@ fields. Possible values include:
   PINs in an assessment year once second installment bills have mailed for that
   year.
 - `TAX CALC` = A stamp placed by the Treasurer when they calculate 1st
-  installment tax bills.
+  installment tax bills. We don't know much about this value yet, so we don't
+  use it.
 {% enddocs %}
 
 ## prodamage
