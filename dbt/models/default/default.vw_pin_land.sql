@@ -13,7 +13,11 @@
 --      more than one land line carries an influence/allocation factor AND
 --      all lines share the same sf, the repeated sf values represent the
 --      same land area measured multiple times. We take sf_top to avoid
---      double-counting.
+--      double-counting. This logic attempts to address data errors such as
+--      parid 02-02-200-010-1007 in 2025 (duplicate land lines) and
+--      non-erroneous cases such as parid 01-35-200-031-1001 in 2025 (different
+--      land classes in order to apply different levels-of-assessment across one
+--      sf).
 --
 --   3. ALL OTHER CASES: Land lines represent distinct portions of the
 --      parcel. We sum all line sf values (sf_sum).
