@@ -20,11 +20,11 @@ delete_database() {
             # that xargs continues executing.
             echo "Continuing execution due to expected 404 response."
         else
-            exit 255  # Unexpected error; signal to xargs to quit
+            exit 255 # Unexpected error; signal to xargs to quit
         fi
     fi
 }
-export -f delete_database  # Make delete_database useable by xargs
+export -f delete_database # Make delete_database useable by xargs
 
 if [[ "$#" -eq 0 ]]; then
     echo "Missing first argument representing dbt target"
@@ -36,12 +36,14 @@ if [ "$1" == "prod" ]; then
     exit 1
 fi
 
-schemas_json=$(dbt --quiet list --resource-types model seed --target "$1" \
-    --exclude config.materialized:ephemeral --output json --output-keys schema \
-) || (\
+schemas_json=$(
+    uv run --frozen dbt \
+        --quiet list --resource-types model seed --target "$1" \
+        --exclude config.materialized:ephemeral --output json --output-keys schema
+) || (
     echo "Error in dbt call" && exit 1
 )
-schemas=$(echo "$schemas_json"| sort | uniq | jq ' .schema') || (\
+schemas=$(echo "$schemas_json" | sort | uniq | jq ' .schema') || (
     echo "Error in schema parsing" && exit 1
 )
 
