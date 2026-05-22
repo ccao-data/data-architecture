@@ -9,7 +9,7 @@ runs:
   using: composite
   steps:
     - name: Install uv
-      uses: astral-sh/setup-uv@v3
+      uses: astral-sh/setup-uv@v8.1.0
       with:
         enable-cache: true
         cache-dependency-glob: |
@@ -17,7 +17,7 @@ runs:
           ${{ inputs.dbt_project_dir }}/uv.lock
 
     - name: Install Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
       with:
         python-version-file: ${{ inputs.dbt_project_dir }}/.python-version
 
@@ -27,7 +27,7 @@ runs:
       run: uv sync --frozen
 
     - name: Cache dbt requirements
-      uses: actions/cache@v4
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae
       with:
         path: ${{ inputs.dbt_project_dir }}/dbt_packages
         key: dbt-${{ hashFiles(format('{0}/packages.yml', inputs.dbt_project_dir)) }}

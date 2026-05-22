@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           # Full git history is needed to get a proper
           # list of changed files within `super-linter`
@@ -31,7 +31,7 @@ jobs:
         run: rm etl/.Rprofile
 
       - name: Lint
-        uses: github/super-linter@v6
+        uses: github/super-linter@b807e99ddd37e444d189cfd2c2ca1274d8ae8ef1
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: master
