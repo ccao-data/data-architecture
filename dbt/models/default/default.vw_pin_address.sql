@@ -99,6 +99,7 @@ LEFT JOIN mail
     ON par.parid = mail.parid
     AND par.taxyr = mail.taxyr
     AND mail.newest
+    -- Exclude mailing columns for PINs with suppression requests
     AND mail.hide_pin IS NULL
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
