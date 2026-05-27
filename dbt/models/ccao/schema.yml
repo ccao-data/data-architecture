@@ -76,6 +76,9 @@ sources:
           - name: version
             description: In the past, models were not assigned alphanumeric IDs but rather PIN and year-level output was consecutively "versioned" by model run.
 
+      - name: hidename
+        description: '{{ doc("table_hidename") }}'
+
       - name: hie
         description: '{{ doc("table_hie") }}'
         tags:
