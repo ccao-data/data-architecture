@@ -178,6 +178,12 @@ sources:
               - accepted_range:
                   name: iasworld_asmt_all_tot30_lte_7500
                   max_value: 7500
+                  additional_select_columns: &select-columns-with-class
+                    - taxyr
+                    - parid
+                    - class
+                    - who
+                    - wen
                   config: *unique-conditions
                   meta:
                     description: tot30 (HIE TOT) should be <7500
@@ -211,12 +217,7 @@ sources:
                   name: iasworld_asmt_all_valasm1_non_ex_rr_gt_0
                   min_value: 0
                   inclusive: false
-                  additional_select_columns: &select-columns-with-class
-                    - taxyr
-                    - parid
-                    - class
-                    - who
-                    - wen
+                  additional_select_columns: *select-columns-with-class
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
