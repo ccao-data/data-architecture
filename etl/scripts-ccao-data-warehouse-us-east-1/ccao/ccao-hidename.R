@@ -10,5 +10,5 @@ output_bucket <- file.path(
   "ccao", "other", "hidename"
 )
 
-read_csv("") %>%
-  write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
+read_csv("O:/CCAODATA/data/hidename/hidename.csv") %>%
+  save_local_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
