@@ -78,6 +78,11 @@ sources:
 
       - name: hidename
         description: '{{ doc("table_hidename") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: ccao_hidename_unique_by_pin
+              combination_of_columns:
+                - pin
 
       - name: hie
         description: '{{ doc("table_hie") }}'
