@@ -13,6 +13,7 @@ WITH exe_raw AS (
     SELECT
         det.parid AS pin,
         det.taxyr AS year,
+        det.excode AS exemption_code,
         CASE WHEN det.excode IN ('DP', 'C-DP', 'DPHE') THEN 'exe_disabled'
             WHEN det.excode IN ('SF', 'C-SF') THEN 'exe_freeze'
             WHEN det.excode IN ('HO', 'C-HO') THEN 'exe_homeowner'
@@ -68,6 +69,7 @@ exe_group_ranked AS (
     SELECT
         pin,
         year,
+        exemption_code,
         exemption_type,
         exemption_amount,
         is_cofe,
@@ -91,6 +93,7 @@ exe_group_ranked AS (
 SELECT
     pin,
     year,
+    exemption_code,
     exemption_type,
     exemption_amount,
     is_cofe,
