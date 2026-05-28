@@ -76,6 +76,14 @@ sources:
           - name: version
             description: In the past, models were not assigned alphanumeric IDs but rather PIN and year-level output was consecutively "versioned" by model run.
 
+      - name: hidename
+        description: '{{ doc("table_hidename") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: ccao_hidename_unique_by_pin
+              combination_of_columns:
+                - pin
+
       - name: hie
         description: '{{ doc("table_hie") }}'
         tags:

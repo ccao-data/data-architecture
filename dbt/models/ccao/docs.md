@@ -78,6 +78,14 @@ aggregated or used for analyses, only provided in raw.
 **Primary Key**: `pin`, `tax_year`, `version`
 {% enddocs %}
 
+# hidename
+
+{% docs table_hidename %}
+Temporary table containing PINs associated with address suppresion requests.
+
+**Primary Key**: `pin`
+{% enddocs %}
+
 # hie
 
 {% docs table_hie %}
@@ -157,7 +165,7 @@ These are concatenated them with ','.
 GIS is currently updating data for the South Tri. These townships will be
 uploaded upon completion.
 
-Raw data is stored in 
+Raw data is stored in
 `O:\CCAODATA\zoning\data`
 
 **Primary Key**: `pin`

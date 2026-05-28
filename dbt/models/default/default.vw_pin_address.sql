@@ -7,18 +7,24 @@
 -- on the Treasurer's website.
 WITH mail AS (
     SELECT
-        parid,
-        taxyr,
-        {{ concat_address(['mail1', 'mail2']) }} AS mail_address_name,
-        {{ concat_address(['maddr1', 'maddr2']) }} AS mail_address_full,
-        mcityname AS mail_address_city_name,
-        mstatecode AS mail_address_state,
-        NULLIF(mzip1, '00000') AS mail_address_zipcode_1,
-        NULLIF(mzip2, '0000') AS mail_address_zipcode_2,
-        mailseq = MAX(mailseq) OVER (PARTITION BY parid, taxyr) AS newest
-    FROM {{ source('iasworld', 'maildat') }}
-    WHERE cur = 'Y'
-        AND deactivat IS NULL
+        mail.parid,
+        mail.taxyr,
+        {{ concat_address(['mail.mail1', 'mail.mail2']) }}
+            AS mail_address_name,
+        {{ concat_address(['mail.maddr1', 'mail.maddr2']) }}
+            AS mail_address_full,
+        mail.mcityname AS mail_address_city_name,
+        mail.mstatecode AS mail_address_state,
+        NULLIF(mail.mzip1, '00000') AS mail_address_zipcode_1,
+        NULLIF(mail.mzip2, '0000') AS mail_address_zipcode_2,
+        mail.mailseq = MAX(mail.mailseq)
+            OVER (PARTITION BY mail.parid, mail.taxyr) AS newest,
+        hide.pin AS hide_pin
+    FROM {{ source('iasworld', 'maildat') }} AS mail
+    LEFT JOIN {{ source('ccao', 'hidename') }} AS hide
+        ON mail.parid = hide.pin
+    WHERE mail.cur = 'Y'
+        AND mail.deactivat IS NULL
 )
 
 SELECT
@@ -93,6 +99,8 @@ LEFT JOIN mail
     ON par.parid = mail.parid
     AND par.taxyr = mail.taxyr
     AND mail.newest
+    -- Exclude mailing columns for PINs with suppression requests
+    AND mail.hide_pin IS NULL
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
     -- Remove any parcels with non-numeric characters
