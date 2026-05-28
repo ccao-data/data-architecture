@@ -37,8 +37,8 @@ jobs:
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_MARKDOWN: false
-          # These tools are handled by pre-commit, so we don't need SuperLinter
-          # to run them as well
+          # These tools are either handled by pre-commit, or we don't use them,
+          # so we exclude them from superlinter
           VALIDATE_CHECKOV: false
           VALIDATE_SQLFLUFF: false
           VALIDATE_PYTHON_BLACK: false
@@ -47,8 +47,16 @@ jobs:
           VALIDATE_PYTHON_PYLINT: false
           VALIDATE_PYTHON_RUFF: false
           VALIDATE_R: false
+          VALIDATE_TRIVY: false
+          VALIDATE_ZIZMOR: false
+          VALIDATE_BIOME_FORMAT: false
+          VALIDATE_BIOME_LINT: false
           # The natural language check slows down our velocity and is rarely
           # helpful
           VALIDATE_NATURAL_LANGUAGE: false
+          # We use yamllint for YAML linting so we don't need prettier
+          VALIDATE_YAML_PRETTIER: false
+          # We have a separate workflow for pre-commit
+          VALIDATE_PRE_COMMIT: false
           LINTER_RULES_PATH: /
           YAML_CONFIG_FILE: .yamllint.yml
