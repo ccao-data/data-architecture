@@ -48,7 +48,7 @@ jobs:
           VALIDATE_PYTHON_RUFF: false
           VALIDATE_R: false
           VALIDATE_TRIVY: false
-          VALIDATE_ZIZMOR: false
+          VALIDATE_GITHUB_ACTIONS_ZIZMOR: false
           VALIDATE_BIOME_FORMAT: false
           VALIDATE_BIOME_LINT: false
           # The natural language check slows down our velocity and is rarely
