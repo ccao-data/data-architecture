@@ -99,6 +99,12 @@ WITH total_influ AS (
         -- always 1.
         MIN(land.lline) OVER (PARTITION BY land.parid, land.taxyr) AS top_line
     FROM {{ source('iasworld', 'land') }} AS land
+    -- Join to pardat to ensure only truly active PINs are pulled
+    INNER JOIN {{ source('iasworld', 'pardat') }} AS par
+        ON land.parid = par.parid
+        AND land.taxyr = par.taxyr
+        AND par.cur = 'Y'
+        AND par.deactivat IS NULL
     WHERE
         land.cur = 'Y'
         AND land.deactivat IS NULL

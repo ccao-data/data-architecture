@@ -81,6 +81,6 @@ FROM active_permits AS permit
 -- so we can use it as a basis for joining permits to themselves
 INNER JOIN permit_addresses AS address
     ON permit.iasw_id = address.iasw_id
-LEFT JOIN {{ ref('default.vw_pin_universe') }} AS vpu
+INNER JOIN {{ ref('default.vw_pin_universe') }} AS vpu
     ON permit.parid = vpu.pin
     AND SUBSTR(permit.permdt, 1, 4) = vpu.year
