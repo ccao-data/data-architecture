@@ -132,7 +132,7 @@ unique_sales AS (
         LEFT JOIN calculated
             ON NULLIF(REPLACE(sales.instruno, 'D', ''), '')
             = calculated.instruno
-        LEFT JOIN
+        INNER JOIN
             town_class AS tc
             ON sales.parid = tc.parid
             AND SUBSTR(sales.saledt, 1, 4) = tc.taxyr

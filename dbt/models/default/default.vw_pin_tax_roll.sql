@@ -49,3 +49,9 @@ FROM asmt
 LEFT JOIN {{ ref('default.vw_pin_exe') }} AS wide
     ON asmt.pin = wide.pin
     AND asmt.year = wide.year
+-- Join to pardat to ensure only truly active PINs are pulled
+INNER JOIN {{ source('iasworld', 'pardat') }} AS par
+    ON asmt.pin = par.parid
+    AND asmt.year = par.taxyr
+    AND par.cur = 'Y'
+    AND par.deactivat IS NULL
