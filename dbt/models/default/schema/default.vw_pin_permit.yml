@@ -78,15 +78,9 @@ models:
           equals: >
             (
               SELECT COUNT(*)
-              FROM {{ source('iasworld', 'permit') }} AS permit
-              -- Join to pardat to ensure only truly active PINs are pulled
-              INNER JOIN {{ source('iasworld', 'pardat') }} AS par
-                  ON permit.parid = par.parid
-                  AND permit.taxyr = par.taxyr
-                  AND par.cur = 'Y'
-                  AND par.deactivat IS NULL
-              WHERE permit.cur = 'Y'
-                AND permit.deactivat IS NULL
+              FROM {{ source('iasworld', 'permit') }}
+              WHERE cur = 'Y'
+                AND deactivat IS NULL
             )
           meta:
             description: vw_pin_permit row count should equal iasworld permit

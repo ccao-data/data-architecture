@@ -319,7 +319,9 @@ Property owner information such as name and mailing address.
 
 {% docs table_pardat %}
 Universe of all Cook County parcels for each tax year. This is *the* base
-table, along with `iasworld.legdat`.
+table, along with `iasworld.legdat`. Ensure every view is either based on this
+table or inner-joined to it to avoid including parcels reactivated by the
+treasurer.
 
 **Primary Key**: `jur`, `taxyr`, `parid`
 {% enddocs %}
