@@ -13,6 +13,7 @@ WITH exe_raw AS (
     SELECT
         det.parid AS pin,
         det.taxyr AS year,
+        det.excode AS exemption_code,
         CASE WHEN det.excode IN ('DP', 'C-DP', 'DPHE') THEN 'exe_disabled'
             WHEN det.excode IN ('SF', 'C-SF') THEN 'exe_freeze'
             WHEN det.excode IN ('HO', 'C-HO') THEN 'exe_homeowner'
@@ -28,6 +29,7 @@ WITH exe_raw AS (
             WHEN det.excode IN ('DV2', 'C-DV2', 'DV-2') THEN 'exe_vet_dis_50_69'
             WHEN det.excode IN ('DV3', 'DV3-M', 'DV-3') THEN 'exe_vet_dis_ge70'
             WHEN det.excode IN ('DV4', 'DV4-M', 'DV-4') THEN 'exe_vet_dis_100'
+            WHEN det.excode = 'DV5' THEN 'exe_vet_dis_100_idor'
             WHEN
                 det.excode IN ('RTV', 'C-RTV', 'RDV1', 'RV1', 'RDV2')
                 THEN 'exe_vet_returning'
@@ -63,6 +65,8 @@ WITH exe_raw AS (
         AND par.deactivat IS NULL
     WHERE det.deactivat IS NULL
         AND det.cur = 'Y'
+        -- Exclude rows that are used for incentives, not exemptions
+        AND NOT SUBSTR(det.excode, 1, 2) = 'I-'
 ),
 
 -- There are currently some unexpected dupes in the exemption data right
@@ -74,6 +78,7 @@ exe_group_ranked AS (
     SELECT
         pin,
         year,
+        exemption_code,
         exemption_type,
         exemption_amount,
         is_cofe,
@@ -97,6 +102,7 @@ exe_group_ranked AS (
 SELECT
     pin,
     year,
+    exemption_code,
     exemption_type,
     exemption_amount,
     is_cofe,

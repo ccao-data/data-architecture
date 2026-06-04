@@ -7,8 +7,20 @@ models:
         description: '{{ doc("shared_column_cofe_date") }}'
       - name: exemption_amount
         description: Exemption amount
+      - name: exemption_code
+        description: |
+          Raw exemption code from iasWorld, useful for debugging.
+
+          Most consumers should prefer `exemption_type`, which is cleaned and
+          validated.
+        data_tests:
+          - not_null:
+              name: default_vw_pin_exe_long_exemption_code_not_null
       - name: exemption_type
         description: Exemption type
+        data_tests:
+          - not_null:
+              name: default_vw_pin_exe_long_exemption_type_not_null
       - name: is_cofe
         description: '{{ doc("column_cofe_indicator_bool") }}'
       - name: pin
@@ -127,6 +139,7 @@ unit_tests:
       rows:
         - pin: '01234567890000'
           year: '2026'
+          exemption_code: 'HO'
           exemption_type: exe_homeowner
           exemption_amount: 200  # Choose the largest amount among CofEs
           is_cofe: true  # Choose the CofE
