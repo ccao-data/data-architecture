@@ -9,10 +9,16 @@ models:
           name: default_vw_pin_land_matches_iasworld_land
           equals: >
             (
-              SELECT COUNT(DISTINCT(parid, taxyr))
-              FROM {{ source('iasworld', 'land') }}
-              WHERE cur = 'Y'
-                AND deactivat IS NULL
+              SELECT COUNT(DISTINCT(land.parid, land.taxyr))
+              FROM {{ source('iasworld', 'land') }} AS land
+              -- Join to pardat to ensure only truly active PINs are pulled
+              INNER JOIN {{ source('iasworld', 'pardat') }} AS par
+                  ON land.parid = par.parid
+                  AND land.taxyr = par.taxyr
+                  AND par.cur = 'Y'
+                  AND par.deactivat IS NULL
+              WHERE land.cur = 'Y'
+                AND land.deactivat IS NULL
             )
           meta:
             description: vw_pin_land row count should equal pin year combos in iasworld land

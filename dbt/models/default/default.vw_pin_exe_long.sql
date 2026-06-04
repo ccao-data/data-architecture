@@ -55,6 +55,12 @@ WITH exe_raw AS (
         AND det.taxyr = code.taxyr
         AND code.cur = 'Y'
         AND code.deactivat IS NULL
+    -- Join to pardat to ensure only truly active PINs are pulled
+    INNER JOIN {{ source('iasworld', 'pardat') }} AS par
+        ON det.parid = par.parid
+        AND det.taxyr = par.taxyr
+        AND par.cur = 'Y'
+        AND par.deactivat IS NULL
     WHERE det.deactivat IS NULL
         AND det.cur = 'Y'
 ),

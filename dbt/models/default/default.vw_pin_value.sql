@@ -540,3 +540,9 @@ LEFT JOIN change_reasons AS reasons
     AND vals.stage_name = reasons.stage_name
 LEFT JOIN {{ ref('ccao.aprval_reascd') }} AS descr
     ON reasons.reascd = descr.reascd
+-- Join to pardat to ensure only truly active PINs are pulled
+INNER JOIN {{ source('iasworld', 'pardat') }} AS par
+    ON vals.pin = par.parid
+    AND vals.year = par.taxyr
+    AND par.cur = 'Y'
+    AND par.deactivat IS NULL

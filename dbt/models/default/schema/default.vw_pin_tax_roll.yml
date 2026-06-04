@@ -45,14 +45,20 @@ models:
           name: default_vw_pin_tax_roll_matches_iasworld_asmt_all
           equals: >
             (
-              SELECT COUNT(DISTINCT(parid, taxyr))
-              FROM {{ source('iasworld', 'asmt_all') }}
-              WHERE rolltype != 'RR'
-                AND deactivat IS NULL
-                AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE', 'FINALEAV')
-                AND valclass IS NULL
+              SELECT COUNT(DISTINCT(asmt_all.parid, asmt_all.taxyr))
+              FROM {{ source('iasworld', 'asmt_all') }} AS asmt_all
+              -- Join to pardat to ensure only truly active PINs are pulled
+              INNER JOIN {{ source('iasworld', 'pardat') }} AS par
+                  ON asmt_all.parid = par.parid
+                  AND asmt_all.taxyr = par.taxyr
+                  AND par.cur = 'Y'
+                  AND par.deactivat IS NULL
+              WHERE asmt_all.rolltype != 'RR'
+                AND asmt_all.deactivat IS NULL
+                AND asmt_all.procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE', 'FINALEAV')
+                AND asmt_all.valclass IS NULL
                 -- Class 999 are test pins
-                AND class NOT IN ('999')
+                AND asmt_all.class NOT IN ('999')
             )
           meta:
             description: vw_pin_tax_roll row count should equal iasworld asmt_all row count
