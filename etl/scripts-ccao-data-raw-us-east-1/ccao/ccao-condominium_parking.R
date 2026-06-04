@@ -6,6 +6,8 @@ library(purrr)
 library(readr)
 library(tools)
 
+# Test comment to trigger lintr
+
 ################################################################################
 # This is static data and this script does not need to be re-run unless the data
 # is no longer availale in the Data Department's raw S3 bucket.
