@@ -37,9 +37,11 @@ jobs:
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_MARKDOWN: false
+          VALIDATE_MARKDOWN_PRETTIER: false
           # These tools are handled by pre-commit, so we don't need SuperLinter
           # to run them as well
           VALIDATE_CHECKOV: false
+          VALIDATE_SPELL_CODESPELL: false
           VALIDATE_SQLFLUFF: false
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_FLAKE8: false
