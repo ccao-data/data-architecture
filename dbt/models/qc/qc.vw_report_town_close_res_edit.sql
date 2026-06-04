@@ -103,7 +103,7 @@ SELECT
     ROUND(
         (
             (aprval.aprtot - aprval_prev.aprtot)
-            / CAST(aprval_prev.aprtot AS DOUBLE)
+            / NULLIF(CAST(aprval_prev.aprtot AS DOUBLE), 0)
         ),
         2
     ) AS aprtot_percent_change,
@@ -117,8 +117,10 @@ SELECT
                 (aprval.dwelval + aprval.aprland)
                 - (aprval_prev.dwelval + aprval_prev.aprland)
             )
-            / CAST(
-                (aprval_prev.dwelval + aprval_prev.aprland) AS DOUBLE
+            / NULLIF(
+                CAST(
+                    (aprval_prev.dwelval + aprval_prev.aprland) AS DOUBLE
+                ), 0
             )
         ),
         2
