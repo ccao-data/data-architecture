@@ -10,7 +10,7 @@ library(tools)
 
 ################################################################################
 # This is static data and this script does not need to be re-run unless the data
-# is no longer availale in the Data Department's raw S3 bucket.
+# is no longer available in the Data Department's raw S3 bucket.
 ################################################################################
 
 # This script retrieves raw condominium characteristics from the CCAO's O Drive
