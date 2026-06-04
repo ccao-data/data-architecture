@@ -34,7 +34,6 @@ WITH stages AS (
             ''
         ) AS procnames
     FROM {{ source('iasworld', 'asmt_all') }}
-
     WHERE rolltype != 'RR'
         AND deactivat IS NULL
         AND valclass IS NULL
