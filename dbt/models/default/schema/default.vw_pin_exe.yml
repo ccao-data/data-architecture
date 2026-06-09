@@ -52,8 +52,14 @@ models:
                 AND admn.cur = 'Y'
                 AND admn.deactivat IS NULL
                 AND admn.exstat = 'A'
+              INNER JOIN {{ source('iasworld', 'pardat') }} AS par
+                ON det.parid = par.parid
+                AND det.taxyr = par.taxyr
+                AND par.cur = 'Y'
+                AND par.deactivat IS NULL
               WHERE det.cur = 'Y'
                 AND det.deactivat IS NULL
+                AND NOT SUBSTR(det.excode, 1, 2) = 'I-'
             )
           meta:
             description: check that vw_pin_exe row count is equal to constituent iasworld tables after pivot

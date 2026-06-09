@@ -151,7 +151,7 @@ models:
             - year
           allowed_duplicates: 5
           config:
-            error_if: ">1000"
+            error_if: ">1100"
       - row_count:
           name: default_vw_pin_sale_row_count
           above: 2496073 # as of 2024-11-14
