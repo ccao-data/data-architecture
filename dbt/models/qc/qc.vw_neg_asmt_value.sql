@@ -72,7 +72,10 @@ SELECT
     asmt.valasm1,
     asmt.valasm2,
     asmt.valasm3
-FROM (
+-- Source PINs from PARDAT to filter out any records in ASMT that may represent
+-- deactivated parcels
+FROM {{ source('iasworld', 'pardat') }} AS pardat
+INNER JOIN (
     -- This is intended to replicate the ASMT table since we don't
     -- actually have access to it and ASMT_ALL is just the union of
     -- ASMT and ASMT_HIST
@@ -82,10 +85,14 @@ FROM (
     SELECT *
     FROM {{ source('iasworld', 'asmt_hist') }}
 ) AS asmt
+    ON pardat.parid = asmt.parid
+    AND pardat.taxyr = asmt.taxyr
+    AND asmt.cur = 'Y'
+    AND asmt.deactivat IS NULL
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
     ON asmt.taxyr = legdat.taxyr
     AND asmt.parid = legdat.parid
     AND legdat.cur = 'Y'
     AND legdat.deactivat IS NULL
-WHERE asmt.cur = 'Y'
-    AND asmt.deactivat IS NULL
+WHERE pardat.cur = 'Y'
+    AND pardat.deactivat IS NULL

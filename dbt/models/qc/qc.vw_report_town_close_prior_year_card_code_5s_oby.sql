@@ -1,5 +1,20 @@
+-- Filter OBY for only parcels that are active in PARDAT, to remove parcels
+-- that are deactivated but that remain active in OBY to support
+-- Clerk/Treasurer processes
+WITH oby AS (
+    SELECT oby.*
+    FROM {{ source('iasworld', 'pardat') }} AS pardat
+    INNER JOIN {{ source('iasworld', 'oby') }} AS oby
+        ON pardat.parid = oby.parid
+        AND pardat.taxyr = oby.taxyr
+        AND oby.cur = 'Y'
+        AND oby.deactivat IS NULL
+    WHERE pardat.cur = 'Y'
+        AND pardat.deactivat IS NULL
+),
+
 -- Calculate YoY changes to occupancy percentages in OBY
-WITH oby_change AS (
+oby_change AS (
     SELECT
         oby_prev.parid,
         -- If there is a record for a card in the prior year but not in the
@@ -55,8 +70,8 @@ WITH oby_change AS (
     -- Select from the prior year of data as the base of the query so that we
     -- can preserve parcels that may have changed in the subsequent year
     -- such that they don't appear in OBY anymore
-    FROM {{ source('iasworld', 'oby') }} AS oby_prev
-    LEFT JOIN {{ source('iasworld', 'oby') }} AS oby
+    FROM oby AS oby_prev
+    LEFT JOIN oby
         ON oby_prev.parid = oby.parid
         AND oby_prev.card = oby.card
         AND oby_prev.lline = oby.lline

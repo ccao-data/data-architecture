@@ -92,7 +92,8 @@ SELECT
     calc.who,
     calc.wen
 FROM combined_calc AS calc
-LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
+-- Inner join to PARDAT to filter out PINs that represent deactivated parcels
+INNER JOIN {{ source('iasworld', 'pardat') }} AS pardat
     ON calc.parid = pardat.parid
     AND calc.taxyr = pardat.taxyr
     AND pardat.cur = 'Y'
