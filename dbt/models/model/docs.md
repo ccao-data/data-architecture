@@ -160,6 +160,19 @@ of sales_.
 **Primary Key**: `year`, `run_id`, `meta_pin`, `meta_card_num`, `meta_sale_document_num`
 {% enddocs %}
 
+# train_card
+
+{% docs table_train_card %}
+Card-level (building) model outputs on the train set by model run (`run_id`).
+
+The train set is the in-sample data used to fit the initial model.
+Predictions in this table are made using only sales from the training set. 
+Train_card data is uploaded with every model run.  
+Note that this is separate from the training_data table, which only contains data from the final yearly model run; The training_data table contains both train and test data for the yearly run, whereas train_card contains only training data for an individual model run.
+
+**Primary Key**: `year`, `run_id`, `meta_pin`, `meta_card_num`, `meta_sale_document_num`
+{% enddocs %}
+
 # timing
 
 {% docs table_timing %}
@@ -177,6 +190,8 @@ A table containing the training data from the final model runs.
 We update this table once per assessment year after choosing the final model
 runs for the year. As such, only final model run IDs should be present in this
 table.
+
+Note that this is separate from the train_card, which is updated every model run, and only contains data used to fit our model.  The training_data table contains both data used to fit the model (train) and to evaluate the final yearly model run.
 
 **Primary Key**: `run_id`, `meta_card_num`, `meta_sale_document_num`
 {% enddocs %}

@@ -182,6 +182,22 @@ sources:
               config:
                 error_if: ">102422"
 
+      - name: train_card
+        description: '{{ doc("table_train_card") }}'
+        tags:
+          - load_auto
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_train_card_unique_pin_card_year_run_doc
+              combination_of_columns:
+                - year
+                - run_id
+                - meta_pin
+                - meta_card_num
+                - meta_sale_document_num
+              config:
+                error_if: ">102422"
+
       - name: timing
         description: '{{ doc("table_timing") }}'
         tags:
