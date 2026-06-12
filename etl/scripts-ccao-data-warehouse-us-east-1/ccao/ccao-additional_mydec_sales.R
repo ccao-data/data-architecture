@@ -13,7 +13,6 @@ input_file <- "O:/CCAODATA/data/additional_mydec_sales/Missing Sales.xlsx"
 
 openxlsx::read.xlsx(input_file, sheet = "Summary") %>%
   select(doc_no = `203.Document.Number`) %>%
-  distinct() %>%
   mutate(
     doc_no = as.character(doc_no),
     loaded_at = as.character(Sys.time())
