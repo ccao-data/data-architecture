@@ -108,7 +108,7 @@ calculated AS (
         FROM sales_unioned
         WHERE deactivat IS NULL
             AND cur = 'Y'
-    ) AS pin_doc_pairs
+    )
     GROUP BY instruno
 ),
 
