@@ -44,7 +44,7 @@ trimmed_town_class AS (
     SELECT
         pardat.parid AS pin,
         pardat.taxyr AS year,
-        SUBSTR(pardat.class, 1, 1) AS major_class,
+        groups.reporting_class_code AS major_class,
         CASE
             WHEN
                 ARRAY_JOIN(vpl.combined_municipality_name, ', ') = ''
@@ -52,6 +52,9 @@ trimmed_town_class AS (
                 ARRAY_JOIN(vpl.combined_municipality_name, ', ')
         END AS municipality_name
     FROM {{ source('iasworld', 'pardat') }} AS pardat
+    -- Exclude classes without a reporting class
+    INNER JOIN {{ ref('ccao.class_dict') }} AS groups
+        ON REGEXP_REPLACE(pardat.class, '[^[:alnum:]]', '') = groups.class_code
     LEFT JOIN {{ ref('reporting.vw_pin_value_long') }} AS pins
         ON pardat.parid = pins.pin
         AND pardat.taxyr = pins.year
