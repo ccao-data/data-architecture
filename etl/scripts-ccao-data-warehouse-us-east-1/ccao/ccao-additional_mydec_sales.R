@@ -1,6 +1,3 @@
-# Uploads a list of document numbers for sales that were recorded in MyDec
-# but never made it into iasworld.sales. Used to inject those sales into
-# default.vw_pin_sale directly from sale.mydec.
 library(arrow)
 library(dplyr)
 library(openxlsx)
@@ -12,9 +9,7 @@ output_bucket <- file.path(
   "ccao", "other", "additional_mydec_sales"
 )
 
-# Local copy for now, pending a permanent home on the O: drive
-# input_file <- "O:/CCAODATA/data/additional_mydec_sales/Missing Sales.xlsx"
-input_file <- "~/repos/data-architecture/Missing Sales.xlsx"
+input_file <- "O:/CCAODATA/data/additional_mydec_sales/Missing Sales.xlsx"
 
 openxlsx::read.xlsx(input_file, sheet = "Summary") %>%
   select(doc_no = `203.Document.Number`) %>%
