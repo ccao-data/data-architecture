@@ -41,21 +41,31 @@ pct_pin_w_value_in_group ends up being less than 1 when it should equal 1.
 16-07-219-029-1032 missing a mailed value but having CCAO and BOR certified
 values in 2021 is an example. */
 trimmed_town_class AS (
-    SELECT vptc.*
-    FROM {{ ref('reporting.vw_pin_township_class') }} AS vptc
-    LEFT JOIN
-        (
-            SELECT DISTINCT
-                pin,
-                year
-            FROM {{ ref('reporting.vw_pin_value_long') }}
+    SELECT
+        pardat.parid AS pin,
+        pardat.taxyr AS year,
+        SUBSTR(pardat.class, 1, 1) AS major_class,
+        CASE
+            WHEN
+                ARRAY_JOIN(vpl.combined_municipality_name, ', ') = ''
+                THEN NULL ELSE
+                ARRAY_JOIN(vpl.combined_municipality_name, ', ')
+        END AS municipality_name
+    FROM {{ source('iasworld', 'pardat') }} AS pardat
+    LEFT JOIN {{ ref('reporting.vw_pin_value_long') }} AS pins
+        ON pardat.parid = pins.pin
+        AND pardat.taxyr = pins.year
+    LEFT JOIN {{ ref('location.vw_pin10_location') }} AS vpl
+        ON SUBSTR(pardat.parid, 1, 10) = vpl.pin10
+        AND pardat.taxyr = vpl.year
+    WHERE pardat.cur = 'Y'
+        AND pardat.deactivat IS NULL
+        AND pardat.class NOT IN ('999')
+        AND (
+            pins.pin IS NOT NULL
+            OR pardat.taxyr
+            = (SELECT MAX(taxyr) FROM {{ source('iasworld', 'pardat') }})
         )
-            AS pins
-        ON vptc.pin = pins.pin
-        AND vptc.year = pins.year
-    WHERE pins.pin IS NOT NULL
-        OR vptc.year
-        = (SELECT MAX(year) FROM {{ ref('reporting.vw_pin_township_class') }})
 
 ),
 
