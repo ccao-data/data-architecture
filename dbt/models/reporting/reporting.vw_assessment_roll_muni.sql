@@ -60,7 +60,19 @@ trimmed_town_class AS (
         AND pardat.taxyr = pins.year
     LEFT JOIN {{ ref('location.vw_pin10_location') }} AS vpl
         ON SUBSTR(pardat.parid, 1, 10) = vpl.pin10
-        AND pardat.taxyr = vpl.year
+        AND CASE
+            WHEN
+                pardat.taxyr
+                > (
+                    SELECT MAX(year)
+                    FROM {{ ref('location.vw_pin10_location') }}
+                )
+                THEN (
+                    SELECT MAX(year)
+                    FROM {{ ref('location.vw_pin10_location') }}
+                )
+            ELSE pardat.taxyr
+        END = vpl.year
     WHERE pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
         AND pardat.class NOT IN ('999')
