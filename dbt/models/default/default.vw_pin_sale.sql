@@ -52,21 +52,10 @@ sales_unioned AS (
         -- the sale.deed_type seed) so that these sales pass downstream
         -- deed type filters the same way iasworld sales do
         CASE
-            WHEN md.line_5_instrument_type IN (
-                    'Warranty Deed',
-                    'Special Warranty Deed',
-                    'Limited Warranty Deed'
-                ) THEN '01'
-            WHEN md.line_5_instrument_type IN (
-                    'Trustee Deed',
-                    'Deed in Trust'
-                ) THEN '02'
+            WHEN md.line_5_instrument_type = 'Warranty Deed' THEN '01'
+            WHEN md.line_5_instrument_type = 'Trustee Deed' THEN '02'
             WHEN md.line_5_instrument_type = 'Quit Claim Deed' THEN '03'
-            WHEN md.line_5_instrument_type IN (
-                    'Executor Deed',
-                    'Administrator''s Deed',
-                    'Guardian''s Deed'
-                ) THEN '04'
+            WHEN md.line_5_instrument_type = 'Executor Deed' THEN '04'
             WHEN md.line_5_instrument_type = 'Beneficial interest'
                 THEN '06'
             ELSE '05'
