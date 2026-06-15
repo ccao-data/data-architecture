@@ -64,8 +64,8 @@ sales_unioned AS (
             WHEN md.line_5_instrument_type = 'Quit Claim Deed' THEN '03'
             WHEN md.line_5_instrument_type IN (
                     'Executor Deed',
-                    'Administrator''s Deed',
-                    'Guardian''s Deed'
+                    'Administrator's Deed',
+                    'Guardian's Deed'
                 ) THEN '04'
             WHEN md.line_5_instrument_type = 'Beneficial interest'
                 THEN '06'
