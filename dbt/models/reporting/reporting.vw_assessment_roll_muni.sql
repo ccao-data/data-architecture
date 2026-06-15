@@ -17,7 +17,11 @@ WITH stages AS (
 
 ),
 
-pins AS (
+/* This CTE creates a limiting universe of PINs by year from iasworld.asmt_all.
+We need to make sure iasworld.pardat and iasworld.asmt_all are aligned before we
+use them as numerator and denominator to calculate the percentage of a
+municpality that has been valued. */
+denominator AS (
     SELECT DISTINCT
         asmt_all.parid AS pin,
         asmt_all.taxyr AS year
@@ -36,21 +40,21 @@ pins AS (
         AND asmt_all.procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
 ),
 
-/* This CTE removes historical PINs in reporting.vw_pin_township_class that are
-not in reporting.vw_pin_value_long. We do this to make sure the samples we
-derive the numerator and denominator from for pct_pin_w_value_in_group are the
-same. These differences are inherent in the tables that feed these views
-(iasworld.pardat and iasworld.asmt_all, respectively) and are data errors - not
-emblematic of what portion of a municipality has actually progressed through an
-assessment stage.
+/* This CTE removes historical PINs in iasworld.pardat that are not in
+iasworld.asmt_all. We do this to make sure the samples we derive the numerator
+and denominator from for pct_pin_w_value_in_group are the same. These
+differences are inherent in the tables that feed these views (iasworld.pardat
+and iasworld.asmt_all, respectively) and are data errors - not emblematic of
+what portion of a municipality has actually progressed through an assessment
+stage.
 
 It does NOT remove PINs from the most recent year of
 reporting.vw_pin_township_class since we expect differences based on how
 iasworld.asmt_all is populated through the year as the assessment cycle
 progresses. This means data errors caused by differences between iasworld.pardat
 and iasworld.asmt_all won't be addressed in the most recent year. Unfortunately,
-we can't know what those errors are (or if they even exist) until asmt_all has
-at least one fully complete stage for a given year.
+we can't know what those errors are (or if they even exist) until
+iasworld.asmt_all has at least one fully complete stage for a given year.
 
 Starting in 2020 a small number of PINs are present in iasworld.asmt_all for
 one or two but not all three stages of assessment when we would expect all three
@@ -70,13 +74,14 @@ trimmed_town_class AS (
                 THEN NULL ELSE
                 ARRAY_JOIN(vpl.combined_municipality_name, ', ')
         END AS municipality_name
+    -- Start with pardat to make sure we only have currently active PINs
     FROM {{ source('iasworld', 'pardat') }} AS pardat
     -- Exclude classes without a reporting class
     INNER JOIN {{ ref('ccao.class_dict') }} AS groups
         ON REGEXP_REPLACE(pardat.class, '[^[:alnum:]]', '') = groups.class_code
-    LEFT JOIN pins
-        ON pardat.parid = pins.pin
-        AND pardat.taxyr = pins.year
+    LEFT JOIN denominator
+        ON pardat.parid = denominator.pin
+        AND pardat.taxyr = denominator.year
     LEFT JOIN {{ ref('location.vw_pin10_location') }} AS vpl
         ON SUBSTR(pardat.parid, 1, 10) = vpl.pin10
         AND CASE
@@ -95,8 +100,10 @@ trimmed_town_class AS (
     WHERE pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
         AND pardat.class NOT IN ('999')
+        -- We use the denominator CTE to align pardat and asmt_all except for
+        -- the current year
         AND (
-            pins.pin IS NOT NULL
+            denominator.pin IS NOT NULL
             OR pardat.taxyr
             = (SELECT MAX(taxyr) FROM {{ source('iasworld', 'pardat') }})
         )
