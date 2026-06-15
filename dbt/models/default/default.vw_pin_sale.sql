@@ -80,7 +80,7 @@ sales_unioned AS (
         'Y' AS cur
     FROM {{ source('sale', 'mydec') }} AS md
     INNER JOIN {{ source('ccao', 'additional_mydec_sales') }} AS ams
-        ON REPLACE(md.document_number, 'D', '') = ams.doc_no
+        ON md.document_number = ams.doc_no
     -- Exclude doc nos already live in iasworld so we keep parity with
     -- prod for sales that were ingested normally
     LEFT JOIN (
@@ -89,7 +89,7 @@ sales_unioned AS (
         WHERE deactivat IS NULL
             AND cur = 'Y'
     ) AS ias
-        ON REPLACE(md.document_number, 'D', '') = ias.doc_no
+        ON md.document_number = ias.doc_no
     WHERE NOT md.is_multisale
         AND md.line_11_full_consideration IS NOT NULL
         AND ias.doc_no IS NULL
