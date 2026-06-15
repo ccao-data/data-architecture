@@ -17,6 +17,25 @@ WITH stages AS (
 
 ),
 
+pins AS (
+    SELECT DISTINCT
+        asmt_all.parid AS pin,
+        asmt_all.taxyr AS year
+    FROM {{ source('iasworld', 'asmt_all') }} AS asmt_all
+    INNER JOIN {{ source('iasworld', 'pardat') }} AS par
+        ON asmt_all.parid = par.parid
+        AND asmt_all.taxyr = par.taxyr
+        AND par.cur = 'Y'
+        AND par.deactivat IS NULL
+    INNER JOIN {{ ref('ccao.class_dict') }} AS class_dict
+        ON asmt_all.class = class_dict.class_code
+    WHERE asmt_all.rolltype != 'RR'
+        AND asmt_all.deactivat IS NULL
+        AND asmt_all.valclass IS NULL -- Class 999 are test pins
+        AND asmt_all.class NOT IN ('999')
+        AND asmt_all.procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+),
+
 /* This CTE removes historical PINs in reporting.vw_pin_township_class that are
 not in reporting.vw_pin_value_long. We do this to make sure the samples we
 derive the numerator and denominator from for pct_pin_w_value_in_group are the
@@ -55,12 +74,7 @@ trimmed_town_class AS (
     -- Exclude classes without a reporting class
     INNER JOIN {{ ref('ccao.class_dict') }} AS groups
         ON REGEXP_REPLACE(pardat.class, '[^[:alnum:]]', '') = groups.class_code
-    LEFT JOIN (
-        SELECT DISTINCT
-            pin,
-            year
-        FROM {{ ref('reporting.vw_pin_value_long') }}
-    ) AS pins
+    LEFT JOIN pins
         ON pardat.parid = pins.pin
         AND pardat.taxyr = pins.year
     LEFT JOIN {{ ref('location.vw_pin10_location') }} AS vpl
