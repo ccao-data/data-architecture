@@ -35,8 +35,8 @@ denominator AS (
         ON asmt_all.class = class_dict.class_code
     WHERE asmt_all.rolltype != 'RR'
         AND asmt_all.deactivat IS NULL
-        AND asmt_all.valclass IS NULL -- Class 999 are test pins
-        AND asmt_all.class NOT IN ('999')
+        AND asmt_all.valclass IS NULL
+        AND asmt_all.class NOT IN ('999') -- Class 999 are test pins
         AND asmt_all.procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
 ),
 
