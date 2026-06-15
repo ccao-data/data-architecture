@@ -55,7 +55,12 @@ trimmed_town_class AS (
     -- Exclude classes without a reporting class
     INNER JOIN {{ ref('ccao.class_dict') }} AS groups
         ON REGEXP_REPLACE(pardat.class, '[^[:alnum:]]', '') = groups.class_code
-    LEFT JOIN {{ ref('reporting.vw_pin_value_long') }} AS pins
+    LEFT JOIN (
+        SELECT DISTINCT
+            pin,
+            year
+        FROM {{ ref('reporting.vw_pin_value_long') }}
+    ) AS pins
         ON pardat.parid = pins.pin
         AND pardat.taxyr = pins.year
     LEFT JOIN {{ ref('location.vw_pin10_location') }} AS vpl
