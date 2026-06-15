@@ -21,7 +21,7 @@ WITH stages AS (
 We need to make sure iasworld.pardat and iasworld.asmt_all are aligned before we
 use them as numerator and denominator to calculate the percentage of a
 municpality that has been valued. */
-denominator AS (
+active_pins AS (
     SELECT DISTINCT
         asmt_all.parid AS pin,
         asmt_all.taxyr AS year
@@ -48,13 +48,13 @@ and iasworld.asmt_all, respectively) and are data errors - not emblematic of
 what portion of a municipality has actually progressed through an assessment
 stage.
 
-It does NOT remove PINs from the most recent year of
-reporting.vw_pin_township_class since we expect differences based on how
-iasworld.asmt_all is populated through the year as the assessment cycle
-progresses. This means data errors caused by differences between iasworld.pardat
-and iasworld.asmt_all won't be addressed in the most recent year. Unfortunately,
-we can't know what those errors are (or if they even exist) until
-iasworld.asmt_all has at least one fully complete stage for a given year.
+It does NOT remove PINs from the most recent year of iasworld.pardat since we
+expect differences based on how iasworld.asmt_all is populated through the year
+as the assessment cycle progresses. This means data errors caused by differences
+between iasworld.pardat and iasworld.asmt_all won't be addressed in the most
+recent year. Unfortunately, we can't know what those errors are (or if they even
+exist) until iasworld.asmt_all has at least one fully complete stage for a given
+year.
 
 Starting in 2020 a small number of PINs are present in iasworld.asmt_all for
 one or two but not all three stages of assessment when we would expect all three
@@ -79,9 +79,9 @@ trimmed_town_class AS (
     -- Exclude classes without a reporting class
     INNER JOIN {{ ref('ccao.class_dict') }} AS groups
         ON REGEXP_REPLACE(pardat.class, '[^[:alnum:]]', '') = groups.class_code
-    LEFT JOIN denominator
-        ON pardat.parid = denominator.pin
-        AND pardat.taxyr = denominator.year
+    LEFT JOIN active_pins
+        ON pardat.parid = active_pins.pin
+        AND pardat.taxyr = active_pins.year
     LEFT JOIN {{ ref('location.vw_pin10_location') }} AS vpl
         ON SUBSTR(pardat.parid, 1, 10) = vpl.pin10
         AND CASE
@@ -103,7 +103,7 @@ trimmed_town_class AS (
         -- We use the denominator CTE to align pardat and asmt_all except for
         -- the current year
         AND (
-            denominator.pin IS NOT NULL
+            active_pins.pin IS NOT NULL
             OR pardat.taxyr
             = (SELECT MAX(taxyr) FROM {{ source('iasworld', 'pardat') }})
         )
@@ -111,8 +111,8 @@ trimmed_town_class AS (
 ),
 
 /* Calculate the denominator for the pct_pin_w_value_in_group column.
-reporting.vw_pin_township_class serves as the universe of yearly PINs we expect
-to see in reporting.vw_pin_value_long. */
+iasworld.pardat serves as the universe of yearly PINs we expect
+to see in iasworld.asmt_all. */
 pin_counts AS (
     SELECT
         vptc.municipality_name,
