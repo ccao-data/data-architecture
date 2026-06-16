@@ -11,12 +11,12 @@ SELECT
     sf.sv_outlier_reason3,
     sf.run_id,
     sf.version
-FROM {{ source('sale', 'flag') }} AS sf
+FROM {{ source('z_dev_miwagne_sale', 'flag') }} AS sf
 INNER JOIN (
     SELECT
         meta_sale_document_num,
         MAX(version) AS max_version
-    FROM {{ source('sale', 'flag') }}
+    FROM {{ source('z_dev_miwagne_sale', 'flag') }}
     GROUP BY meta_sale_document_num
 ) AS mv
     ON sf.meta_sale_document_num = mv.meta_sale_document_num
