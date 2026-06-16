@@ -325,10 +325,11 @@ SELECT DISTINCT
         -- If a unit's percent of the declaration is less than half of
         -- what it would be if all units had an equal share, AV limited
         OR (
+            -- We use 50 rather than .5 since iasworld stores ownership as
+            -- percentages rather than in decimal form
             filled.tiebldgpct < (50 / filled.building_pins)
             AND vph.oneyr_pri_board_tot BETWEEN 10 AND 5000
         )
-        OR vph.oneyr_pri_board_tot BETWEEN 10 AND 1000
         OR nonlivable.flag = 'negative pred'
     )
     AND (nonlivable.flag != 'questionable' OR nonlivable.flag IS NULL),
@@ -367,6 +368,8 @@ SELECT DISTINCT
         -- suggesting this is a low-value non-livable unit like a parking space.
         WHEN
             (
+                -- We use 50 rather than .5 since iasworld stores ownership as
+                -- percentages rather than in decimal form
                 filled.tiebldgpct < (50 / filled.building_pins)
                 AND vph.oneyr_pri_board_tot BETWEEN 10 AND 5000
             )
