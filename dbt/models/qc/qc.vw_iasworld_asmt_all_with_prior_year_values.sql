@@ -25,7 +25,15 @@ SELECT
     asmt.valasm1,
     asmt.valasm2,
     asmt.valasm3
-FROM {{ source('iasworld', 'asmt_all') }} AS asmt
+-- Source PINs from PARDAT to filter out any records in ASMT that may represent
+-- deactivated parcels
+FROM {{ source('iasworld', 'pardat') }} AS pardat
+INNER JOIN {{ source('iasworld', 'asmt_all') }} AS asmt
+    ON pardat.parid = asmt.parid
+    AND pardat.taxyr = asmt.taxyr
+    AND asmt.cur = 'Y'
+    AND asmt.deactivat IS NULL
+    AND asmt.valclass IS NULL
 LEFT JOIN {{ source('iasworld', 'asmt_all') }} AS asmt_prev
     ON asmt.parid = asmt_prev.parid
     AND CAST(asmt.taxyr AS INT) = CAST(asmt_prev.taxyr AS INT) + 1
@@ -37,11 +45,6 @@ LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
     AND asmt.parid = legdat.parid
     AND legdat.cur = 'Y'
     AND legdat.deactivat IS NULL
-LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
-    ON asmt.taxyr = pardat.taxyr
-    AND asmt.parid = pardat.parid
-    AND pardat.cur = 'Y'
-    AND pardat.deactivat IS NULL
 LEFT JOIN {{ source('iasworld', 'owndat') }} AS owndat
     ON asmt.taxyr = owndat.taxyr
     AND asmt.parid = owndat.parid
@@ -54,6 +57,5 @@ LEFT JOIN {{ source('iasworld', 'aprval') }} AS aprval
     AND aprval.deactivat IS NULL
 LEFT JOIN {{ ref('ccao.aprval_reascd') }} AS reascd
     ON aprval.reascd = reascd.reascd
-WHERE asmt.cur = 'Y'
-    AND asmt.deactivat IS NULL
-    AND asmt.valclass IS NULL
+WHERE pardat.cur = 'Y'
+    AND pardat.deactivat IS NULL
