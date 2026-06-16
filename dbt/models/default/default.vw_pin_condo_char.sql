@@ -291,12 +291,6 @@ SELECT DISTINCT
             OR SUBSTR(filled.unitno, 1, 3) = 'GAR'
             OR filled.note = 'PARKING/STORAGE/COMMON UNIT'
             OR filled.parking_pin = TRUE
-            -- If a unit's percent of the declaration is less than half of
-            -- what it would be if all units had an equal share, AV limited
-            OR (
-                filled.tiebldgpct < (50 / filled.building_pins)
-                AND vph.oneyr_pri_board_tot BETWEEN 10 AND 5000
-            )
             OR nonlivable.flag = 'negative pred'
         )
         AND (nonlivable.flag != 'questionable' OR nonlivable.flag IS NULL)
@@ -324,12 +318,6 @@ SELECT DISTINCT
         OR filled.parking_pin = TRUE
         -- If a unit's percent of the declaration is less than half of
         -- what it would be if all units had an equal share, AV limited
-        OR (
-            -- We use 50 rather than .5 since iasworld stores ownership as
-            -- percentages rather than in decimal form
-            filled.tiebldgpct < (50 / filled.building_pins)
-            AND vph.oneyr_pri_board_tot BETWEEN 10 AND 5000
-        )
         OR nonlivable.flag = 'negative pred'
     )
     AND (nonlivable.flag != 'questionable' OR nonlivable.flag IS NULL),
@@ -362,18 +350,6 @@ SELECT DISTINCT
             AND SUBSTR(filled.unitno, 1, 2) != 'PH'
         )
         OR SUBSTR(filled.unitno, 1, 3) = 'GAR' THEN 'unit number'
-        -- Unit's share of the building declaration (tiebldgpct) is less
-        -- than half of the equal-share threshold (50 / building_pins),
-        -- and the building has a plausible AV (between 10 and 5000),
-        -- suggesting this is a low-value non-livable unit like a parking space.
-        WHEN
-            (
-                -- We use 50 rather than .5 since iasworld stores ownership as
-                -- percentages rather than in decimal form
-                filled.tiebldgpct < (50 / filled.building_pins)
-                AND vph.oneyr_pri_board_tot BETWEEN 10 AND 5000
-            )
-            THEN 'declaration percent'
     END AS parking_space_flag_reason,
     COALESCE(vph.oneyr_pri_board_tot < 10, FALSE) AS is_common_area,
     COALESCE(nonlivable.flag = 'questionable', FALSE)
