@@ -383,5 +383,5 @@ SELECT
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
-LEFT JOIN z_ci_add_additional_mydec_sales_to_vw_pin_sale_sale.vw_outlier AS outlier
+LEFT JOIN {{ ref('sale.vw_outlier') }} AS outlier
     ON unique_sales.doc_no = outlier.doc_no
