@@ -297,7 +297,6 @@ SELECT DISTINCT
                 filled.tiebldgpct < (50 / filled.building_pins)
                 AND vph.oneyr_pri_board_tot BETWEEN 10 AND 5000
             )
-            OR vph.oneyr_pri_board_tot BETWEEN 10 AND 1000
             OR nonlivable.flag = 'negative pred'
         )
         AND (nonlivable.flag != 'questionable' OR nonlivable.flag IS NULL)
