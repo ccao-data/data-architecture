@@ -55,7 +55,7 @@ WITH flag_and_review AS (
             'has_class_change' VALUE has_class_change,
             'has_characteristic_change' VALUE has_characteristic_change
         ) AS review_json -- noqa: enable=CP02,RF02
-    FROM {{ ref('sale.vw_flag') }} AS flag
+    FROM z_ci_add_additional_mydec_sales_to_vw_pin_sale_sale.vw_flag AS flag
     FULL OUTER JOIN {{ source('sale', 'flag_review') }} AS review
         ON flag.doc_no = review.doc_no
 ),
