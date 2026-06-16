@@ -1255,7 +1255,8 @@ AHSAP, see: <https://www.cookcountyassessor.com/affordable-housing>
 Building common area.
 
 Detected primarily through prior AV of less than $10. We do *not* use this
-column to determine the livable status of condo PINs for modelling purposes.
+column to determine the livable status of condo PINs for modelling purposes
+based on a dir from valuations.
 {% enddocs %}
 
 ## is_corner_lot
@@ -1269,7 +1270,13 @@ Corner lot indicator
 {% docs shared_column_is_parking_space %}
 Deeded parking/garage space or storage unit.
 
-Detected either by valuations, CDU, or unit number/proration rate heuristics.
+Determined by an order sensitive heuristic that uses the following sources:
+1. `ccao.pin_nonlivable` for "questionable" status
+2. CDU columns
+3. Note columns and a list of parking pins provided by valuations
+4. Address unit numbers
+
+either by valuations, CDU, or unit number/proration rate heuristics.
 Only applies to condo classes (299 and 399).
 {% enddocs %}
 
