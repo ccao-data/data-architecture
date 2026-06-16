@@ -1269,7 +1269,7 @@ Corner lot indicator
 {% docs shared_column_is_parking_space %}
 Deeded parking/garage space or storage unit.
 
-Determined by an order sensitive heuristic that uses the following sources:
+Determined by an order-sensitive heuristic that uses the following sources:
 1. `ccao.pin_nonlivable` for "questionable" status
 2. CDU columns
 3. Note columns and a list of parking pins provided by valuations
