@@ -333,31 +333,44 @@ SELECT DISTINCT
     )
     AND (nonlivable.flag != 'questionable' OR nonlivable.flag IS NULL),
     FALSE) AS is_parking_space,
+    -- Explains why a PIN was flagged as a parking space / non-unit.
+    -- NULL when the flag was overridden by human review ('questionable'),
+    -- or when the PIN is not flagged at all.
+    -- Note: priority order matters here — earlier WHENs take precedence.
     CASE
+        -- Human review determined this unit is actually livable despite
+        -- being flagged by automated detection; suppress the reason.
         WHEN nonlivable.flag = 'questionable' THEN NULL
+        -- Unit received a negative predicted AV in a prior model run,
+        -- indicating it was misclassified as livable.
         WHEN
             nonlivable.flag = 'negative pred'
             THEN 'model predicted negative value'
+        -- Valuations staff explicitly marked this PIN as a non-unit
+        -- (parking, storage, or common area) in the note field or
+        -- via the ccao.pin_condo_char.parking_pin lookup table.
         WHEN filled.note = 'PARKING/STORAGE/COMMON UNIT'
             OR filled.parking_pin = TRUE
             THEN 'identified by valuations as non-unit'
+        -- CDU code indicates a garage (GR) or parking space (PS).
         WHEN filled.cdu IN ('GR', 'PS') THEN 'cdu'
+        -- Unit number starts with 'P' (but not 'PH' for penthouse)
+        -- or starts with 'GAR', both conventions for parking/garage units.
         WHEN (
             SUBSTR(filled.unitno, 1, 1) = 'P'
             AND SUBSTR(filled.unitno, 1, 2) != 'PH'
         )
         OR SUBSTR(filled.unitno, 1, 3) = 'GAR' THEN 'unit number'
-        -- If a unit's percent of the declaration is less than half of what
-        -- it would be if all units had an equal share, AV limited
+        -- Unit's share of the building declaration (tiebldgpct) is less
+        -- than half of the equal-share threshold (50 / building_pins),
+        -- and the building has a plausible AV (between 10 and 5000),
+        -- suggesting this is a low-value non-livable unit like a parking space.
         WHEN
             (
                 filled.tiebldgpct < (50 / filled.building_pins)
                 AND vph.oneyr_pri_board_tot BETWEEN 10 AND 5000
             )
             THEN 'declaration percent'
-        WHEN
-            vph.oneyr_pri_board_tot BETWEEN 10 AND 1000
-            THEN 'prior value'
     END AS parking_space_flag_reason,
     COALESCE(vph.oneyr_pri_board_tot < 10, FALSE) AS is_common_area,
     COALESCE(nonlivable.flag = 'questionable', FALSE)
