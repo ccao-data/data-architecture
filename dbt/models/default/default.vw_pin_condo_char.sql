@@ -330,19 +330,14 @@ SELECT DISTINCT
         -- Human review determined this unit is actually livable despite
         -- being flagged by automated detection; suppress the reason.
         WHEN nonlivable.flag = 'questionable' THEN NULL
-        -- Unit received a negative predicted AV in a prior model run,
-        -- indicating it was misclassified as livable.
-        WHEN
-            nonlivable.flag = 'negative pred'
-            THEN 'model predicted negative value'
+        -- CDU code indicates a garage (GR) or parking space (PS).
+        WHEN filled.cdu IN ('GR', 'PS') THEN 'cdu'
         -- Valuations staff explicitly marked this PIN as a non-unit
         -- (parking, storage, or common area) in the note field or
         -- via the ccao.pin_condo_char.parking_pin lookup table.
         WHEN filled.note = 'PARKING/STORAGE/COMMON UNIT'
             OR filled.parking_pin = TRUE
             THEN 'identified by valuations as non-unit'
-        -- CDU code indicates a garage (GR) or parking space (PS).
-        WHEN filled.cdu IN ('GR', 'PS') THEN 'cdu'
         -- Unit number starts with 'P' (but not 'PH' for penthouse)
         -- or starts with 'GAR', both conventions for parking/garage units.
         WHEN (
@@ -350,6 +345,11 @@ SELECT DISTINCT
             AND SUBSTR(filled.unitno, 1, 2) != 'PH'
         )
         OR SUBSTR(filled.unitno, 1, 3) = 'GAR' THEN 'unit number'
+        -- Unit received a negative predicted AV in a prior model run,
+        -- indicating it was misclassified as livable.
+        WHEN
+            nonlivable.flag = 'negative pred'
+            THEN 'model predicted negative value'
     END AS parking_space_flag_reason,
     COALESCE(vph.oneyr_pri_board_tot < 10, FALSE) AS is_common_area,
     COALESCE(nonlivable.flag = 'questionable', FALSE)
