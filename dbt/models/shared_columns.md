@@ -1255,8 +1255,7 @@ AHSAP, see: <https://www.cookcountyassessor.com/affordable-housing>
 Building common area.
 
 Detected primarily through prior AV of less than $10. We do *not* use this
-column to determine the livable status of condo PINs for modelling purposes
-based on a dir from valuations.
+column to determine the livable status of condo PINs for modelling purposes.
 {% enddocs %}
 
 ## is_corner_lot
