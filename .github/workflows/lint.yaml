@@ -53,12 +53,11 @@ jobs:
           VALIDATE_GITHUB_ACTIONS_ZIZMOR: false
           VALIDATE_BIOME_FORMAT: false
           VALIDATE_BIOME_LINT: false
+          VALIDATE_YAML: false
+          VALIDATE_YAML_PRETTIER: false
           # The natural language check slows down our velocity and is rarely
           # helpful
           VALIDATE_NATURAL_LANGUAGE: false
-          # We use yamllint for YAML linting so we don't need prettier
-          VALIDATE_YAML_PRETTIER: false
           # We have a separate workflow for pre-commit
           VALIDATE_PRE_COMMIT: false
           LINTER_RULES_PATH: /
-          YAML_CONFIG_FILE: .yamllint.yml
