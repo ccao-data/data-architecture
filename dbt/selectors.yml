@@ -23,8 +23,11 @@ selectors:
     description: Selector for running non-iasWorld data tests and unit tests
     definition:
       union:
-        - method: resource_type
-          value: test
+        - union:
+            - method: resource_type
+              value: test
+            - method: resource_type
+              value: unit_test
         - exclude:
           - method: tag
             value: data_test_iasworld
@@ -36,8 +39,11 @@ selectors:
       tests
     definition:
       intersection:
-        - method: resource_type
-          value: test
+        - union:
+            - method: resource_type
+              value: test
+            - method: resource_type
+              value: unit_test
         - union:
             - method: state
               value: new
