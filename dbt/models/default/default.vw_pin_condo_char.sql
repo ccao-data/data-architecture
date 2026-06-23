@@ -316,8 +316,6 @@ SELECT DISTINCT
         OR SUBSTR(filled.unitno, 1, 3) = 'GAR'
         OR filled.note = 'PARKING/STORAGE/COMMON UNIT'
         OR filled.parking_pin = TRUE
-        -- If a unit's percent of the declaration is less than half of
-        -- what it would be if all units had an equal share, AV limited
         OR nonlivable.flag = 'negative pred'
     )
     AND (nonlivable.flag != 'questionable' OR nonlivable.flag IS NULL),
