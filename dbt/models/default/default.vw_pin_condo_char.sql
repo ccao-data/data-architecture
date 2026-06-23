@@ -291,13 +291,6 @@ SELECT DISTINCT
             OR SUBSTR(filled.unitno, 1, 3) = 'GAR'
             OR filled.note = 'PARKING/STORAGE/COMMON UNIT'
             OR filled.parking_pin = TRUE
-            -- If a unit's percent of the declaration is less than half of
-            -- what it would be if all units had an equal share, AV limited
-            OR (
-                filled.tiebldgpct < (50 / filled.building_pins)
-                AND vph.oneyr_pri_board_tot BETWEEN 10 AND 5000
-            )
-            OR vph.oneyr_pri_board_tot BETWEEN 10 AND 1000
             OR nonlivable.flag = 'negative pred'
         )
         AND (nonlivable.flag != 'questionable' OR nonlivable.flag IS NULL)
@@ -323,42 +316,38 @@ SELECT DISTINCT
         OR SUBSTR(filled.unitno, 1, 3) = 'GAR'
         OR filled.note = 'PARKING/STORAGE/COMMON UNIT'
         OR filled.parking_pin = TRUE
-        -- If a unit's percent of the declaration is less than half of
-        -- what it would be if all units had an equal share, AV limited
-        OR (
-            filled.tiebldgpct < (50 / filled.building_pins)
-            AND vph.oneyr_pri_board_tot BETWEEN 10 AND 5000
-        )
-        OR vph.oneyr_pri_board_tot BETWEEN 10 AND 1000
         OR nonlivable.flag = 'negative pred'
     )
     AND (nonlivable.flag != 'questionable' OR nonlivable.flag IS NULL),
     FALSE) AS is_parking_space,
+    -- Explains why a PIN was flagged as a parking space / non-unit.
+    -- NULL when the flag was overridden by human review ('questionable'),
+    -- or when the PIN is not flagged at all.
+    -- Note: priority order matters here — earlier WHENs take precedence.
     CASE
+        -- Human review determined this unit is actually livable despite
+        -- being flagged by automated detection; suppress the reason.
         WHEN nonlivable.flag = 'questionable' THEN NULL
-        WHEN
-            nonlivable.flag = 'negative pred'
-            THEN 'model predicted negative value'
+        -- CDU code indicates a garage (GR) or parking space (PS).
+        WHEN filled.cdu IN ('GR', 'PS') THEN 'cdu'
+        -- Valuations staff explicitly marked this PIN as a non-unit
+        -- (parking, storage, or common area) in the note field or
+        -- via the ccao.pin_condo_char.parking_pin lookup table.
         WHEN filled.note = 'PARKING/STORAGE/COMMON UNIT'
             OR filled.parking_pin = TRUE
             THEN 'identified by valuations as non-unit'
-        WHEN filled.cdu IN ('GR', 'PS') THEN 'cdu'
+        -- Unit number starts with 'P' (but not 'PH' for penthouse)
+        -- or starts with 'GAR', both conventions for parking/garage units.
         WHEN (
             SUBSTR(filled.unitno, 1, 1) = 'P'
             AND SUBSTR(filled.unitno, 1, 2) != 'PH'
         )
         OR SUBSTR(filled.unitno, 1, 3) = 'GAR' THEN 'unit number'
-        -- If a unit's percent of the declaration is less than half of what
-        -- it would be if all units had an equal share, AV limited
+        -- Unit received a negative predicted AV in a prior model run,
+        -- indicating it was misclassified as livable.
         WHEN
-            (
-                filled.tiebldgpct < (50 / filled.building_pins)
-                AND vph.oneyr_pri_board_tot BETWEEN 10 AND 5000
-            )
-            THEN 'declaration percent'
-        WHEN
-            vph.oneyr_pri_board_tot BETWEEN 10 AND 1000
-            THEN 'prior value'
+            nonlivable.flag = 'negative pred'
+            THEN 'model predicted negative value'
     END AS parking_space_flag_reason,
     COALESCE(vph.oneyr_pri_board_tot < 10, FALSE) AS is_common_area,
     COALESCE(nonlivable.flag = 'questionable', FALSE)
