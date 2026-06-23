@@ -1274,8 +1274,6 @@ Determined by an order-sensitive heuristic that uses the following sources:
 2. CDU columns
 3. Note columns and a list of parking pins provided by valuations
 4. Address unit numbers
-
-either by valuations, CDU, or unit number/proration rate heuristics.
 Only applies to condo classes (299 and 399).
 {% enddocs %}
 
