@@ -20,6 +20,6 @@ SELECT
     char_yrblt AS flag_yrblt,
     bldg_is_mixed_use AS flag_bldg_is_mixed_use,
     char_land_sf AS flag_land_sf,
-    '' AS flag_comments
+    NULL AS flag_comments
 FROM {{ ref('default.vw_pin_condo_char') }}
 WHERE year = (SELECT MAX(year) FROM {{ ref('default.vw_pin_condo_char') }})
