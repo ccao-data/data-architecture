@@ -258,12 +258,44 @@ dbt run-operation test_all
 
 #### Generate documentation
 
+> [!WARNING]
+> In order to generate and view dbt docs in development, you need to use a local
+> development environment instead of working on the Data Team server. This is
+> because viewing your development docs requires running a [local development
+> server](https://stackoverflow.com/q/52961775), which is not possible on the
+> Data Team server.
+>
+> To ensure your local development environment is properly setup and ready
+> to serve dbt docs, make sure you have followed our wiki guide to [setting
+> up a local dev environment](https://github.com/ccao-data/wiki/blob/master/Handbook/Local-Dev-Environment-Setup.md).
+> Then, follow the [Installation](#installation) instructions above to ensure
+> our dbt requirements are installed in your local environment.
+
+To generate and view dbt docs, start by generating the docs files using the
+[`dbt docs`](https://docs.getdbt.com/reference/commands/cmd-docs?version=1.11&name=Core)
+command in a local development environment:
+
+```
+dbt docs generate
+```
+
+This will create a set of static files in the `target/` subdirectory that can
+be used to serve the docs site.
+
+To serve the docs site locally:
+
+```
+dbt docs serve
+```
+
+Then, navigate to http://localhost:8080 to view the docs site.
+
 Note that we configure dbt's [`asset-paths`
 attribute](https://docs.getdbt.com/reference/project-configs/asset-paths) in
 order to link to images in our documentation. Some of those images, like the
 Mermaid diagram defined in `assets/dataflow-diagram.md`, are generated
-automatically during the `deploy-dbt-docs` deployment workflow. To generate
-them locally, make sure you have
+automatically during the `deploy-dbt-docs` deployment workflow. If you need
+to generate these images locally, make sure you have
 [`mermaid-cli`](https://github.com/mermaid-js/mermaid-cli) installed (we
 recommend a [local
 installation](https://github.com/mermaid-js/mermaid-cli#install-locally)) and
@@ -274,23 +306,6 @@ for file in assets/*.mmd; do
   ./node_modules/.bin/mmdc -i "$file" -o "${file/.mmd/.svg}"
 done
 ```
-
-Then, generate the documentation:
-
-```
-dbt docs generate
-```
-
-This will create a set of static files in the `target/` subdirectory that can
-be used to serve the docs site.
-
-To serve the docs locally:
-
-```
-dbt docs serve
-```
-
-Then, navigate to http://localhost:8080 to view the site.
 
 ## ➕ How to add a new model
 
