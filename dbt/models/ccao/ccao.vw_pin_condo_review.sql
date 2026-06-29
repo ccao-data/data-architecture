@@ -1,5 +1,6 @@
 SELECT
     pin,
+    year,
     township_code,
     COALESCE(char_half_baths = 5, FALSE) AS flag_half_baths,
     COALESCE(char_full_baths = 40, FALSE) AS flag_full_baths,
@@ -20,6 +21,6 @@ SELECT
     char_yrblt AS flag_yrblt,
     bldg_is_mixed_use AS flag_bldg_is_mixed_use,
     char_land_sf AS flag_land_sf,
-    NULL AS flag_comments
+    CAST(NULL AS VARCHAR) AS flag_comments
 FROM {{ ref('default.vw_pin_condo_char') }}
 WHERE year = (SELECT MAX(year) FROM {{ ref('default.vw_pin_condo_char') }})
