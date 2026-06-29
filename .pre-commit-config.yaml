@@ -41,6 +41,11 @@ repos:
       - id: parsable-R
       - id: no-browser-statement
       - id: no-debug-statement
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
+        args: [--strict]
   - repo: local
     hooks:
       - id: check-sort-dbt-yaml-files

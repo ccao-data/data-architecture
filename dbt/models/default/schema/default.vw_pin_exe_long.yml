@@ -135,6 +135,13 @@ unit_tests:
           - excode: 'HO'
             taxyr: '2026'
             cur: 'Y'
+      - input: source('iasworld', 'pardat')
+        rows:
+          # This table doesn't matter for the test, we just need it to ensure
+          # that the joins work
+          - parid: '01234567890000'
+            taxyr: '2026'
+            cur: 'Y'
     expect:
       rows:
         - pin: '01234567890000'
