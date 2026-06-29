@@ -1,4 +1,6 @@
 models:
+  - name: ccao.vw_pin_condo_review
+    description: '{{ doc("view_vw_pin_condo_review") }}'
   - name: ccao.vw_time_util
     description: '{{ doc("view_vw_time_util") }}'
 

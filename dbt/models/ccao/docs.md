@@ -143,6 +143,13 @@ Collected yearly from Valuations via spreadsheets.
 **Primary Key**: `pin`, `year`
 {% enddocs %}
 
+# vw_pin_condo_review
+
+{% docs view_vw_pin_condo_review %}
+View that reviews condominium characteristics at the PIN level.
+
+{% enddocs %}
+
 # vw_time_util
 
 {% docs view_vw_time_util %}
