@@ -2,9 +2,9 @@ SELECT
     pin,
     year,
     township_code,
-    COALESCE(char_half_baths = 5, FALSE) AS flag_half_baths,
-    COALESCE(char_full_baths = 40, FALSE) AS flag_full_baths,
-    COALESCE(char_bedrooms >= 9, FALSE) AS flag_bedrooms,
+    COALESCE(char_half_baths > 3, FALSE) AS flag_half_baths,
+    COALESCE(char_full_baths > 4, FALSE) AS flag_full_baths,
+    COALESCE(char_bedrooms > 4, FALSE) AS flag_bedrooms,
     COALESCE(
         char_unit_sf NOT BETWEEN 200 AND 10000
         OR char_unit_sf > char_building_sf,
