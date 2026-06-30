@@ -1137,8 +1137,8 @@ dbt --log-level debug build --select model.vw_pin_shared_input
 ### I'm trying to generate and serve docs locally, but I'm running into an error
 
 Sometimes when trying to generate and serve docs locally, dbt will raise errors
-if your development database is too far out of sync with the state of the DAG.
-That error will look something like this:
+if your development environment is too far out of sync with the state of the
+production environment. That error will look something like this:
 
 ```bash
 $ dbt docs generate
@@ -1151,3 +1151,9 @@ $ dbt docs generate
 22:37:38  Building catalog
 22:37:39  Encountered an error while generating catalog: An error occurred (EntityNotFoundException) when calling the GetTables operation: Database z_dev_jecochr_external not found.
 ```
+
+The `Database ... not found` error message is an indication that your
+development database is out of date. To recreate your development environment,
+you can follow the instructions to [Clean up development
+resources](#clean-up-development-resources) and then [Build tables and views
+in development](#build-tables-and-views-in-development).
