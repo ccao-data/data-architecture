@@ -53,7 +53,8 @@ comments AS (
                 WHEN
                     flag_yrblt
                     THEN CONCAT(
-                        'Year Built not between 1880 and ', YEAR(CURRENT_DATE)
+                        'Year Built not between 1880 and ',
+                        CAST(YEAR(CURRENT_DATE) AS VARCHAR)
                     )
             END,
             CASE
