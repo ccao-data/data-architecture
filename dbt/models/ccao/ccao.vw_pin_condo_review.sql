@@ -7,7 +7,7 @@ WITH flags AS (
         COALESCE(char_full_baths > 4, FALSE) AS flag_full_baths,
         COALESCE(char_bedrooms > 4, FALSE) AS flag_bedrooms,
         COALESCE(
-            char_unit_sf NOT BETWEEN 200 AND 10000
+            char_unit_sf NOT BETWEEN 500 AND 3000
             OR char_unit_sf > char_building_sf,
             FALSE
         ) AS flag_unit_sf,
