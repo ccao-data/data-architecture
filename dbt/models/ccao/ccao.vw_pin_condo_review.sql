@@ -1,6 +1,7 @@
 WITH flags AS (
     SELECT
         pin,
+        pin10,
         year,
         township_code,
         char_half_baths,
@@ -21,7 +22,7 @@ WITH flags AS (
             FALSE
         ) AS flag_unit_sf,
         COALESCE(
-            char_building_sf NOT BETWEEN 2500 AND 100000
+            char_building_sf NOT BETWEEN 2500 AND 500000
             OR char_building_sf < char_unit_sf,
             FALSE
         ) AS flag_building_sf,
@@ -53,7 +54,7 @@ comments AS (
             CASE
                 WHEN
                     flag_building_sf
-                    THEN 'Building SF not between 2,500 and 100,000'
+                    THEN 'Building SF not between 2,500 and 500,000'
             END,
             CASE
                 WHEN flag_unit_sf_sum THEN 'Unit SF sum exceeds Building SF'
