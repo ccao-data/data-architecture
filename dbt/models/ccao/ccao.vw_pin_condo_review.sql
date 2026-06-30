@@ -8,7 +8,6 @@ WITH flags AS (
         char_bedrooms,
         char_unit_sf,
         char_building_sf,
-        char_land_sf,
         char_building_pins
         - char_building_non_units AS char_building_livable_units,
         char_yrblt,
