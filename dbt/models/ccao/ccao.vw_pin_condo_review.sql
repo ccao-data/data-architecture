@@ -26,40 +26,44 @@ WITH flags AS (
         COALESCE(bldg_is_mixed_use, FALSE) AS flag_bldg_is_mixed_use
     FROM {{ ref('default.vw_pin_condo_char') }}
     WHERE year = (SELECT MAX(year) FROM {{ ref('default.vw_pin_condo_char') }})
+),
+
+comments AS (
+    SELECT
+        *,
+        NULLIF(CONCAT_WS(
+            ', ',
+            CASE WHEN flag_half_baths THEN 'More than 3 Half Baths' END,
+            CASE WHEN flag_full_baths THEN 'More than 4 Full Baths' END,
+            CASE WHEN flag_bedrooms THEN 'More than 4 Bedrooms' END,
+            CASE
+                WHEN flag_unit_sf THEN 'Unit SF not between 200 and 10,000'
+            END,
+            CASE
+                WHEN
+                    flag_building_sf
+                    THEN 'Building SF not between 500 and 2,000,000'
+            END,
+            CASE
+                WHEN flag_land_sf THEN 'Land SF not between 500 and 2,000,000'
+            END,
+            CASE
+                WHEN flag_building_pins THEN 'Building has multiple PINs'
+            END,
+            CASE
+                WHEN flag_building_units THEN 'Building has multiple units'
+            END,
+            CASE
+                WHEN flag_building_non_units THEN 'Building has non-unit spaces'
+            END,
+            CASE
+                WHEN flag_yrblt THEN 'Year Built not between 1800 and 2023'
+            END,
+            CASE
+                WHEN flag_bldg_is_mixed_use THEN 'Building is mixed use'
+            END
+        ), '') AS flag_comments
+    FROM flags
 )
 
-SELECT
-    *,
-    CONCAT_WS(
-        ', ',
-        CASE WHEN flag_half_baths THEN 'More than 3 Half Baths' END,
-        CASE WHEN flag_full_baths THEN 'More than 4 Full Baths' END,
-        CASE WHEN flag_bedrooms THEN 'More than 4 Bedrooms' END,
-        CASE
-            WHEN flag_unit_sf THEN 'Unit SF not between 200 and 10,000'
-        END,
-        CASE
-            WHEN
-                flag_building_sf
-                THEN 'Building SF not between 500 and 2,000,000'
-        END,
-        CASE
-            WHEN flag_land_sf THEN 'Land SF not between 500 and 2,000,000'
-        END,
-        CASE
-            WHEN flag_building_pins THEN 'Building has multiple PINs'
-        END,
-        CASE
-            WHEN flag_building_units THEN 'Building has multiple units'
-        END,
-        CASE
-            WHEN flag_building_non_units THEN 'Building has non-unit spaces'
-        END,
-        CASE
-            WHEN flag_yrblt THEN 'Year Built not between 1800 and 2023'
-        END,
-        CASE
-            WHEN flag_bldg_is_mixed_use THEN 'Building is mixed use'
-        END
-    ) AS flag_comments
-FROM flags
+SELECT * FROM comments WHERE flag_comments IS NOT NULL
