@@ -12,17 +12,16 @@ WITH flags AS (
             FALSE
         ) AS flag_unit_sf,
         COALESCE(
-            char_building_sf NOT BETWEEN 500 AND 2000000
+            char_building_sf NOT BETWEEN 2500 AND 100000
             OR char_building_sf < char_unit_sf,
             FALSE
         ) AS flag_building_sf,
-        -- PLACEHOLDER VALS
-        COALESCE(char_land_sf > 100000, FALSE) AS flag_land_sf,
-        COALESCE(char_building_pins > 1, FALSE) AS flag_building_pins,
-        COALESCE(char_building_pins - char_building_non_units > 1, FALSE)
-            AS flag_building_units,
-        COALESCE(char_building_non_units > 0, FALSE) AS flag_building_non_units,
-        COALESCE(char_yrblt NOT BETWEEN 1800 AND 2023, FALSE) AS flag_yrblt,
+        COALESCE(char_land_sf NOT BETWEEN 2500 AND 100000, FALSE)
+            AS flag_land_sf,
+        COALESCE(char_building_pins - char_building_non_units = 0, FALSE)
+            AS flag_no_livable_units,
+        COALESCE(char_yrblt NOT BETWEEN 1880 AND YEAR(CURRENT_DATE), FALSE)
+            AS flag_yrblt,
         COALESCE(bldg_is_mixed_use, FALSE) AS flag_bldg_is_mixed_use
     FROM {{ ref('default.vw_pin_condo_char') }}
     WHERE year = (SELECT MAX(year) FROM {{ ref('default.vw_pin_condo_char') }})
@@ -42,22 +41,20 @@ comments AS (
             CASE
                 WHEN
                     flag_building_sf
-                    THEN 'Building SF not between 500 and 2,000,000'
+                    THEN 'Building SF not between 2,500 and 100,000'
             END,
             CASE
-                WHEN flag_land_sf THEN 'Land SF not between 500 and 2,000,000'
+                WHEN flag_land_sf THEN 'Land SF not between 2,500 and 100,000'
             END,
             CASE
-                WHEN flag_building_pins THEN 'Building has multiple PINs'
+                WHEN flag_no_livable_units THEN 'Building has no livable units'
             END,
             CASE
-                WHEN flag_building_units THEN 'Building has multiple units'
-            END,
-            CASE
-                WHEN flag_building_non_units THEN 'Building has non-unit spaces'
-            END,
-            CASE
-                WHEN flag_yrblt THEN 'Year Built not between 1800 and 2023'
+                WHEN
+                    flag_yrblt
+                    THEN CONCAT(
+                        'Year Built not between 1880 and ', YEAR(CURRENT_DATE)
+                    )
             END,
             CASE
                 WHEN flag_bldg_is_mixed_use THEN 'Building is mixed use'
