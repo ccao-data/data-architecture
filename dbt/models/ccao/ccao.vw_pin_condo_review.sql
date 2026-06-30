@@ -26,8 +26,11 @@ WITH flags AS (
             OR char_building_sf < char_unit_sf,
             FALSE
         ) AS flag_building_sf,
-        COALESCE(char_land_sf NOT BETWEEN 2500 AND 100000, FALSE)
-            AS flag_land_sf,
+        COALESCE(
+            SUM(char_unit_sf) OVER (PARTITION BY pin10, year)
+            > char_building_sf,
+            FALSE
+        ) AS flag_unit_sf_sum,
         COALESCE(char_building_pins - char_building_non_units = 0, FALSE)
             AS flag_no_livable_units,
         COALESCE(char_yrblt NOT BETWEEN 1880 AND YEAR(CURRENT_DATE), FALSE)
@@ -54,7 +57,7 @@ comments AS (
                     THEN 'Building SF not between 2,500 and 100,000'
             END,
             CASE
-                WHEN flag_land_sf THEN 'Land SF not between 2,500 and 100,000'
+                WHEN flag_unit_sf_sum THEN 'Unit SF sum exceeds Building SF'
             END,
             CASE
                 WHEN flag_no_livable_units THEN 'Building has no livable units'
