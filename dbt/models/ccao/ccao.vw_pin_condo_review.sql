@@ -1,3 +1,6 @@
+-- Goal of this view is to catch condo PINs with suspicious characteristics for
+-- review.
+
 -- Constrct all the flags to detect units for review
 WITH flags AS (
     SELECT
