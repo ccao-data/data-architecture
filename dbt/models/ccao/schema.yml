@@ -1,8 +1,6 @@
 models:
   - name: ccao.vw_pin_condo_review
     description: '{{ doc("view_vw_pin_condo_review") }}'
-  - name: ccao.vw_time_util
-    description: '{{ doc("view_vw_time_util") }}'
     columns:
       - name: bldg_is_mixed_use
         description: '{{ doc("shared_column_char_bldg_is_mixed_use") }}'
@@ -67,6 +65,8 @@ models:
         description: '{{ doc("shared_column_township_code") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
+  - name: ccao.vw_time_util
+    description: '{{ doc("view_vw_time_util") }}'
 
 sources:
   - name: ccao
