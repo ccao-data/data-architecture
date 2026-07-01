@@ -31,6 +31,22 @@ WITH flags AS (
             > char_building_sf,
             FALSE
         ) AS flag_unit_sf_sum,
+        -- Count the number of different values for a building's square footage,
+        -- including NULLSs
+        COALESCE(
+            DENSE_RANK()
+                OVER (
+                    PARTITION BY pin10, year
+                    ORDER BY COALESCE(char_building_sf, -1) ASC
+                )
+            + DENSE_RANK()
+                OVER (
+                    PARTITION BY pin10, year
+                    ORDER BY COALESCE(char_building_sf, -1) DESC
+                )
+            - 1 > 1,
+            FALSE
+        ) AS flag_diff_bldg_sf,
         COALESCE(char_building_pins - char_building_non_units = 0, FALSE)
             AS flag_no_livable_units,
         COALESCE(char_yrblt NOT BETWEEN 1880 AND YEAR(CURRENT_DATE), FALSE)
@@ -58,6 +74,11 @@ comments AS (
             END,
             CASE
                 WHEN flag_unit_sf_sum THEN 'Unit SF sum exceeds Building SF'
+            END,
+            CASE
+                WHEN
+                    flag_diff_bldg_sf
+                    THEN 'Multiple Building SF values for same PIN10'
             END,
             CASE
                 WHEN flag_no_livable_units THEN 'Building has no livable units'
