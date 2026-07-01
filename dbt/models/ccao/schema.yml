@@ -2,8 +2,6 @@ models:
   - name: ccao.vw_pin_condo_review
     description: '{{ doc("view_vw_pin_condo_review") }}'
     columns:
-      - name: bldg_is_mixed_use
-        description: '{{ doc("shared_column_char_bldg_is_mixed_use") }}'
       - name: char_bedrooms
         description: '{{ doc("shared_column_char_beds") }}'
       - name: char_building_livable_units
@@ -24,9 +22,6 @@ models:
         description: '{{ doc("shared_column_char_yrblt") }}'
       - name: flag_bedrooms
         description: Flag triggered if a condo unit has more than 4 bedrooms.
-      - name: flag_bldg_is_mixed_use
-        description: >
-          Flag triggered if a condo building has non-299 or 399 class PINs.
       - name: flag_building_sf
         description: >
           Flag tiggered if a condo building has a square footage outside the range

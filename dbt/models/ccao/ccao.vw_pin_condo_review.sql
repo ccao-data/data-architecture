@@ -16,7 +16,6 @@ WITH flags AS (
         char_building_pins
         - char_building_non_units AS char_building_livable_units,
         char_yrblt,
-        bldg_is_mixed_use,
         COALESCE(char_half_baths > 2, FALSE) AS flag_half_baths,
         COALESCE(char_full_baths > 4, FALSE) AS flag_full_baths,
         COALESCE(char_bedrooms > 4, FALSE) AS flag_bedrooms,
@@ -53,8 +52,7 @@ WITH flags AS (
         COALESCE(char_building_pins - char_building_non_units = 0, FALSE)
             AS flag_no_livable_units,
         COALESCE(char_yrblt NOT BETWEEN 1880 AND YEAR(CURRENT_DATE), FALSE)
-            AS flag_yrblt,
-        COALESCE(bldg_is_mixed_use, FALSE) AS flag_bldg_is_mixed_use
+            AS flag_yrblt
     FROM {{ ref('default.vw_pin_condo_char') }}
     WHERE year = (SELECT MAX(year) FROM {{ ref('default.vw_pin_condo_char') }})
 ),
@@ -94,9 +92,6 @@ comments AS (
                         'Year Built not between 1880 and ',
                         CAST(YEAR(CURRENT_DATE) AS VARCHAR)
                     )
-            END,
-            CASE
-                WHEN flag_bldg_is_mixed_use THEN 'Building is mixed use'
             END
         ), '') AS flag_comments
     FROM flags
