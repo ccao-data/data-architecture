@@ -274,7 +274,7 @@ dbt run-operation test_all
 > server](https://stackoverflow.com/q/52961775), which is not possible on the
 > Data Team server.
 >
-> To ensure your local development environment is properly setupto serve dbt
+> To ensure your local development environment is properly setup to serve dbt
 > docs, make sure you have followed our wiki guide to [setting up a local dev
 > environment](https://github.com/ccao-data/wiki/blob/master/Handbook/Local-Dev-Environment-Setup.md).
 > Then, follow the [Installation](#installation) instructions above to ensure
@@ -1136,9 +1136,9 @@ dbt --log-level debug build --select model.vw_pin_shared_input
 
 ### I'm trying to generate and serve docs locally, but I'm running into an error
 
-Sometimes when trying to generate and serve docs locally, dbt will raise errors
-if your development environment is too far out of sync with the state of the
-production environment. That error will look something like this:
+Sometimes `dbt docs generate` will raise errors if the dbt resources in your
+development environment are too far out of sync with the state of the production
+environment. That error will look something like this:
 
 ```bash
 $ dbt docs generate
@@ -1152,8 +1152,9 @@ $ dbt docs generate
 22:37:39  Encountered an error while generating catalog: An error occurred (EntityNotFoundException) when calling the GetTables operation: Database z_dev_jecochr_external not found.
 ```
 
-The `Database ... not found` error message is an indication that your
-development database is out of date. To recreate your development environment,
-you can follow the instructions to [Clean up development
+The `Database ... not found` error message here indicates that the development
+environment is missing a database, so dbt can't generate docs for the DAG. To
+recreate all dbt development resources from scratch, you can follow the
+instructions to [Clean up development
 resources](#clean-up-development-resources) and then [Build tables and views
 in development](#build-tables-and-views-in-development).
