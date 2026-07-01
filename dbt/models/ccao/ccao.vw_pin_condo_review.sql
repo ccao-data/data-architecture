@@ -1,3 +1,4 @@
+-- Constrct all the flags to detect units for review
 WITH flags AS (
     SELECT
         pin,
@@ -55,6 +56,7 @@ WITH flags AS (
     WHERE year = (SELECT MAX(year) FROM {{ ref('default.vw_pin_condo_char') }})
 ),
 
+-- Gather flags together for cummulative output
 comments AS (
     SELECT
         *,
