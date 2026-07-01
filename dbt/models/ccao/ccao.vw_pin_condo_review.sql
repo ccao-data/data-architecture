@@ -13,7 +13,7 @@ WITH flags AS (
         - char_building_non_units AS char_building_livable_units,
         char_yrblt,
         bldg_is_mixed_use,
-        COALESCE(char_half_baths > 3, FALSE) AS flag_half_baths,
+        COALESCE(char_half_baths > 2, FALSE) AS flag_half_baths,
         COALESCE(char_full_baths > 4, FALSE) AS flag_full_baths,
         COALESCE(char_bedrooms > 4, FALSE) AS flag_bedrooms,
         COALESCE(
