@@ -23,7 +23,6 @@ WITH flags AS (
         ) AS flag_unit_sf,
         COALESCE(
             char_building_sf NOT BETWEEN 2500 AND 500000
-            OR char_building_sf < char_unit_sf,
             FALSE
         ) AS flag_building_sf,
         COALESCE(

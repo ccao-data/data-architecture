@@ -146,7 +146,8 @@ Collected yearly from Valuations via spreadsheets.
 # vw_pin_condo_review
 
 {% docs view_vw_pin_condo_review %}
-View that reviews condominium characteristics at the PIN level.
+View that flags various supsicious PIN and PIN10-level charactertistics for
+review.
 
 {% enddocs %}
 
