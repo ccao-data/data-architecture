@@ -50,7 +50,7 @@ models:
           than the building's square footage.
       - name: flag_yrblt
         description: >
-          Flag triggered if a building's year built is within the range of 1880
+          Flag triggered if a building's year built is not within the range of 1880
           and the current year.
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
