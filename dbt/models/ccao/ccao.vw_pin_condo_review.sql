@@ -69,7 +69,7 @@ comments AS (
             CASE WHEN flag_full_baths THEN 'More than 4 Full Baths' END,
             CASE WHEN flag_bedrooms THEN 'More than 4 Bedrooms' END,
             CASE
-                WHEN flag_unit_sf THEN 'Unit SF not between 200 and 10,000'
+                WHEN flag_unit_sf THEN 'Unit SF not between 300 and 5,000'
             END,
             CASE
                 WHEN flag_unit_sf_gt_bldg THEN 'Unit SF exceeds building SF'
