@@ -63,7 +63,7 @@ comments AS (
         *,
         NULLIF(CONCAT_WS(
             ', ',
-            CASE WHEN flag_half_baths THEN 'More than 3 Half Baths' END,
+            CASE WHEN flag_half_baths THEN 'More than 2 Half Baths' END,
             CASE WHEN flag_full_baths THEN 'More than 4 Full Baths' END,
             CASE WHEN flag_bedrooms THEN 'More than 4 Bedrooms' END,
             CASE
