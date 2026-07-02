@@ -24,29 +24,29 @@ models:
         description: Flag triggered if a condo unit has more than 4 bedrooms.
       - name: flag_building_sf
         description: >
-          Flag tiggered if a condo building has a square footage outside the range
+          Flag triggered if a condo building has a square footage outside the range
           of 2500 and 500,000 square feet.
       - name: flag_comments
         description: >
           Collects all flags that have triggered for a given condo unit.
       - name: flag_diff_bldg_sf
         description: >
-          Flag tiggered if there are multiple values for building square footage
+          Flag triggered if there are multiple values for building square footage
           within a condo building.
       - name: flag_full_baths
-        description: Flag tiggered if a condo unit has more than 4 full baths.
+        description: Flag triggered if a condo unit has more than 4 full baths.
       - name: flag_half_baths
-        description: Flag tiggered if a condo unit has more than 2 half baths.
+        description: Flag triggered if a condo unit has more than 2 half baths.
       - name: flag_no_livable_units
-        description: Flag tiggered if a building has no livable units.
+        description: Flag triggered if a building has no livable units.
       - name: flag_unit_sf
         description: >
-          Flag tiggered if a condo unit has a square footage outside the range of
+          Flag triggered if a condo unit has a square footage outside the range of
           500 and 3,000 square feet or the unit's square footage is more than the
           building's.
       - name: flag_unit_sf_sum
         description: >
-          Flag tiggered if the sum of a building's unit square footage is greater
+          Flag triggered if the sum of a building's unit square footage is greater
           than the building's square footage.
       - name: flag_yrblt
         description: >
