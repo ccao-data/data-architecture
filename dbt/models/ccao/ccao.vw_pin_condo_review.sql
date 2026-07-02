@@ -75,7 +75,7 @@ comments AS (
                     THEN 'Building SF not between 2,500 and 500,000'
             END,
             CASE
-                WHEN flag_unit_sf_sum THEN 'Unit SF sum exceeds Building SF'
+                WHEN flag_unit_sf_sum THEN 'Combined Unit SF for all units in PIN10 exceeds Building SF'
             END,
             CASE
                 WHEN
