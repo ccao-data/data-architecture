@@ -1,3 +1,17 @@
+# additional_mydec_sales
+
+{% docs table_additional_mydec_sales %}
+Document numbers for sales that were recorded in MyDec but never made it into
+`iasworld.sales`. Used to inject these sales into `default.vw_pin_sale`
+directly from `sale.mydec`.
+
+One-time list generated in June 2026 from the Summary tab of an internal
+"Missing Sales" spreadsheet. Loaded by the `ccao-additional_mydec_sales.R`
+warehouse script.
+
+**Primary Key**: `doc_no`
+{% enddocs %}
+
 # cc_dli_senfrr
 
 {% docs table_cc_dli_senfrr %}
