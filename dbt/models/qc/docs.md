@@ -176,6 +176,14 @@ value, this view will also return the appeal.
 This view is not currently in use in any QC workflows.
 {% enddocs %}
 
+# vw_pin_condo_review
+
+{% docs view_vw_pin_condo_review %}
+View that flags various suspicious PIN and PIN10-level characteristics for
+review.
+
+{% enddocs %}
+
 # vw_pin_sale_high_number_of_sales_per_year
 
 {% docs view_vw_pin_sale_high_number_of_sales_per_year %}
