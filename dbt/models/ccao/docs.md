@@ -146,7 +146,7 @@ Collected yearly from Valuations via spreadsheets.
 # vw_pin_condo_review
 
 {% docs view_vw_pin_condo_review %}
-View that flags various supsicious PIN and PIN10-level charactertistics for
+View that flags various suspicious PIN and PIN10-level characteristics for
 review.
 
 {% enddocs %}

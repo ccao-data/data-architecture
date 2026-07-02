@@ -1,7 +1,7 @@
 -- Goal of this view is to catch condo PINs with suspicious characteristics for
 -- review.
 
--- Constrct all the flags to detect units for review
+-- Construct all the flags to detect units for review
 WITH flags AS (
     SELECT
         pin,
@@ -24,6 +24,8 @@ WITH flags AS (
             OR char_unit_sf > char_building_sf,
             FALSE
         ) AS flag_unit_sf,
+        COALESCE(char_unit_sf > char_building_sf, FALSE)
+            AS flag_unit_sf_gt_bldg,
         COALESCE(
             char_building_sf NOT BETWEEN 2500 AND 500000,
             FALSE
@@ -57,7 +59,7 @@ WITH flags AS (
     WHERE year = (SELECT MAX(year) FROM {{ ref('default.vw_pin_condo_char') }})
 ),
 
--- Gather flags together for cummulative output
+-- Gather flags together for cumulative output
 comments AS (
     SELECT
         *,
@@ -70,12 +72,17 @@ comments AS (
                 WHEN flag_unit_sf THEN 'Unit SF not between 200 and 10,000'
             END,
             CASE
+                WHEN flag_unit_sf_gt_bldg THEN 'Unit SF exceeds building SF'
+            END,
+            CASE
                 WHEN
                     flag_building_sf
                     THEN 'Building SF not between 2,500 and 500,000'
             END,
             CASE
-                WHEN flag_unit_sf_sum THEN 'Combined Unit SF for all units in PIN10 exceeds Building SF'
+                WHEN
+                    flag_unit_sf_sum
+                    THEN 'Combined Unit SF for all units in PIN10 exceeds Building SF' -- noqa: LT05
             END,
             CASE
                 WHEN
