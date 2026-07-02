@@ -9,9 +9,18 @@ This directory stores the configuration for building our data catalog using
 
 * [🖼️ Background: What does the data catalog do?](#%EF%B8%8F-background-what-does-the-data-catalog-do)
 * [💻 How to develop the catalog](#-how-to-develop-the-catalog)
+  * [Installation](#installation)
+  * [Useful commands](#useful-commands)
+    * [Build tables and views](#build-tables-and-views)
+    * [Run tests](#run-tests)
+    * [Generate documentation](#generate-documentation)
 * [➕ How to add a new model](#-how-to-add-a-new-model)
 * [🔨 How to rebuild models using GitHub Actions](#-how-to-rebuild-models-using-github-actions)
 * [🧪 How to add and run tests and QC reports](#-how-to-add-and-run-tests-and-qc-reports)
+  * [iasWorld tests](#iasworld-tests)
+  * [Data integrity tests](#data-integrity-tests)
+  * [Unit tests](#unit-tests)
+  * [QC reports](#qc-reports)
 * [🐛 Debugging tips](#-debugging-tips)
 
 ### Outside this document
@@ -258,12 +267,44 @@ dbt run-operation test_all
 
 #### Generate documentation
 
+> [!WARNING]
+> In order to generate and view dbt docs in development, you need to use a local
+> development environment instead of working on the Data Team server. This is
+> because viewing your development docs requires running a [local development
+> server](https://stackoverflow.com/q/52961775), which is not possible on the
+> Data Team server.
+>
+> To ensure your local development environment is properly setup to serve dbt
+> docs, make sure you have followed our wiki guide to [setting up a local dev
+> environment](https://github.com/ccao-data/wiki/blob/master/Handbook/Local-Dev-Environment-Setup.md).
+> Then, follow the [Installation](#installation) instructions above to ensure
+> our dbt requirements are installed in your local environment.
+
+To generate and view dbt docs, start by generating the docs files using the
+[`dbt docs`](https://docs.getdbt.com/reference/commands/cmd-docs?version=1.11&name=Core)
+command in a local development environment:
+
+```
+dbt docs generate
+```
+
+This will create a set of static files in the `target/` subdirectory that can
+be used to serve the docs site.
+
+To serve the docs site locally:
+
+```
+dbt docs serve
+```
+
+Then, navigate to http://localhost:8080 to view the docs site.
+
 Note that we configure dbt's [`asset-paths`
 attribute](https://docs.getdbt.com/reference/project-configs/asset-paths) in
 order to link to images in our documentation. Some of those images, like the
 Mermaid diagram defined in `assets/dataflow-diagram.md`, are generated
-automatically during the `deploy-dbt-docs` deployment workflow. To generate
-them locally, make sure you have
+automatically during the `deploy-dbt-docs` deployment workflow. If you need
+to generate these images locally, make sure you have
 [`mermaid-cli`](https://github.com/mermaid-js/mermaid-cli) installed (we
 recommend a [local
 installation](https://github.com/mermaid-js/mermaid-cli#install-locally)) and
@@ -274,23 +315,6 @@ for file in assets/*.mmd; do
   ./node_modules/.bin/mmdc -i "$file" -o "${file/.mmd/.svg}"
 done
 ```
-
-Then, generate the documentation:
-
-```
-dbt docs generate
-```
-
-This will create a set of static files in the `target/` subdirectory that can
-be used to serve the docs site.
-
-To serve the docs locally:
-
-```
-dbt docs serve
-```
-
-Then, navigate to http://localhost:8080 to view the site.
 
 ## ➕ How to add a new model
 
@@ -1109,3 +1133,28 @@ logging when running dbt commands:
 ```
 dbt --log-level debug build --select model.vw_pin_shared_input
 ```
+
+### I'm trying to generate and serve docs locally, but I'm running into an error
+
+Sometimes `dbt docs generate` will raise errors if the dbt resources in your
+development environment are too far out of sync with the state of the production
+environment. That error will look something like this:
+
+```bash
+$ dbt docs generate
+22:37:29  Running with dbt=1.9.1
+22:37:30  Registered adapter: athena=1.8.4
+22:37:30  Found 145 models, 20 seeds, 687 data tests, 178 sources, 13 exposures, 538 macros, 15 unit tests
+22:37:30
+22:37:30  Concurrency: 16 threads (target='dev')
+22:37:30
+22:37:38  Building catalog
+22:37:39  Encountered an error while generating catalog: An error occurred (EntityNotFoundException) when calling the GetTables operation: Database z_dev_jecochr_external not found.
+```
+
+The `Database ... not found` error message here indicates that the development
+environment is missing a database, so dbt can't generate docs for the DAG. To
+recreate all dbt development resources from scratch, you can follow the
+instructions to [Clean up development
+resources](#clean-up-development-resources) and then [Build tables and views
+in development](#build-tables-and-views-in-development).
