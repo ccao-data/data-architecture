@@ -1,38 +1,48 @@
 -- Goal of this view is to catch condo PINs with suspicious characteristics for
 -- review.
 
--- Construct all the flags to detect units for review
-WITH flags AS (
-    SELECT
-        pin,
-        pin10,
-        year,
+-- Grab township and triad names
+WITH towns AS (
+    SELECT DISTINCT
         township_code,
-        char_half_baths,
-        char_full_baths,
-        char_bedrooms,
-        char_unit_sf,
-        char_building_sf,
-        char_building_pins
-        - char_building_non_units AS char_building_livable_units,
-        char_yrblt,
-        COALESCE(char_half_baths > 2, FALSE) AS flag_half_baths,
-        COALESCE(char_full_baths > 4, FALSE) AS flag_full_baths,
-        COALESCE(char_bedrooms > 4, FALSE) AS flag_bedrooms,
+        township_name,
+        triad_name
+    FROM {{ source('spatial', 'township') }}
+),
+
+-- Construct all the flags to detect units for review
+flags AS (
+    SELECT
+        {{ insert_hyphens("chars.pin", 2, 4, 7, 10) }} AS pin,
+        {{ insert_hyphens("chars.pin10", 2, 4, 7) }} AS pin10,
+        chars.year,
+        chars.township_name,
+        towns.triad_name,
+        chars.char_half_baths,
+        chars.char_full_baths,
+        chars.char_bedrooms,
+        chars.char_unit_sf,
+        chars.char_building_sf,
+        chars.char_building_pins
+        - chars.char_building_non_units AS char_building_livable_units,
+        chars.char_yrblt,
+        COALESCE(chars.char_half_baths > 2, FALSE) AS flag_half_baths,
+        COALESCE(chars.char_full_baths > 4, FALSE) AS flag_full_baths,
+        COALESCE(chars.char_bedrooms > 4, FALSE) AS flag_bedrooms,
         COALESCE(
-            char_unit_sf NOT BETWEEN 500 AND 3000
-            OR char_unit_sf > char_building_sf,
+            chars.char_unit_sf NOT BETWEEN 500 AND 3000
+            OR chars.char_unit_sf > chars.char_building_sf,
             FALSE
         ) AS flag_unit_sf,
-        COALESCE(char_unit_sf > char_building_sf, FALSE)
+        COALESCE(chars.char_unit_sf > chars.char_building_sf, FALSE)
             AS flag_unit_sf_gt_bldg,
         COALESCE(
-            char_building_sf NOT BETWEEN 2500 AND 500000,
+            chars.char_building_sf NOT BETWEEN 2500 AND 500000,
             FALSE
         ) AS flag_building_sf,
         COALESCE(
-            SUM(char_unit_sf) OVER (PARTITION BY pin10, year)
-            > char_building_sf,
+            SUM(chars.char_unit_sf) OVER (PARTITION BY chars.pin10, chars.year)
+            > chars.char_building_sf,
             FALSE
         ) AS flag_unit_sf_sum,
         -- Count the number of different values for a building's square footage,
@@ -40,23 +50,28 @@ WITH flags AS (
         COALESCE(
             DENSE_RANK()
                 OVER (
-                    PARTITION BY pin10, year
-                    ORDER BY COALESCE(char_building_sf, -1) ASC
+                    PARTITION BY chars.pin10, chars.year
+                    ORDER BY COALESCE(chars.char_building_sf, -1) ASC
                 )
             + DENSE_RANK()
                 OVER (
-                    PARTITION BY pin10, year
-                    ORDER BY COALESCE(char_building_sf, -1) DESC
+                    PARTITION BY chars.pin10, chars.year
+                    ORDER BY COALESCE(chars.char_building_sf, -1) DESC
                 )
             - 1 > 1,
             FALSE
         ) AS flag_diff_bldg_sf,
-        COALESCE(char_building_pins - char_building_non_units = 0, FALSE)
+        COALESCE(
+            chars.char_building_pins - chars.char_building_non_units = 0, FALSE
+        )
             AS flag_no_livable_units,
-        COALESCE(char_yrblt NOT BETWEEN 1880 AND YEAR(CURRENT_DATE), FALSE)
+        COALESCE(
+            chars.char_yrblt NOT BETWEEN 1880 AND YEAR(CURRENT_DATE), FALSE
+        )
             AS flag_yrblt
-    FROM {{ ref('default.vw_pin_condo_char') }}
-    WHERE year = (SELECT MAX(year) FROM {{ ref('default.vw_pin_condo_char') }})
+    FROM {{ ref('default.vw_pin_condo_char') }} AS chars
+    LEFT JOIN towns
+        ON chars.township_code = towns.township_code
 ),
 
 -- Gather flags together for cumulative output
