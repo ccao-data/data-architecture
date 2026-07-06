@@ -1331,3 +1331,81 @@ models:
           - expression_is_true:
               name: qc_vw_mydec_sales_null_values_seller_null_proportion
               <<: *test-not-null
+
+unit_tests:
+  - name: qc_vw_pin_condo_char_review_counts_unique_sf_values_by_pin10
+    description: view should count unique square footage values by PIN10
+    model: qc.vw_pin_condo_review
+    given:
+      - input: ref("default.vw_pin_condo_char")
+        rows:
+          - pin10: "0000000001"
+            year: "2025"
+            char_building_sf: 1000
+            township_code: 99
+          - pin10: "0000000001"
+            year: "2025"
+            char_building_sf: 1000
+            township_code: 99
+          - pin10: "0000000001"
+            year: "2025"
+            char_building_sf: 500
+            township_code: 99
+          - pin10: "0000000002"
+            year: "2025"
+            char_building_sf: 1000
+            township_code: 99
+          - pin10: "0000000002"
+            year: "2025"
+            char_building_sf: 1000
+            township_code: 99
+          - pin10: "0000000002"
+            year: "2025"
+            char_building_sf: null
+            township_code: 99
+          - pin10: "0000000003"
+            year: "2025"
+            char_building_sf: 1000
+            township_code: 99
+          - pin10: "0000000003"
+            year: "2025"
+            char_building_sf: 1000
+            township_code: 99
+          - pin10: "0000000003"
+            year: "2025"
+            char_building_sf: 1000
+            township_code: 99
+      - input: source("spatial", "township")
+        rows:
+          - township_code: 99
+            township_name: "Springfield"
+            triad_name: "West"
+    expect:
+      rows:
+        - pin10: "00-00-000-001"
+          year: "2025"
+          flag_diff_bldg_sf: true
+        - pin10: "00-00-000-001"
+          year: "2025"
+          flag_diff_bldg_sf: true
+        - pin10: "00-00-000-001"
+          year: "2025"
+          flag_diff_bldg_sf: true
+        - pin10: "00-00-000-002"
+          year: "2025"
+          flag_diff_bldg_sf: true
+        - pin10: "00-00-000-002"
+          year: "2025"
+          flag_diff_bldg_sf: true
+        - pin10: "00-00-000-002"
+          year: "2025"
+          flag_diff_bldg_sf: true
+        - pin10: "00-00-000-003"
+          year: "2025"
+          flag_diff_bldg_sf: false
+        - pin10: "00-00-000-003"
+          year: "2025"
+          flag_diff_bldg_sf: false
+        - pin10: "00-00-000-003"
+          year: "2025"
+          flag_diff_bldg_sf: false
