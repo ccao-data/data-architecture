@@ -1043,6 +1043,72 @@ models:
   - name: qc.vw_pin_appeal_mismatched_outcomes
     description: '{{ doc("view_vw_pin_appeal_mismatched_outcomes") }}'
 
+  - name: qc.vw_pin_condo_review
+    description: '{{ doc("view_vw_pin_condo_review") }}'
+    columns:
+      - name: char_bedrooms
+        description: '{{ doc("shared_column_char_beds") }}'
+      - name: char_building_livable_units
+        description: |
+          Count of livable 14-digit PINs.
+
+          Livable PINs are anything not identified as parking spaces,
+          common areas, or storage units. Applies to condos only.
+      - name: char_building_sf
+        description: '{{ doc("shared_column_char_building_sf") }}'
+      - name: char_full_baths
+        description: '{{ doc("shared_column_char_fbath") }}'
+      - name: char_half_baths
+        description: '{{ doc("shared_column_char_hbath") }}'
+      - name: char_unit_sf
+        description: '{{ doc("shared_column_char_unit_sf") }}'
+      - name: char_yrblt
+        description: '{{ doc("shared_column_char_yrblt") }}'
+      - name: flag_bedrooms
+        description: Flag triggered if a condo unit has more than 4 bedrooms.
+      - name: flag_building_sf
+        description: >
+          Flag triggered if a condo building has a square footage outside the
+          range of 2500 and 500,000 square feet.
+      - name: flag_comments
+        description: >
+          Collects all flags that have triggered for a given condo unit.
+      - name: flag_diff_bldg_sf
+        description: >
+          Flag triggered if there are multiple values for building square
+          footage within a condo building.
+      - name: flag_full_baths
+        description: Flag triggered if a condo unit has more than 4 full baths.
+      - name: flag_half_baths
+        description: Flag triggered if a condo unit has more than 2 half baths.
+      - name: flag_no_livable_units
+        description: Flag triggered if a building has no livable units.
+      - name: flag_unit_sf
+        description: >
+          Flag triggered if a condo unit has a square footage outside the range
+          of 500 and 3,000 square feet or the unit's square footage is more than
+          the building's.
+      - name: flag_unit_sf_gt_bldg
+        description: >
+          Flag triggered if a condo unit's square footage is greater than the
+          building's square footage.
+      - name: flag_unit_sf_sum
+        description: >
+          Flag triggered if the sum of a building's unit square footage is
+          greater than the building's square footage.
+      - name: flag_yrblt
+        description: >
+          Flag triggered if a building's year built is not within the range of
+          1880 and the current year.
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: pin10
+        description: '{{ doc("shared_column_pin10") }}'
+      - name: township_code
+        description: '{{ doc("shared_column_township_code") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
+
   - name: qc.vw_pin_sale_high_number_of_sales_per_year
     description: '{{ doc("view_vw_pin_sale_high_number_of_sales_per_year") }}'
 
@@ -1265,3 +1331,81 @@ models:
           - expression_is_true:
               name: qc_vw_mydec_sales_null_values_seller_null_proportion
               <<: *test-not-null
+
+unit_tests:
+  - name: qc_vw_pin_condo_char_review_counts_unique_sf_values_by_pin10
+    description: view should count unique square footage values by PIN10
+    model: qc.vw_pin_condo_review
+    given:
+      - input: ref("default.vw_pin_condo_char")
+        rows:
+          - pin10: "0000000001"
+            year: "2025"
+            char_building_sf: 1000
+            township_code: 99
+          - pin10: "0000000001"
+            year: "2025"
+            char_building_sf: 1000
+            township_code: 99
+          - pin10: "0000000001"
+            year: "2025"
+            char_building_sf: 500
+            township_code: 99
+          - pin10: "0000000002"
+            year: "2025"
+            char_building_sf: 1000
+            township_code: 99
+          - pin10: "0000000002"
+            year: "2025"
+            char_building_sf: 1000
+            township_code: 99
+          - pin10: "0000000002"
+            year: "2025"
+            char_building_sf: null
+            township_code: 99
+          - pin10: "0000000003"
+            year: "2025"
+            char_building_sf: 1000
+            township_code: 99
+          - pin10: "0000000003"
+            year: "2025"
+            char_building_sf: 1000
+            township_code: 99
+          - pin10: "0000000003"
+            year: "2025"
+            char_building_sf: 1000
+            township_code: 99
+      - input: source("spatial", "township")
+        rows:
+          - township_code: 99
+            township_name: "Springfield"
+            triad_name: "West"
+    expect:
+      rows:
+        - pin10: "00-00-000-001"
+          year: "2025"
+          flag_diff_bldg_sf: true
+        - pin10: "00-00-000-001"
+          year: "2025"
+          flag_diff_bldg_sf: true
+        - pin10: "00-00-000-001"
+          year: "2025"
+          flag_diff_bldg_sf: true
+        - pin10: "00-00-000-002"
+          year: "2025"
+          flag_diff_bldg_sf: true
+        - pin10: "00-00-000-002"
+          year: "2025"
+          flag_diff_bldg_sf: true
+        - pin10: "00-00-000-002"
+          year: "2025"
+          flag_diff_bldg_sf: true
+        - pin10: "00-00-000-003"
+          year: "2025"
+          flag_diff_bldg_sf: false
+        - pin10: "00-00-000-003"
+          year: "2025"
+          flag_diff_bldg_sf: false
+        - pin10: "00-00-000-003"
+          year: "2025"
+          flag_diff_bldg_sf: false
