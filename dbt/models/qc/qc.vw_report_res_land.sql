@@ -113,6 +113,7 @@ WITH base AS (
         AND pardat.class = land_nbhd_rate.class
     WHERE pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
+        AND TRY_CAST(pardat.class AS INT) BETWEEN 100 AND 299
 ),
 
 base_with_sd AS (
