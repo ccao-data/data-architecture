@@ -16,7 +16,7 @@ flags AS (
         {{ insert_hyphens("chars.pin", 2, 4, 7, 10) }} AS pin,
         {{ insert_hyphens("chars.pin10", 2, 4, 7) }} AS pin10,
         chars.year,
-        chars.township_name,
+        towns.township_name,
         towns.triad_name,
         chars.char_half_baths,
         chars.char_full_baths,
