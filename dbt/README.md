@@ -21,6 +21,7 @@ This directory stores the configuration for building our data catalog using
   * [Data integrity tests](#data-integrity-tests)
   * [Unit tests](#unit-tests)
   * [QC reports](#qc-reports)
+      * [List of QC reports](#list-of-qc-reports) 
 * [🐛 Debugging tips](#-debugging-tips)
 
 ### Outside this document
@@ -792,6 +793,17 @@ dbt models that are configured with attributes that can be parsed by the
 [`export_models` script](./scripts/export_models.py) and other scripts that
 build on it for specific workflows, like the [`export_qc_town_close_reports`
 script](./scripts/export_qc_town_close_reports.py).
+
+#### List of active QC reports
+
+These are the QC reports that we run on a regular basis:
+
+* **Town close QC reports**. See [the town close QC docs
+  below](#running-town-close-qc-reports-with-export_qc_town_close_reports)
+  for details.
+* **IC reference files**. _Docs TK_.
+* **Condo review**. _Docs TK_.
+* **AHSAP change in values report**. _Docs TK_.
 
 #### Running QC reports with `export_models`
 
