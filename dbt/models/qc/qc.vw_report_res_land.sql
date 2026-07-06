@@ -37,7 +37,7 @@ WITH base AS (
         land.code AS code,
         land.class AS land_class,
         land.sf AS land_sf,
-        land.brate AS land_brate,
+        land.brate AS land_base_rate,
         land_nbhd_rate.land_rate_per_sqft AS nbhd_land_rate
     FROM {{ source('iasworld', 'pardat') }} AS pardat
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
@@ -118,7 +118,9 @@ WITH base AS (
 base_with_sd AS (
     SELECT
         *,
+        avg(land_av_pct_diff) OVER (PARTITION BY township_code) AS land_av_pct_diff_mean,
         stddev(land_av_pct_diff) OVER (PARTITION BY township_code) AS land_av_pct_diff_sd,
+        avg(land_sf) OVER (PARTITION BY township_code) AS land_sf_mean,
         stddev(land_sf) OVER (PARTITION BY township_code) AS land_sf_sd
     FROM base
 )
@@ -145,7 +147,7 @@ SELECT
                 THEN '❌ Error: Land code 56 (Unbuildable) must not have land AV <= 1' END,
             CASE WHEN land_class NOT IN ('100', '200', '239', '241', '500')
                 THEN '❌ Error: Land class must be 100, 200, 239, 241, or 500' END,
-            CASE WHEN land_brate != nbhd_land_rate
+            CASE WHEN land_base_rate != nbhd_land_rate
                 THEN '❌ Error: Land rate must match neighborhood land rate' END,
             CASE WHEN class IN ('239', '224') AND land_class = '200'
                 THEN '🔍 Check: Review class 200 homestead land on farmland PINs' END,
@@ -153,11 +155,9 @@ SELECT
                 THEN '🔍 Check: Send industrial land on farmland PINs to Manager of Industrial' END,
             CASE WHEN code IN ('500', '600', 'EX')
                 THEN '🔍 Check: Review land codes 500, 600, and EX' END,
-            -- TK: Activates once land_av_pct_diff_sd is computed
-            CASE WHEN land_av_pct_diff_sd > 1
+            CASE WHEN ABS(land_av_pct_diff - land_av_pct_diff_mean) > 2 * land_av_pct_diff_sd
                 THEN '🔍 Check: Review big increases in land AV' END,
-            -- TK: Activates once land_sf_sd is computed
-            CASE WHEN land_sf_sd > 1
+            CASE WHEN ABS(land_sf - land_sf_mean) > 2 * land_sf_sd
                 THEN '🔍 Check: Review values for PINs with largest land in the township' END,
             CASE WHEN land_av_diff <= 0
                 THEN '🔍 Check: Review land value that is flat or decreasing' END
@@ -183,6 +183,7 @@ SELECT
     hie_incentive_year,
     land_av_diff,
     land_av_pct_diff,
+    land_av_pct_diff_mean,
     land_av_pct_diff_sd,
     tot_av_diff,
     reascd,
@@ -198,7 +199,8 @@ SELECT
     code,
     land_class,
     land_sf,
+    land_sf_mean,
     land_sf_sd,
-    land_brate,
+    land_base_rate,
     nbhd_land_rate
 FROM base_with_sd
