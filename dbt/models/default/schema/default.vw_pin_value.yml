@@ -250,6 +250,9 @@ unit_tests:
       - input: ref("ccao.vw_time_util")
         rows:
           - {date_today: "2024-01-01"}
+      - input: source("iasworld", "pardat")
+        rows:
+          - {parid: "123", taxyr: "2024", cur: "Y"}
     expect:
       rows:
         - {mailed_class: "211A"}
@@ -287,6 +290,13 @@ unit_tests:
           # reference to the current year could become out of date with this
           # test
           - {date_today: "2024-01-01"}
+      - input: source("iasworld", "pardat")
+        rows:
+          - {parid: "pre-mailed", taxyr: "2024", cur: "Y"}
+          - {parid: "mailed", taxyr: "2024", cur: "Y"}
+          - {parid: "pre-certified", taxyr: "2024", cur: "Y"}
+          - {parid: "ccao-certified", taxyr: "2024", cur: "Y"}
+          - {parid: "bor-certified", taxyr: "2024", cur: "Y"}
     expect:
       rows:
         - {stage_name: "PRE-MAILED"}
