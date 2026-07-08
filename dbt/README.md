@@ -809,7 +809,7 @@ These are the QC reports that we run on a regular basis:
   swings in AHSAP values to stakeholders. See [AHSAP change in value
   report](#ahsap-change-in-value-qc-report) for details.
 * **Condo review**. Data Integrity uses triad-specific output from this view to
-  prioritize condo unit and building characteristics for review each year.See
+  prioritize condo unit and building characteristics for review each year. See
   [Condo review](#condo-review) for details.
 
 For docs explaining how to add a new QC report, see [Adding QC
