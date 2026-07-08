@@ -804,9 +804,13 @@ These are the QC reports that we run on a regular basis:
   manually. See [Town close QC reports](#town-close-qc-reports) for details.
 * **IC reference files**. Valuations uses these reference files for industrial
   and commercial QC. See [IC reference files](#ic-reference-files) for details.
-* **AHSAP change in value report**. See [AHSAP change in value
+* **AHSAP change in value report**. Engagement occasionally asks for AHSAP AVs
+  for different townships. This view helps the office communicate any large
+  swings in AHSAP values to stakeholders. See [AHSAP change in value
   report](#ahsap-change-in-value-qc-report) for details.
-* **Condo review**. See [Condo review](#condo-review) for details.
+* **Condo review**. Data Integrity uses triad-specific output from this view to
+  prioritize condo unit and building characteristics for review each year.See
+  [Condo review](#condo-review) for details.
 
 For docs explaining how to add a new QC report, see [Adding QC
 reports](#adding-qc-reports) below.
@@ -1007,14 +1011,14 @@ name of the report that it exports during execution.
 #### Condo review
 
 We define the condo review query using one model, `qc.vw_pin_condo_review`,
-which we filter for a specific township name (like "Hyde Park") and tax year
-during export.
+which we filter for a specific triad name (like "South") and tax year during
+export.
 
-Here's an example of how to export that model for a township name defined by `$TOWNSHIP_NAME`
+Here's an example of how to export that model for a triad defined by `$TRIAD_NAME`
 and a tax year defined by `$YEAR`:
 
 ```
-python3 scripts/export_models.py --select qc.vw_pin_condo_review --where "year = '$YEAR' and township_name = '$TOWNSHIP_NAME'"
+python3 scripts/export_models.py --select qc.vw_pin_condo_review --where "year = '$YEAR' and triad_name = '$TRIAD_NAME'"
 ```
 
 The script will output the reports to the `dbt/export/output/` directory, and will print the
