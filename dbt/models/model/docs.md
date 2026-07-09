@@ -160,19 +160,6 @@ of sales_.
 **Primary Key**: `year`, `run_id`, `meta_pin`, `meta_card_num`, `meta_sale_document_num`
 {% enddocs %}
 
-# train_card
-
-{% docs table_train_card %}
-Card-level (building) model outputs on the train set by model run (`run_id`).
-
-The train set is the in-sample data used to fit the initial model.
-Predictions in this table are made using only sales from the training set. 
-Train_card data is uploaded with every model run.  
-Note that this is separate from the training_data table, which only contains data from the final yearly model run; The training_data table contains both train and test data for the yearly run, whereas train_card contains only training data for an individual model run.
-
-**Primary Key**: `year`, `run_id`, `meta_pin`, `meta_card_num`, `meta_sale_document_num`
-{% enddocs %}
-
 # timing
 
 {% docs table_timing %}
@@ -181,17 +168,52 @@ Wall time of each stage (train, assess, etc.) for each model run (`run_id`).
 **Primary Key**: `year`, `run_id`
 {% enddocs %}
 
+# train_card
+
+{% docs table_train_card %}
+Card-level (building) model outputs on the training set by model run (`run_id`).
+
+The training set is the in-sample data used to fit the initial model.
+Predictions in this table are made using only sales from the training set.
+
+Note that this table is distinct from the `model.training_data` table, which
+also contains characteristics and predictions for training data. Differences
+include:
+
+1. `model.training_data` is updated manually once per year, and only contains
+   data for final model runs. `model.train_card` is updated automatically on
+   every model run, and it contains data for every run regardless of run type.
+2. `model.training_data` combines the training set and the test set for each
+   final model run. `model.traing_card` only includes the training set.
+3. `model.training_data` contains the full set of characteristics for each sale.
+   `model.train_card` only contains a minimal set of the most important
+   characteristics.
+
+In general, you should use this table when you want to evaluate training set
+performance for any model run. You should use `model.training_data` when you
+want access to the exact set of sales that we used for a final model run.
+
+**Primary Key**: `year`, `run_id`, `meta_pin`, `meta_card_num`,
+`meta_sale_document_num`
+{% enddocs %}
+
 # training_data
 
 {% docs table_training_data %}
 
-A table containing the training data from the final model runs.
+A table containing the training data from all final model runs.
 
 We update this table once per assessment year after choosing the final model
 runs for the year. As such, only final model run IDs should be present in this
 table.
 
-Note that this is separate from the train_card, which is updated every model run, and only contains data used to fit our model.  The training_data table contains both data used to fit the model (train) and to evaluate the final yearly model run.
+Note that this table is distinct from the `model.training_data` table, which
+also contains characteristics and predictions for training data. See the docs
+for that table for full details.
+
+In general, you should use this table when you want access to the exact set of
+sales that we used for a final model run. You should use `model.train_card` when
+you want to evaluate training set performance for any model run.
 
 **Primary Key**: `run_id`, `meta_card_num`, `meta_sale_document_num`
 {% enddocs %}
