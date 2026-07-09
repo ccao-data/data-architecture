@@ -1056,12 +1056,13 @@ models:
         - qc_report_res_land
     data_tests:
       - unique_combination_of_columns:
-          name: qc_vw_report_res_land_unique_by_pin_and_lline
+          name: qc_vw_report_res_land_unique_by_pin_lline_and_taxyr
           combination_of_columns:
             - pin
             - lline
+            - taxyr
           meta:
-            description: res land report should be unique by pin and lline
+            description: res land report should be unique by pin, lline, and taxyr
     columns:
       - name: pin
         data_tests:

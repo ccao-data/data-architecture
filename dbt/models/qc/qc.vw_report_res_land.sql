@@ -1,6 +1,7 @@
 WITH base AS (
     SELECT
         pardat.parid AS pin,
+        pardat.taxyr AS taxyr,
         pardat.tieback AS tieback,
         legdat.user1 AS township_code,
         pardat.class AS class,
@@ -37,7 +38,7 @@ WITH base AS (
         land.code AS code,
         land.class AS land_class,
         land.sf AS land_sf,
-        land.brate AS land_base_rate,
+        land.brate AS land_brate,
         land_nbhd_rate.land_rate_per_sqft AS nbhd_land_rate
     FROM {{ source('iasworld', 'pardat') }} AS pardat
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
@@ -49,10 +50,8 @@ WITH base AS (
         FROM (
             SELECT *, ROW_NUMBER() OVER (PARTITION BY jur, parid, taxyr ORDER BY jur) AS _rn
             FROM {{ source('iasworld', 'asmt_all') }}
-            WHERE procname = 'BORVALUE'
-                AND rolltype != 'RR'
+            WHERE cur = 'Y'
                 AND valclass IS NULL
-                AND class NOT IN ('999')
         )
         WHERE _rn = 1
     ) AS asmt
@@ -95,10 +94,8 @@ WITH base AS (
         FROM (
             SELECT *, ROW_NUMBER() OVER (PARTITION BY jur, parid, taxyr ORDER BY jur) AS _rn
             FROM {{ source('iasworld', 'asmt_all') }}
-            WHERE procname = 'BORVALUE'
-                AND rolltype != 'RR'
+            WHERE cur = 'Y'
                 AND valclass IS NULL
-                AND class NOT IN ('999')
         )
         WHERE _rn = 1
     ) AS asmt_prev
@@ -122,8 +119,8 @@ WITH base AS (
         AND pardat.class = land_nbhd_rate.class
     WHERE pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
-        AND pardat.taxyr = '2026'
         AND TRY_CAST(pardat.class AS INT) BETWEEN 100 AND 299
+        AND (land.brate IS NULL OR land.brate > 0)
 ),
 
 base_with_sd AS (
@@ -139,6 +136,7 @@ base_with_sd AS (
 base_with_tests AS (
     SELECT
     pin,
+    taxyr,
     filter(
         ARRAY[
             CASE WHEN class IN ('239', '224') AND ltype != 'A'
@@ -159,7 +157,7 @@ base_with_tests AS (
                 THEN '❌ Error: Land code 56 (Unbuildable) must not have land AV <= 1' END,
             CASE WHEN land_class NOT IN ('100', '200', '239', '241', '500')
                 THEN '❌ Error: Land class must be 100, 200, 239, 241, or 500' END,
-            CASE WHEN land_base_rate != nbhd_land_rate
+            CASE WHEN land_brate > 0 AND land_brate != nbhd_land_rate
                 THEN '❌ Error: Land rate must match neighborhood land rate' END,
             CASE WHEN class IN ('239', '224') AND land_class = '200'
                 THEN '🔍 Check: Review class 200 homestead land on farmland PINs' END,
@@ -171,8 +169,8 @@ base_with_tests AS (
                 THEN '🔍 Check: Review big increases in land AV' END,
             CASE WHEN ABS(land_sf - land_sf_mean) > 2 * land_sf_sd
                 THEN '🔍 Check: Review values for PINs with largest land in the township' END,
-            CASE WHEN land_av_diff <= 0
-                THEN '🔍 Check: Review land value that is flat or decreasing' END
+            CASE WHEN land_av_diff < 0
+                THEN '🔍 Check: Review land value that is decreasing' END
         ],
         x -> x IS NOT NULL
     ) AS tests,
@@ -213,7 +211,7 @@ base_with_tests AS (
     land_sf,
     land_sf_mean,
     land_sf_sd,
-    land_base_rate,
+    land_brate,
     nbhd_land_rate
 FROM base_with_sd
 )
