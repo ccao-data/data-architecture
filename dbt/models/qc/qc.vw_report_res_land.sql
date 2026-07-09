@@ -44,38 +44,40 @@ WITH base AS (
         ON pardat.jur = legdat.jur
         AND pardat.parid = legdat.parid
         AND pardat.taxyr = legdat.taxyr
-        AND legdat.cur = 'Y'
-        AND legdat.deactivat IS NULL
     LEFT JOIN (
         SELECT *
-        FROM {{ source('iasworld', 'asmt_all') }}
-        WHERE procname = 'BORVALUE'
-            AND rolltype != 'RR'
-            AND deactivat IS NULL
-            AND valclass IS NULL
-            AND class NOT IN ('999')
+        FROM (
+            SELECT *, ROW_NUMBER() OVER (PARTITION BY jur, parid, taxyr ORDER BY jur) AS _rn
+            FROM {{ source('iasworld', 'asmt_all') }}
+            WHERE procname = 'BORVALUE'
+                AND rolltype != 'RR'
+                AND valclass IS NULL
+                AND class NOT IN ('999')
+        )
+        WHERE _rn = 1
     ) AS asmt
         ON pardat.jur = asmt.jur
         AND pardat.parid = asmt.parid
         AND pardat.taxyr = asmt.taxyr
-    LEFT JOIN {{ source('iasworld', 'aprval') }} AS aprval
+    LEFT JOIN (
+        SELECT *
+        FROM (
+            SELECT *, ROW_NUMBER() OVER (PARTITION BY jur, parid, taxyr ORDER BY jur) AS _rn
+            FROM {{ source('iasworld', 'aprval') }}
+        )
+        WHERE _rn = 1
+    ) AS aprval
         ON pardat.jur = aprval.jur
         AND pardat.parid = aprval.parid
         AND pardat.taxyr = aprval.taxyr
-        AND aprval.cur = 'Y'
-        AND aprval.deactivat IS NULL
     LEFT JOIN {{ source('iasworld', 'land') }} AS land
         ON pardat.jur = land.jur
         AND pardat.parid = land.parid
         AND pardat.taxyr = land.taxyr
-        AND land.cur = 'Y'
-        AND land.deactivat IS NULL
     LEFT JOIN {{ source('iasworld', 'owndat') }} AS owndat
         ON pardat.jur = owndat.jur
         AND pardat.parid = owndat.parid
         AND pardat.taxyr = owndat.taxyr
-        AND owndat.cur = 'Y'
-        AND owndat.deactivat IS NULL
     LEFT JOIN (
         SELECT
             MIN(jur) AS jur,
@@ -83,7 +85,6 @@ WITH base AS (
             taxyr,
             array_join(array_agg(DISTINCT user10), ', ') AS user10
         FROM {{ source('iasworld', 'oby') }}
-        WHERE cur = 'Y' AND deactivat IS NULL
         GROUP BY parid, taxyr
     ) AS oby
         ON pardat.jur = oby.jur
@@ -91,28 +92,37 @@ WITH base AS (
         AND pardat.taxyr = oby.taxyr
     LEFT JOIN (
         SELECT *
-        FROM {{ source('iasworld', 'asmt_all') }}
-        WHERE procname = 'BORVALUE'
-            AND rolltype != 'RR'
-            AND deactivat IS NULL
-            AND valclass IS NULL
-            AND class NOT IN ('999')
+        FROM (
+            SELECT *, ROW_NUMBER() OVER (PARTITION BY jur, parid, taxyr ORDER BY jur) AS _rn
+            FROM {{ source('iasworld', 'asmt_all') }}
+            WHERE procname = 'BORVALUE'
+                AND rolltype != 'RR'
+                AND valclass IS NULL
+                AND class NOT IN ('999')
+        )
+        WHERE _rn = 1
     ) AS asmt_prev
         ON pardat.jur = asmt_prev.jur
         AND pardat.parid = asmt_prev.parid
         AND CAST(pardat.taxyr AS INT) = CAST(asmt_prev.taxyr AS INT) + 1
-    LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat_prev
+    LEFT JOIN (
+        SELECT *
+        FROM (
+            SELECT *, ROW_NUMBER() OVER (PARTITION BY jur, parid, taxyr ORDER BY jur) AS _rn
+            FROM {{ source('iasworld', 'pardat') }}
+        )
+        WHERE _rn = 1
+    ) AS pardat_prev
         ON pardat.jur = pardat_prev.jur
         AND pardat.parid = pardat_prev.parid
         AND CAST(pardat.taxyr AS INT) = CAST(pardat_prev.taxyr AS INT) + 1
-        AND pardat_prev.cur = 'Y'
-        AND pardat_prev.deactivat IS NULL
     LEFT JOIN {{ source('ccao', 'land_nbhd_rate') }} AS land_nbhd_rate
         ON pardat.nbhd = land_nbhd_rate.town_nbhd
         AND pardat.taxyr = land_nbhd_rate.year
         AND pardat.class = land_nbhd_rate.class
     WHERE pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
+        AND pardat.taxyr = '2026'
         AND TRY_CAST(pardat.class AS INT) BETWEEN 100 AND 299
 ),
 
@@ -124,9 +134,10 @@ base_with_sd AS (
         avg(land_sf) OVER (PARTITION BY township_code) AS land_sf_mean,
         stddev(land_sf) OVER (PARTITION BY township_code) AS land_sf_sd
     FROM base
-)
+),
 
-SELECT
+base_with_tests AS (
+    SELECT
     pin,
     filter(
         ARRAY[
@@ -205,3 +216,8 @@ SELECT
     land_base_rate,
     nbhd_land_rate
 FROM base_with_sd
+)
+
+SELECT *
+FROM base_with_tests
+WHERE CARDINALITY(tests) > 0
