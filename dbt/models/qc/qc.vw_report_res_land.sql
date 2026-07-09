@@ -42,76 +42,67 @@ WITH base AS (
         land_nbhd_rate.land_rate_per_sqft AS nbhd_land_rate
     FROM {{ source('iasworld', 'pardat') }} AS pardat
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
-        ON pardat.jur = legdat.jur
-        AND pardat.parid = legdat.parid
+        ON pardat.parid = legdat.parid
         AND pardat.taxyr = legdat.taxyr
     LEFT JOIN (
         SELECT *
         FROM (
-            SELECT *, ROW_NUMBER() OVER (PARTITION BY jur, parid, taxyr ORDER BY jur) AS _rn
+            SELECT *, ROW_NUMBER() OVER (PARTITION BY parid, taxyr ORDER BY parid) AS _rn
             FROM {{ source('iasworld', 'asmt_all') }}
             WHERE cur = 'Y'
                 AND valclass IS NULL
         )
         WHERE _rn = 1
     ) AS asmt
-        ON pardat.jur = asmt.jur
-        AND pardat.parid = asmt.parid
+        ON pardat.parid = asmt.parid
         AND pardat.taxyr = asmt.taxyr
     LEFT JOIN (
         SELECT *
         FROM (
-            SELECT *, ROW_NUMBER() OVER (PARTITION BY jur, parid, taxyr ORDER BY jur) AS _rn
+            SELECT *, ROW_NUMBER() OVER (PARTITION BY parid, taxyr ORDER BY parid) AS _rn
             FROM {{ source('iasworld', 'aprval') }}
         )
         WHERE _rn = 1
     ) AS aprval
-        ON pardat.jur = aprval.jur
-        AND pardat.parid = aprval.parid
+        ON pardat.parid = aprval.parid
         AND pardat.taxyr = aprval.taxyr
     LEFT JOIN {{ source('iasworld', 'land') }} AS land
-        ON pardat.jur = land.jur
-        AND pardat.parid = land.parid
+        ON pardat.parid = land.parid
         AND pardat.taxyr = land.taxyr
     LEFT JOIN {{ source('iasworld', 'owndat') }} AS owndat
-        ON pardat.jur = owndat.jur
-        AND pardat.parid = owndat.parid
+        ON pardat.parid = owndat.parid
         AND pardat.taxyr = owndat.taxyr
     LEFT JOIN (
         SELECT
-            MIN(jur) AS jur,
             parid,
             taxyr,
             array_join(array_agg(DISTINCT user10), ', ') AS user10
         FROM {{ source('iasworld', 'oby') }}
         GROUP BY parid, taxyr
     ) AS oby
-        ON pardat.jur = oby.jur
-        AND pardat.parid = oby.parid
+        ON pardat.parid = oby.parid
         AND pardat.taxyr = oby.taxyr
     LEFT JOIN (
         SELECT *
         FROM (
-            SELECT *, ROW_NUMBER() OVER (PARTITION BY jur, parid, taxyr ORDER BY jur) AS _rn
+            SELECT *, ROW_NUMBER() OVER (PARTITION BY parid, taxyr ORDER BY parid) AS _rn
             FROM {{ source('iasworld', 'asmt_all') }}
             WHERE cur = 'Y'
                 AND valclass IS NULL
         )
         WHERE _rn = 1
     ) AS asmt_prev
-        ON pardat.jur = asmt_prev.jur
-        AND pardat.parid = asmt_prev.parid
+        ON pardat.parid = asmt_prev.parid
         AND CAST(pardat.taxyr AS INT) = CAST(asmt_prev.taxyr AS INT) + 1
     LEFT JOIN (
         SELECT *
         FROM (
-            SELECT *, ROW_NUMBER() OVER (PARTITION BY jur, parid, taxyr ORDER BY jur) AS _rn
+            SELECT *, ROW_NUMBER() OVER (PARTITION BY parid, taxyr ORDER BY parid) AS _rn
             FROM {{ source('iasworld', 'pardat') }}
         )
         WHERE _rn = 1
     ) AS pardat_prev
-        ON pardat.jur = pardat_prev.jur
-        AND pardat.parid = pardat_prev.parid
+        ON pardat.parid = pardat_prev.parid
         AND CAST(pardat.taxyr AS INT) = CAST(pardat_prev.taxyr AS INT) + 1
     LEFT JOIN {{ source('ccao', 'land_nbhd_rate') }} AS land_nbhd_rate
         ON pardat.nbhd = land_nbhd_rate.town_nbhd
