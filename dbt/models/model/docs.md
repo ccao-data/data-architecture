@@ -184,7 +184,7 @@ include:
    data for final model runs. `model.train_card` is updated automatically on
    every model run, and it contains data for every run regardless of run type.
 2. `model.training_data` combines the training set and the test set for each
-   final model run. `model.traing_card` only includes the training set.
+   final model run. `model.train_card` only includes the training set.
 3. `model.training_data` contains the full set of characteristics for each sale.
    `model.train_card` only contains a minimal set of the most important
    characteristics.
@@ -201,7 +201,7 @@ want access to the exact set of sales that we used for a final model run.
 
 {% docs table_training_data %}
 
-A table containing the training data from all final model runs.
+A table containing the training data for each of our final model runs.
 
 We update this table once per assessment year after choosing the final model
 runs for the year. As such, only final model run IDs should be present in this
