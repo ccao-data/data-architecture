@@ -290,7 +290,7 @@ models:
       export_format:
         columns:
           - name: ADRNO
-            index: L
+            index: N
             data_type: int
           - name: APRBLDG
             index: J
@@ -307,6 +307,12 @@ models:
           - name: DWELVAL
             index: K
             data_type: int
+          - name: ECF
+            index: L
+            data_type: int
+          - name: Exemption
+            index: M
+            data_type: decimal
           - name: OBYVAL
             index: G
             data_type: int
