@@ -188,11 +188,11 @@ base_with_tests AS (
                 CASE WHEN code IN ('500', '600', 'EX')
                         THEN '🔍 Check: Review land codes 500, 600, and EX'
                 END,
-                CASE WHEN ABS(land_av_pct_diff - land_av_pct_diff_mean)
+                CASE WHEN (land_av_pct_diff - land_av_pct_diff_mean)
                         > 2 * land_av_pct_diff_sd
                         THEN '🔍 Check: Review big increases in land AV'
                 END,
-                CASE WHEN ABS(land_sf - land_sf_mean) > 2 * land_sf_sd
+                CASE WHEN (land_sf - land_sf_mean) > 2 * land_sf_sd
                         THEN '🔍 Check: Review values for PINs with'
                         || ' largest land in the township'
                 END,
