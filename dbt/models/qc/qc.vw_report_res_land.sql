@@ -129,13 +129,13 @@ base_with_sd AS (
     SELECT
         *,
         AVG(land_av_pct_diff)
-            OVER (PARTITION BY township_code)
+            OVER (PARTITION BY township_code, taxyr)
             AS land_av_pct_diff_mean,
         STDDEV(land_av_pct_diff)
-            OVER (PARTITION BY township_code)
+            OVER (PARTITION BY township_code, taxyr)
             AS land_av_pct_diff_sd,
-        AVG(land_sf) OVER (PARTITION BY township_code) AS land_sf_mean,
-        STDDEV(land_sf) OVER (PARTITION BY township_code) AS land_sf_sd
+        AVG(land_sf) OVER (PARTITION BY township_code, taxyr) AS land_sf_mean,
+        STDDEV(land_sf) OVER (PARTITION BY township_code, taxyr) AS land_sf_sd
     FROM base
 ),
 
