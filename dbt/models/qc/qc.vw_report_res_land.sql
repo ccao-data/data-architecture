@@ -153,11 +153,11 @@ base_with_tests AS (
                 END,
                 CASE WHEN ltype = 'A' AND class NOT IN ('239', '224')
                         THEN '❌ Error: Land type A must be farmland'
-                            || ' (class 239 or 224)'
+                        || ' (class 239 or 224)'
                 END,
                 CASE WHEN code = '900' AND class NOT IN ('239', '224')
                         THEN '❌ Error: Land code 900 must be farmland'
-                            || ' (class 239 or 224)'
+                        || ' (class 239 or 224)'
                 END,
                 CASE WHEN ltype = 'G' AND class NOT IN ('EX', 'RR')
                         THEN '❌ Error: Land type G must have class EX or RR'
@@ -167,23 +167,23 @@ base_with_tests AS (
                 END,
                 CASE WHEN code = '21' AND land_av > 1
                         THEN '❌ Error: Land code 21 (Common Area)'
-                            || ' must have land AV <= 1'
+                        || ' must have land AV <= 1'
                 END,
                 CASE WHEN code = '56' AND land_av <= 1
                         THEN '❌ Error: Land code 56 (Unbuildable)'
-                            || ' must not have land AV <= 1'
+                        || ' must not have land AV <= 1'
                 END,
                 CASE WHEN land_class NOT IN ('100', '200', '239', '241', '500')
                         THEN '❌ Error: Land class must be 100, 200,'
-                            || ' 239, 241, or 500'
+                        || ' 239, 241, or 500'
                 END,
                 CASE WHEN class IN ('239', '224') AND land_class = '200'
                         THEN '🔍 Check: Review class 200 homestead'
-                            || ' land on farmland PINs'
+                        || ' land on farmland PINs'
                 END,
                 CASE WHEN class IN ('239', '224') AND land_class = '500'
                         THEN '🔍 Check: Send industrial land on farmland'
-                            || ' PINs to Manager of Industrial'
+                        || ' PINs to Manager of Industrial'
                 END,
                 CASE WHEN code IN ('500', '600', 'EX')
                         THEN '🔍 Check: Review land codes 500, 600, and EX'
@@ -194,7 +194,7 @@ base_with_tests AS (
                 END,
                 CASE WHEN ABS(land_sf - land_sf_mean) > 2 * land_sf_sd
                         THEN '🔍 Check: Review values for PINs with'
-                            || ' largest land in the township'
+                        || ' largest land in the township'
                 END,
                 CASE WHEN land_av_diff < 0
                         THEN '🔍 Check: Review land value that is decreasing'
