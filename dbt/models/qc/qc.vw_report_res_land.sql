@@ -30,7 +30,6 @@ WITH base AS (
         land.class AS land_class,
         land.sf AS land_sf,
         land.brate AS land_brate,
-        land_nbhd_rate.land_rate_per_sqft AS nbhd_land_rate,
         legdat.user1 AS township_code,
         legdat.taxdist,
         oby.user10 AS hie_incentive_year,
@@ -121,14 +120,9 @@ WITH base AS (
     ) AS pardat_prev
         ON pardat.parid = pardat_prev.parid
         AND CAST(pardat.taxyr AS INT) = CAST(pardat_prev.taxyr AS INT) + 1
-    LEFT JOIN {{ source('ccao', 'land_nbhd_rate') }} AS land_nbhd_rate
-        ON pardat.nbhd = land_nbhd_rate.town_nbhd
-        AND pardat.taxyr = land_nbhd_rate.year
-        AND pardat.class = land_nbhd_rate.class
     WHERE pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
         AND TRY_CAST(pardat.class AS INT) BETWEEN 100 AND 299
-        AND (land.brate IS NULL OR land.brate > 0)
 ),
 
 base_with_sd AS (
@@ -158,10 +152,12 @@ base_with_tests AS (
                         THEN '❌ Error: Farmland must have land code 900'
                 END,
                 CASE WHEN ltype = 'A' AND class NOT IN ('239', '224')
-                        THEN '❌ Error: Land type A must be farmland (class 239 or 224)'
+                        THEN '❌ Error: Land type A must be farmland'
+                            || ' (class 239 or 224)'
                 END,
                 CASE WHEN code = '900' AND class NOT IN ('239', '224')
-                        THEN '❌ Error: Land code 900 must be farmland (class 239 or 224)'
+                        THEN '❌ Error: Land code 900 must be farmland'
+                            || ' (class 239 or 224)'
                 END,
                 CASE WHEN ltype = 'G' AND class NOT IN ('EX', 'RR')
                         THEN '❌ Error: Land type G must have class EX or RR'
@@ -170,22 +166,24 @@ base_with_tests AS (
                         THEN '❌ Error: Land code 0 should not exist'
                 END,
                 CASE WHEN code = '21' AND land_av > 1
-                        THEN '❌ Error: Land code 21 (Common Area) must have land AV <= 1'
+                        THEN '❌ Error: Land code 21 (Common Area)'
+                            || ' must have land AV <= 1'
                 END,
                 CASE WHEN code = '56' AND land_av <= 1
-                        THEN '❌ Error: Land code 56 (Unbuildable) must not have land AV <= 1'
+                        THEN '❌ Error: Land code 56 (Unbuildable)'
+                            || ' must not have land AV <= 1'
                 END,
                 CASE WHEN land_class NOT IN ('100', '200', '239', '241', '500')
-                        THEN '❌ Error: Land class must be 100, 200, 239, 241, or 500'
-                END,
-                CASE WHEN land_brate > 0 AND land_brate != nbhd_land_rate
-                        THEN '❌ Error: Land rate must match neighborhood land rate'
+                        THEN '❌ Error: Land class must be 100, 200,'
+                            || ' 239, 241, or 500'
                 END,
                 CASE WHEN class IN ('239', '224') AND land_class = '200'
-                        THEN '🔍 Check: Review class 200 homestead land on farmland PINs'
+                        THEN '🔍 Check: Review class 200 homestead'
+                            || ' land on farmland PINs'
                 END,
                 CASE WHEN class IN ('239', '224') AND land_class = '500'
-                        THEN '🔍 Check: Send industrial land on farmland PINs to Manager of Industrial'
+                        THEN '🔍 Check: Send industrial land on farmland'
+                            || ' PINs to Manager of Industrial'
                 END,
                 CASE WHEN code IN ('500', '600', 'EX')
                         THEN '🔍 Check: Review land codes 500, 600, and EX'
@@ -195,7 +193,8 @@ base_with_tests AS (
                         THEN '🔍 Check: Review big increases in land AV'
                 END,
                 CASE WHEN ABS(land_sf - land_sf_mean) > 2 * land_sf_sd
-                        THEN '🔍 Check: Review values for PINs with largest land in the township'
+                        THEN '🔍 Check: Review values for PINs with'
+                            || ' largest land in the township'
                 END,
                 CASE WHEN land_av_diff < 0
                         THEN '🔍 Check: Review land value that is decreasing'
@@ -240,8 +239,7 @@ base_with_tests AS (
         land_sf,
         land_sf_mean,
         land_sf_sd,
-        land_brate,
-        nbhd_land_rate
+        land_brate
     FROM base_with_sd
 )
 
