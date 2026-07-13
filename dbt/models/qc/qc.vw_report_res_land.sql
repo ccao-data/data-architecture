@@ -33,7 +33,7 @@ WITH base AS (
         oby.user10 AS hie_incentive_year,
         owndat.own1 AS owner_name,
         pardat.parid AS pin,
-        pardat.taxyr AS year,
+        pardat.taxyr,
         pardat.tieback,
         pardat.class,
         pardat.nbhd AS nbhd_code,
@@ -43,7 +43,14 @@ WITH base AS (
         ON pardat.parid = legdat.parid
         AND pardat.taxyr = legdat.taxyr
         AND legdat.cur = 'Y'
-    LEFT JOIN {{ source('iasworld', 'asmt_all') }} AS asmt
+    INNER JOIN (
+        -- Replicates ASMT: ASMT_ALL is the union of ASMT and ASMT_HIST
+        SELECT *
+        FROM {{ source('iasworld', 'asmt_all') }}
+        EXCEPT
+        SELECT *
+        FROM {{ source('iasworld', 'asmt_hist') }}
+    ) AS asmt
         ON pardat.parid = asmt.parid
         AND pardat.taxyr = asmt.taxyr
         AND asmt.cur = 'Y'
