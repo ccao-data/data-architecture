@@ -218,6 +218,15 @@ you want to evaluate training set performance for any model run.
 **Primary Key**: `run_id`, `meta_card_num`, `meta_sale_document_num`
 {% enddocs %}
 
+# vw_metadata
+
+{% docs view_vw_metadata %}
+View combining metadata from both the production `model` database and the
+development `z_dev_model` database.
+
+**Primary Key**: `year`, `run_id`
+{% enddocs %}
+
 # vw_card_res_input
 
 {% docs view_vw_card_res_input %}
