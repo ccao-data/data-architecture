@@ -49,8 +49,6 @@ WITH base AS (
         AND asmt.rolltype = 'RP'
         AND asmt.cur = 'Y'
         AND asmt.valclass IS NULL
-        AND asmt.cur = 'Y'
-        AND asmt.valclass IS NULL
     LEFT JOIN (
         SELECT *
         FROM (
