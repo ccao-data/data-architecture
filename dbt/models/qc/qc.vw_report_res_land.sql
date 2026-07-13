@@ -53,6 +53,7 @@ WITH base AS (
     ) AS asmt
         ON pardat.parid = asmt.parid
         AND pardat.taxyr = asmt.taxyr
+        AND asmt.rolltype = 'RP'
         AND asmt.cur = 'Y'
         AND asmt.valclass IS NULL
     LEFT JOIN (
