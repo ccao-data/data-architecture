@@ -207,19 +207,6 @@ sources:
                 - year
                 - run_id
 
-  - name: z_dev_model
-    tables:
-      - name: metadata
-        description: '{{ doc("table_metadata") }}'
-        tags:
-          - load_auto
-        data_tests:
-          - unique_combination_of_columns:
-              name: z_dev_model_metadata_unique_year_run
-              combination_of_columns:
-                - year
-                - run_id
-
 models:
   - name: model.vw_metadata
     description: '{{ doc("view_vw_metadata") }}'
