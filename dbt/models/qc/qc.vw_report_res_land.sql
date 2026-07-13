@@ -33,7 +33,7 @@ WITH base AS (
         oby.user10 AS hie_incentive_year,
         owndat.own1 AS owner_name,
         pardat.parid AS pin,
-        pardat.taxyr,
+        pardat.taxyr AS year,
         pardat.tieback,
         pardat.class,
         pardat.nbhd AS nbhd_code,
