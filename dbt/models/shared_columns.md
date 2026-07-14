@@ -1515,6 +1515,20 @@ when the run finished. Names are sourced from current and former employees
 and interns. Adjectives are pulled from the list used by Docker.
 {% enddocs %}
 
+## run_type
+
+{% docs shared_column_run_type %}
+Type of valuation model run. Possible values are:
+
+- `junk`
+- `rejected`
+- `test`
+- `baseline`
+- `candidate`
+- `final`
+- `comps`
+{% enddocs %}
+
 # Other
 
 ## ari

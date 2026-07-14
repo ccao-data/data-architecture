@@ -216,6 +216,13 @@ sources:
 models:
   - name: model.vw_model_run_type
     description: '{{ doc("view_vw_model_run_type") }}'
+    columns:
+      - name: run_id
+        description: '{{ doc("shared_column_run_id") }}'
+      - name: run_type
+        description: '{{ doc("shared_column_run_type") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
 
   - name: model.final_model
     description: '{{ doc("table_final_model") }}'
