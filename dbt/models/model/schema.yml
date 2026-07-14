@@ -207,6 +207,11 @@ sources:
                 - year
                 - run_id
 
+  - name: z_dev_model
+    schema: z_dev_model
+    tables:
+      - name: metadata
+
 models:
   - name: model.vw_metadata
     description: '{{ doc("view_vw_metadata") }}'
