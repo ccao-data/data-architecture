@@ -10,7 +10,7 @@ WITH base AS (
         asmt.valasm1 AS land_av,
         asmt.valasm2 AS bldg_av,
         asmt.valasm3 AS tot_av,
-        asmt.tot30 AS hie_incentive_amount,
+        asmt.val30 AS hie_incentive_amount,
         asmt_prev.wen AS asmt_prev_wen,
         asmt_prev.wencalc AS asmt_prev_wencalc,
         asmt_prev.who AS asmt_prev_who,
@@ -44,33 +44,33 @@ WITH base AS (
         AND pardat.taxyr = legdat.taxyr
         AND legdat.cur = 'Y'
     INNER JOIN (
-        -- Replicates ASMT: ASMT_ALL is the union of ASMT and ASMT_HIST
-        SELECT *
-        FROM {{ source('iasworld', 'asmt_all') }}
-        EXCEPT
-        SELECT *
-        FROM {{ source('iasworld', 'asmt_hist') }}
-    ) AS asmt
-        ON pardat.parid = asmt.parid
-        AND pardat.taxyr = asmt.taxyr
-        AND asmt.rolltype = 'RP'
-        AND asmt.cur = 'Y'
-        AND asmt.valclass IS NULL
-    LEFT JOIN (
         SELECT *
         FROM (
             SELECT
                 *,
                 ROW_NUMBER()
-                    OVER (PARTITION BY parid, taxyr ORDER BY parid)
+                    OVER (PARTITION BY parid, taxyr ORDER BY wen DESC)
                     AS _rn
-            FROM {{ source('iasworld', 'aprval') }}
-            WHERE cur = 'Y'
+            FROM (
+                -- Replicates ASMT: ASMT_ALL is the union of ASMT and ASMT_HIST
+                SELECT *
+                FROM {{ source('iasworld', 'asmt_all') }}
+                EXCEPT
+                SELECT *
+                FROM {{ source('iasworld', 'asmt_hist') }}
+            )
+            WHERE rolltype = 'RP'
+                AND cur = 'Y'
+                AND valclass IS NULL
         )
         WHERE _rn = 1
-    ) AS aprval
+    ) AS asmt
+        ON pardat.parid = asmt.parid
+        AND pardat.taxyr = asmt.taxyr
+    LEFT JOIN {{ source('iasworld', 'aprval') }} AS aprval
         ON pardat.parid = aprval.parid
         AND pardat.taxyr = aprval.taxyr
+        AND aprval.cur = 'Y'
     LEFT JOIN {{ source('iasworld', 'land') }} AS land
         ON pardat.parid = land.parid
         AND pardat.taxyr = land.taxyr
@@ -83,19 +83,32 @@ WITH base AS (
         SELECT
             parid,
             taxyr,
-            ARRAY_JOIN(ARRAY_AGG(DISTINCT user10), ', ') AS user10
+            lline,
+            MIN(user10) AS user10
         FROM {{ source('iasworld', 'oby') }}
         WHERE cur = 'Y'
-        GROUP BY parid, taxyr
+        GROUP BY parid, taxyr, lline
     ) AS oby
-        ON pardat.parid = oby.parid
-        AND pardat.taxyr = oby.taxyr
-    LEFT JOIN {{ source('iasworld', 'asmt_all') }} AS asmt_prev
+        ON land.parid = oby.parid
+        AND land.taxyr = oby.taxyr
+        AND land.lline = oby.lline
+    LEFT JOIN (
+        SELECT *
+        FROM (
+            SELECT
+                *,
+                ROW_NUMBER()
+                    OVER (PARTITION BY parid, taxyr ORDER BY wen DESC)
+                    AS _rn
+            FROM {{ source('iasworld', 'asmt_all') }}
+            WHERE cur = 'Y'
+                AND valclass IS NULL
+                AND rolltype = 'RP'
+        )
+        WHERE _rn = 1
+    ) AS asmt_prev
         ON pardat.parid = asmt_prev.parid
         AND CAST(pardat.taxyr AS INT) = CAST(asmt_prev.taxyr AS INT) + 1
-        AND asmt_prev.cur = 'Y'
-        AND asmt_prev.valclass IS NULL
-        AND asmt_prev.rolltype = 'RP'
     WHERE pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
         AND SUBSTR(pardat.class, 1, 1) IN ('1', '2')
