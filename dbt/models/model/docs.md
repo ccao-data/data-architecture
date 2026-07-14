@@ -79,6 +79,14 @@ hashes of the model code, notes, etc.
 **Primary Key**: `year`, `run_id`
 {% enddocs %}
 
+# z_dev_model.metadata
+
+{% docs table_z_dev_model_metadata %}
+Developmental counterpart to `model.metadata`. Used for junk runs that are not intended for stored indefinetely. Contents are deleted after 30 days.
+
+**Primary Key**: `year`, `run_id`
+{% enddocs %}
+
 # parameter_final
 
 {% docs table_parameter_final %}
@@ -218,15 +226,6 @@ you want to evaluate training set performance for any model run.
 **Primary Key**: `run_id`, `meta_card_num`, `meta_sale_document_num`
 {% enddocs %}
 
-# vw_metadata
-
-{% docs view_vw_metadata %}
-View combining metadata from both the production `model` database and the
-development `z_dev_model` database.
-
-**Primary Key**: `year`, `run_id`
-{% enddocs %}
-
 # vw_card_res_input
 
 {% docs view_vw_card_res_input %}
@@ -244,6 +243,15 @@ data cached by DVC when possible. See
 for more information.
 
 **Primary Key**: `year`, `meta_pin`, `meta_card_num`
+{% enddocs %}
+
+# vw_model_run_type
+
+{% docs view_vw_model_run_type %}
+View combining metadata from both the production `model` database and the
+development `z_dev_model` database.
+
+**Primary Key**: `year`, `run_id`
 {% enddocs %}
 
 # vw_pin_condo_input

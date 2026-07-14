@@ -211,10 +211,17 @@ sources:
     schema: z_dev_model
     tables:
       - name: metadata
+        description: '{{ doc("table_z_dev_model_metadata") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: z_dev_model_metadata_unique_year_run
+              combination_of_columns:
+                - year
+                - run_id
 
 models:
-  - name: model.vw_metadata
-    description: '{{ doc("view_vw_metadata") }}'
+  - name: model.vw_model_run_type
+    description: '{{ doc("view_vw_model_run_type") }}'
 
   - name: model.final_model
     description: '{{ doc("table_final_model") }}'
