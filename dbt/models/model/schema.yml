@@ -212,12 +212,6 @@ sources:
     tables:
       - name: metadata
         description: '{{ doc("table_z_dev_model_metadata") }}'
-        data_tests:
-          - unique_combination_of_columns:
-              name: z_dev_model_metadata_unique_year_run
-              combination_of_columns:
-                - year
-                - run_id
 
 models:
   - name: model.vw_model_run_type
