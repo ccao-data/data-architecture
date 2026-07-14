@@ -79,14 +79,6 @@ hashes of the model code, notes, etc.
 **Primary Key**: `year`, `run_id`
 {% enddocs %}
 
-# z_dev_model.metadata
-
-{% docs table_z_dev_model_metadata %}
-Developmental counterpart to `model.metadata`. Used for junk runs that are not intended for stored indefinetely. Contents are deleted after 30 days.
-
-**Primary Key**: `year`, `run_id`
-{% enddocs %}
-
 # parameter_final
 
 {% docs table_parameter_final %}
@@ -274,4 +266,12 @@ View to compile PIN-level model inputs shared between the residential
 (`model.vw_card_res_input`) and condo (`model.vw_pin_condo_input`) model views.
 
 **Primary Key**: `year`, `meta_pin`
+{% enddocs %}
+
+# z_dev_model.metadata
+
+{% docs table_z_dev_model_metadata %}
+Developmental counterpart to `model.metadata`. Used for junk runs that are not intended for stored indefinetely. Contents are deleted after 30 days.
+
+**Primary Key**: `year`, `run_id`
 {% enddocs %}
