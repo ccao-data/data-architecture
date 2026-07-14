@@ -450,7 +450,9 @@ sources:
             description: '{{ doc("column_upd_status") }}'
           - name: user10
             description: Year in which the home improvement exemption (HIE) was
-              granted for this outbuilding
+              granted.
+          - name: user14
+            description: Year in which the home improvement exemption (HIE) expires.
           - name: user16
             description: '{{ doc("shared_column_alternative_cdu") }}'
           - name: valmeth
