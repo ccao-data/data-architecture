@@ -1515,6 +1515,38 @@ when the run finished. Names are sourced from current and former employees
 and interns. Adjectives are pulled from the list used by Docker.
 {% enddocs %}
 
+## run_type
+
+{% docs shared_column_run_type %}
+Type of valuation model run. Possible values are:
+
+- `junk`: Temporary test model run that will not be preserved.
+  Junk model runs auto-delete after 30 days.
+- `rejected`: Model run that we evaluated as a candidate for a final model,
+  but ultimately rejected. See `baseline`, `candidate`, and `final` for
+  more details.
+- `test`: Test model run that should be preserved. In contrast to `junk`
+  model runs, `test` model runs do not auto-delete.
+- `baseline`: A model run that we use to compare alternative model runs
+  (i.e. `candidate` runs) in a given assessment year. The baseline model run
+  usually has the same features and parameters as the prior assessment year,
+  but with updated data for the current assessment year. 
+- `candidate`: A model run that we are evaluating as a potential `final` run
+  for an assessment year. We compare this type of model run against the
+  `baseline` model run to find one winning model. Winners get retagged as
+  `final` while losers get retagged as `rejected` once we choose final models.
+- `final`: The final model for a given property type (i.e. residential or
+  condo) in a given an assessment year. Models tagged with this run type
+  produce values that get sent to desk review and used as the basis for
+  mailed values. Note that there can be more than one final model for a given
+  property type in a given year, if we used a different final model for
+  different townships.
+- `comps`: A model run that we used to compute significant sales. Often
+  the `final` model includes significant sales, but we use this run type if we
+  need to make changes to the significant sales algorithm after we have already
+  chosen a `final` model.
+{% enddocs %}
+
 # Other
 
 ## ari

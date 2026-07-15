@@ -237,6 +237,15 @@ for more information.
 **Primary Key**: `year`, `meta_pin`, `meta_card_num`
 {% enddocs %}
 
+# vw_model_run_type
+
+{% docs view_vw_model_run_type %}
+View combining metadata from both the production `model` database and the
+development `z_dev_model` database.
+
+**Primary Key**: `run_id`
+{% enddocs %}
+
 # vw_pin_condo_input
 
 {% docs view_vw_pin_condo_input %}
@@ -257,4 +266,12 @@ View to compile PIN-level model inputs shared between the residential
 (`model.vw_card_res_input`) and condo (`model.vw_pin_condo_input`) model views.
 
 **Primary Key**: `year`, `meta_pin`
+{% enddocs %}
+
+# z_dev_model.metadata
+
+{% docs table_z_dev_model_metadata %}
+Development counterpart to `model.metadata`. Used for junk runs that are not intended to be stored indefinitely. Contents are deleted after 30 days.
+
+**Primary Key**: `run_id`
 {% enddocs %}
