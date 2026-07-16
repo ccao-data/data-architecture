@@ -50,7 +50,7 @@ repos:
     hooks:
       - id: check-sort-dbt-yaml-files
         name: check-sort-dbt-yaml-files
-        entry: python3 dbt/scripts/check_sort_dbt_yaml_files.py
+        entry: python dbt/scripts/check_sort_dbt_yaml_files.py
         language: system
         types_or: [yaml, markdown]
         files: ^dbt/
