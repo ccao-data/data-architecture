@@ -46,6 +46,8 @@ WITH base AS (
     INNER JOIN (
         SELECT *
         FROM (
+            -- There are some dupes in asmt_all that we can't entirely account
+            -- for, so we take the most recent row for each PIN/year
             SELECT
                 *,
                 ROW_NUMBER()
