@@ -214,7 +214,7 @@ exposures:
         - pin
         - permit_number
         - date_issued
-      years_active: 1
+      years_active: 5
     description: |
       Building permits organized by PIN, with extra metadata recorded by CCAO
       permit specialists during the permit processing workflow.
