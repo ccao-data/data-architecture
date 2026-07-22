@@ -29,6 +29,7 @@ WITH base AS (
         land.sf AS land_sf,
         land.brate AS land_brate,
         legdat.user1 AS township_code,
+        township.township_name,
         legdat.taxdist,
         oby.user10 AS hie_incentive_year,
         owndat.own1 AS owner_name,
@@ -109,6 +110,8 @@ WITH base AS (
     ) AS asmt_prev
         ON pardat.parid = asmt_prev.parid
         AND CAST(pardat.taxyr AS INT) = CAST(asmt_prev.taxyr AS INT) + 1
+    LEFT JOIN {{ source('spatial', 'township') }} AS township
+        ON legdat.user1 = CAST(township.township_code AS VARCHAR)
     WHERE pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
         AND SUBSTR(pardat.class, 1, 1) IN ('1', '2')
@@ -117,14 +120,16 @@ WITH base AS (
 base_with_sd AS (
     SELECT
         *,
-        AVG(land_av_pct_diff)
-            OVER (PARTITION BY township_code, year)
-            AS land_av_pct_diff_mean,
-        STDDEV(land_av_pct_diff)
-            OVER (PARTITION BY township_code, year)
-            AS land_av_pct_diff_sd,
-        AVG(land_sf) OVER (PARTITION BY township_code, year) AS land_sf_mean,
-        STDDEV(land_sf) OVER (PARTITION BY township_code, year) AS land_sf_sd
+        (land_av_pct_diff - AVG(land_av_pct_diff)
+            OVER (PARTITION BY township_code, year))
+            / NULLIF(STDDEV(land_av_pct_diff)
+            OVER (PARTITION BY township_code, year), 0)
+            AS land_av_pct_diff_zscore,
+        (land_sf - AVG(land_sf)
+            OVER (PARTITION BY township_code, year))
+            / NULLIF(STDDEV(land_sf)
+            OVER (PARTITION BY township_code, year), 0)
+            AS land_sf_zscore
     FROM base
 )
 
@@ -176,11 +181,10 @@ SELECT
             CASE WHEN code IN ('500', '600', 'EX')
                     THEN '🔍 Check: Review land codes 500, 600, and EX'
             END,
-            CASE WHEN (land_av_pct_diff - land_av_pct_diff_mean)
-                    > 2 * land_av_pct_diff_sd
+            CASE WHEN land_av_pct_diff_zscore > 2
                     THEN '🔍 Check: Review big increases in land AV'
             END,
-            CASE WHEN (land_sf - land_sf_mean) > 2 * land_sf_sd
+            CASE WHEN land_sf_zscore > 2
                     THEN '🔍 Check: Review values for PINs with'
                     || ' largest land in the township'
             END,
@@ -192,7 +196,7 @@ SELECT
         x -> x IS NOT NULL
     ) AS tests,
     tieback,
-    township_code,
+    township_name,
     class,
     class_prev,
     owner_name,
@@ -210,8 +214,7 @@ SELECT
     hie_incentive_year,
     land_av_diff,
     land_av_pct_diff,
-    land_av_pct_diff_mean,
-    land_av_pct_diff_sd,
+    land_av_pct_diff_zscore,
     tot_av_diff,
     reascd,
     nbhd_code,
@@ -226,7 +229,6 @@ SELECT
     code,
     land_class,
     land_sf,
-    land_sf_mean,
-    land_sf_sd,
+    land_sf_zscore,
     land_brate
 FROM base_with_sd
