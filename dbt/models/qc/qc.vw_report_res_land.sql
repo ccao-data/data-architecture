@@ -122,14 +122,18 @@ WITH base AS (
 base_with_sd AS (
     SELECT
         *,
-        (land_av_pct_diff - AVG(land_av_pct_diff)
-            OVER (PARTITION BY township_code, year))
-            / NULLIF(STDDEV(land_av_pct_diff)
+        (
+            land_av_pct_diff - AVG(land_av_pct_diff)
+                OVER (PARTITION BY township_code, year)
+        )
+        / NULLIF(STDDEV(land_av_pct_diff)
             OVER (PARTITION BY township_code, year), 0)
             AS land_av_pct_diff_zscore,
-        (land_sf - AVG(land_sf)
-            OVER (PARTITION BY township_code, year))
-            / NULLIF(STDDEV(land_sf)
+        (
+            land_sf - AVG(land_sf)
+                OVER (PARTITION BY township_code, year)
+        )
+        / NULLIF(STDDEV(land_sf)
             OVER (PARTITION BY township_code, year), 0)
             AS land_sf_zscore
     FROM base
