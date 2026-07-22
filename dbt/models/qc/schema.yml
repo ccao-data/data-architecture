@@ -1121,6 +1121,18 @@ models:
   - name: qc.vw_pin_value_null_values
     description: '{{ doc("view_vw_pin_value_null_values") }}'
 
+  - name: qc.vw_report_res_land
+    description: '{{ doc("view_vw_report_res_land") }}'
+    data_tests:
+      - unique_combination_of_columns:
+          name: qc_vw_report_res_land_unique_by_pin_lline_and_year
+          combination_of_columns:
+            - pin
+            - lline
+            - year
+          meta:
+            description: res land report should be unique by pin, lline, and taxyr
+
   - name: qc.vw_report_town_close_0_land_value
     description: '{{ doc("view_vw_report_town_close_0_land_value") }}'
     config:
