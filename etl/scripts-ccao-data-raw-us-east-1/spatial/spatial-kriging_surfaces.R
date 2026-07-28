@@ -482,7 +482,6 @@ krige_tune_hyper <- function(data,
     print(i)
 
 
-
     out <- compute_krige_rmse(data,
       target_var,
       formula_list[i],
@@ -749,7 +748,6 @@ spatial_join_raster_pin <- function(year) {
   print(year)
 
 
-
   # raster_location <- str_c("output/kriging_surfaces/rasters/", year, ".tif") # nolint
   # raster_file <- read_stars(raster_location) # nolint
   ind <- as.numeric(year) - 2009
@@ -761,7 +759,6 @@ spatial_join_raster_pin <- function(year) {
 
   parcel_query_string <- str_c("Select pin10, x_3435, y_3435 FROM spatial.parcel
     Where year = ", "'", year, "'")
-
 
 
   parcels <- dbGetQuery(
