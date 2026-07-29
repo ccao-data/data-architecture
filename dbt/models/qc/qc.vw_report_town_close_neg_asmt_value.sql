@@ -13,11 +13,11 @@ SELECT
     township_code,
     class,
     valclass,
-{% for column in val_columns %}
-    {{ column }}{% if not loop.last %},{% endif %}
-{% endfor %}
+    {% for column in val_columns %}
+        {{ column }}{% if not loop.last %},{% endif %}
+    {% endfor %}
 FROM {{ ref('qc.vw_neg_asmt_value') }}
 WHERE
-{% for column in val_columns %}
-    {{ column }} < 0{% if not loop.last %} OR{% endif %}
-{% endfor %}
+    {% for column in val_columns %}
+        {{ column }} < 0{% if not loop.last %} OR{% endif %}
+    {% endfor %}

@@ -119,4 +119,5 @@ comments AS (
     FROM flags
 )
 
-SELECT * FROM comments WHERE flag_comments IS NOT NULL
+SELECT * FROM comments
+WHERE flag_comments IS NOT NULL

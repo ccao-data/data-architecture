@@ -152,7 +152,8 @@ unique_sales AS (
 ),
 
 mydec_sales AS (
-    SELECT * FROM (
+    SELECT *
+    FROM (
         SELECT
             REPLACE(document_number, 'D', '') AS doc_no,
             REPLACE(line_1_primary_pin, '-', '') AS pin,

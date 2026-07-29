@@ -35,20 +35,20 @@ first_five_dwellings_pivoted AS (
     SELECT
         parid,
         taxyr,
-    {% for idx in range(1, 6) %}
-        yrblt_kv[{{ idx }}] AS yrblt_{{ idx }},
-        sfla_kv[{{ idx }}] AS sfla_{{ idx }},
-        stories_kv[{{ idx }}] AS stories_{{ idx }},
-        rmbed_kv[{{ idx }}] AS rmbed_{{ idx }},
-        fixbath_kv[{{ idx }}] AS fixbath_{{ idx }},
-        fixhalf_kv[{{ idx }}] AS fixhalf_{{ idx }},
-        bsmt_kv[{{ idx }}] AS bsmt_{{ idx }},
-        bsmt_fin_kv[{{ idx }}] AS bsmt_fin_{{ idx }},
-        external_propct_kv[{{ idx }}] AS external_propct_{{ idx }},
-        alt_cdu_kv[{{ idx }}] AS alt_cdu_{{ idx }}{% if not loop.last %}
-            ,
-        {% endif %}
-    {% endfor %}
+        {% for idx in range(1, 6) %}
+            yrblt_kv[{{ idx }}] AS yrblt_{{ idx }},
+            sfla_kv[{{ idx }}] AS sfla_{{ idx }},
+            stories_kv[{{ idx }}] AS stories_{{ idx }},
+            rmbed_kv[{{ idx }}] AS rmbed_{{ idx }},
+            fixbath_kv[{{ idx }}] AS fixbath_{{ idx }},
+            fixhalf_kv[{{ idx }}] AS fixhalf_{{ idx }},
+            bsmt_kv[{{ idx }}] AS bsmt_{{ idx }},
+            bsmt_fin_kv[{{ idx }}] AS bsmt_fin_{{ idx }},
+            external_propct_kv[{{ idx }}] AS external_propct_{{ idx }},
+            alt_cdu_kv[{{ idx }}] AS alt_cdu_{{ idx }}{% if not loop.last %}
+                ,
+            {% endif %}
+        {% endfor %}
     FROM (
         SELECT
             parid,
@@ -133,18 +133,18 @@ SELECT
     aprval.obyval,
     land.sf,
     num_dwellings.num_dwellings,
-{% for idx in range(1, 6) %}
-    dweldat.yrblt_{{ idx }},
-    dweldat.sfla_{{ idx }},
-    dweldat.stories_{{ idx }},
-    dweldat.rmbed_{{ idx }},
-    dweldat.fixbath_{{ idx }},
-    dweldat.fixhalf_{{ idx }},
-    dweldat.bsmt_{{ idx }},
-    dweldat.bsmt_fin_{{ idx }},
-    dweldat.external_propct_{{ idx }},
-    dweldat.alt_cdu_{{ idx }}{% if not loop.last %},{% endif %}
-{% endfor %}
+    {% for idx in range(1, 6) %}
+        dweldat.yrblt_{{ idx }},
+        dweldat.sfla_{{ idx }},
+        dweldat.stories_{{ idx }},
+        dweldat.rmbed_{{ idx }},
+        dweldat.fixbath_{{ idx }},
+        dweldat.fixhalf_{{ idx }},
+        dweldat.bsmt_{{ idx }},
+        dweldat.bsmt_fin_{{ idx }},
+        dweldat.external_propct_{{ idx }},
+        dweldat.alt_cdu_{{ idx }}{% if not loop.last %},{% endif %}
+    {% endfor %}
 FROM {{ source('iasworld', 'pardat') }} AS pardat
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
     ON pardat.parid = legdat.parid

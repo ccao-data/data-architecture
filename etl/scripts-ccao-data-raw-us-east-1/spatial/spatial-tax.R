@@ -19,7 +19,6 @@ file_path <- "//gisemcv1.ccounty.com/ArchiveServices"
 
 # Tax districts
 crossing(
-
   # Paths for all relevant geodatabases
   data.frame("path" = list.files(file_path, full.names = TRUE)) %>%
     filter(

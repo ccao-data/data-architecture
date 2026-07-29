@@ -13,11 +13,11 @@
 SELECT
     pin,
     year,
-{%- for exe_ in exes %}
-    CAST(SUM(CASE
-        WHEN exemption_type = '{{ exe_ }}' THEN exemption_amount ELSE 0
+    {%- for exe_ in exes %}
+        CAST(SUM(CASE
+            WHEN exemption_type = '{{ exe_ }}' THEN exemption_amount ELSE 0
         END) AS INT)
-        AS {{ exe_ }}{%- if not loop.last -%},{%- endif -%}
-{% endfor %}
+            AS {{ exe_ }}{%- if not loop.last -%},{%- endif -%}
+    {% endfor %}
 FROM {{ ref('default.vw_pin_exe_long') }}
 GROUP BY pin, year

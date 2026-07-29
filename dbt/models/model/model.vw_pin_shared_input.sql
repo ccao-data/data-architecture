@@ -86,10 +86,12 @@ housing_index AS (
         ihs.year,
         -- This is quarterly data and needs to be averaged annually
         AVG(CAST(ihs.ihs_index AS DOUBLE)) AS ihs_avg_year_index
-    FROM (SELECT DISTINCT
-        pin10,
-        census_puma_geoid
-    FROM {{ ref('location.census_2020') }}) AS puma
+    FROM (
+        SELECT DISTINCT
+            pin10,
+            census_puma_geoid
+        FROM {{ ref('location.census_2020') }}
+    ) AS puma
     LEFT JOIN {{ source('other', 'ihs_index') }} AS ihs
         ON puma.census_puma_geoid = ihs.geoid
     -- Use ihs.year since the IHS time horizon is larger than that for available
@@ -140,16 +142,16 @@ tax_bill_amount AS (
     SELECT
         pardat.parid AS pin,
         pardat.taxyr AS year,
-        pin.tax_bill_total AS tot_tax_amt,
+        tax_pin.tax_bill_total AS tot_tax_amt,
         tax_code.tax_code_rate AS tax_rate
     FROM {{ source('iasworld', 'pardat') }} AS pardat
-    LEFT JOIN {{ source('tax', 'pin') }} AS pin
-        ON pardat.parid = pin.pin
+    LEFT JOIN {{ source('tax', 'pin') }} AS tax_pin
+        ON pardat.parid = tax_pin.pin
         AND (
             CASE WHEN pardat.taxyr > (SELECT MAX(year) FROM tax.pin)
                     THEN (SELECT MAX(year) FROM tax.pin)
                 ELSE pardat.taxyr
-            END = pin.year
+            END = tax_pin.year
         )
     LEFT JOIN (
         SELECT DISTINCT
@@ -158,9 +160,9 @@ tax_bill_amount AS (
             tax_code_rate
         FROM {{ source('tax', 'tax_code') }}
     ) AS tax_code
-        ON pin.tax_code_num = tax_code.tax_code_num
-        AND pin.year = tax_code.year
-    WHERE pin.pin IS NOT NULL
+        ON tax_pin.tax_code_num = tax_code.tax_code_num
+        AND tax_pin.year = tax_code.year
+    WHERE tax_pin.pin IS NOT NULL
         AND pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
         -- Class 999 are test pins

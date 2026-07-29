@@ -93,7 +93,8 @@ write_partitions_to_s3 <- function(df,
 
 
 standardize_expand_geo <- function(
-    spatial_df, make_valid = FALSE, polygon = TRUE) {
+  spatial_df, make_valid = FALSE, polygon = TRUE
+) {
   return(
     spatial_df %>%
       st_transform(4326) %>%
@@ -121,11 +122,12 @@ standardize_expand_geo <- function(
 }
 
 county_gdb_to_s3 <- function(
-    s3_bucket_uri,
-    dir_name,
-    file_path,
-    layer,
-    overwrite = FALSE) {
+  s3_bucket_uri,
+  dir_name,
+  file_path,
+  layer,
+  overwrite = FALSE
+) {
   remote_file <- file.path(
     s3_bucket_uri,
     dir_name,
