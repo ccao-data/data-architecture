@@ -64,6 +64,9 @@ extended_capitalisation_policy = "upper"
 [tool.sqlfluff.rules.convention.casting_style]
 preferred_type_casting_style = "cast"
 
+[tool.sqlfluff.rules.references.qualification]
+subqueries_ignore_external_references = true
+
 [tool.sqlfluff.templater.jinja]
 load_macros_from_path = "dbt/macros"
 
