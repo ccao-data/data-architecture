@@ -29,7 +29,7 @@ WITH long AS (
         )
 ),
 
-wide AS (
+long_to_wide AS (
     SELECT
         pin10,
         -- Cicero is both a municipality and a township, so we include it in the
@@ -237,13 +237,13 @@ SELECT
     wide.tax_data_year,
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
-LEFT JOIN wide
+LEFT JOIN long_to_wide AS wide
     ON pcl.pin10 = wide.pin10
     -- Join syntax here forward fills with most recent non-null value.
     AND (
-        CASE WHEN pcl.year > (SELECT MAX(year) FROM wide)
-                THEN (SELECT MAX(year) FROM wide)
+        CASE WHEN pcl.year > (SELECT MAX(year) FROM long_to_wide)
+                THEN (SELECT MAX(year) FROM long_to_wide)
             ELSE pcl.year
         END = wide.year
     )
-WHERE pcl.year >= (SELECT MIN(year) FROM wide)
+WHERE pcl.year >= (SELECT MIN(year) FROM long_to_wide)

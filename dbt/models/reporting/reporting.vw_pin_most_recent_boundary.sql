@@ -10,8 +10,8 @@ WITH parcel AS (
     FROM {{ source('spatial', 'parcel') }} AS parcel
     WHERE parcel.year
         = (
-            SELECT MAX(parcel.year)
-            FROM {{ source('spatial', 'parcel') }} AS parcel
+            SELECT MAX(year)
+            FROM {{ source('spatial', 'parcel') }}
         )
         AND parcel.town_code IS NOT NULL
 ),
@@ -25,8 +25,8 @@ municipality AS (
     FROM {{ source('spatial', 'municipality') }} AS municipality
     WHERE municipality.year
         = (
-            SELECT MAX(municipality.year)
-            FROM {{ source('spatial', 'municipality') }} AS municipality
+            SELECT MAX(year)
+            FROM {{ source('spatial', 'municipality') }}
         )
 ),
 
@@ -40,9 +40,9 @@ ward_chicago AS (
     WHERE ward_chicago.ward_name LIKE '%chicago%'
         AND ward_chicago.year
         = (
-            SELECT MAX(ward_chicago.year)
-            FROM {{ source('spatial', 'ward') }} AS ward_chicago
-            WHERE ward_chicago.ward_name LIKE '%chicago%'
+            SELECT MAX(year)
+            FROM {{ source('spatial', 'ward') }}
+            WHERE ward_name LIKE '%chicago%'
         )
 ),
 
@@ -56,9 +56,9 @@ ward_evanston AS (
     WHERE ward_evanston.ward_name LIKE '%evanston%'
         AND ward_evanston.year
         = (
-            SELECT MAX(ward_evanston.year)
-            FROM {{ source('spatial', 'ward') }} AS ward_evanston
-            WHERE ward_evanston.ward_name LIKE '%evanston%'
+            SELECT MAX(year)
+            FROM {{ source('spatial', 'ward') }}
+            WHERE ward_name LIKE '%evanston%'
         )
 ),
 
@@ -71,8 +71,8 @@ community_area AS (
     FROM {{ source('spatial', 'community_area') }} AS community_area
     WHERE community_area.year
         = (
-            SELECT MAX(community_area.year)
-            FROM {{ source('spatial', 'community_area') }} AS community_area
+            SELECT MAX(year)
+            FROM {{ source('spatial', 'community_area') }}
         )
 ),
 
@@ -87,10 +87,8 @@ commissioner_district AS (
             AS commissioner_district
     WHERE commissioner_district.year
         = (
-            SELECT MAX(commissioner_district.year)
-            FROM
-                {{ source('spatial', 'commissioner_district') }}
-                    AS commissioner_district
+            SELECT MAX(year)
+            FROM {{ source('spatial', 'commissioner_district') }}
         )
 ),
 
@@ -106,10 +104,8 @@ state_representative_district AS (
             AS state_representative_district
     WHERE state_representative_district.year
         = (
-            SELECT MAX(state_representative_district.year)
-            FROM
-                {{ source('spatial', 'state_representative_district') }}
-                    AS state_representative_district
+            SELECT MAX(year)
+            FROM {{ source('spatial', 'state_representative_district') }}
         )
 ),
 
@@ -124,10 +120,8 @@ state_senate_district AS (
             AS state_senate_district
     WHERE state_senate_district.year
         = (
-            SELECT MAX(state_senate_district.year)
-            FROM
-                {{ source('spatial', 'state_senate_district') }}
-                    AS state_senate_district
+            SELECT MAX(year)
+            FROM {{ source('spatial', 'state_senate_district') }}
         )
 )
 
