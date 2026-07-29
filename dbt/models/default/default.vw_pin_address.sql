@@ -55,10 +55,10 @@ SELECT
     NULLIF(leg.zip2, '0000') AS prop_address_zipcode_2,
 
     -- PIN owner address from OWNDAT
-    NULLIF(CONCAT_WS(
+    IF(hide.pin IS NULL, NULLIF(CONCAT_WS(
         ' ',
         own.own1, own.own2
-    ), '') AS owner_address_name,
+    ), ''), NULL) AS owner_address_name,
     IF(
         hide.pin IS NULL,
         CASE WHEN NULLIF(own.addr1, '') IS NOT NULL THEN own.addr1
