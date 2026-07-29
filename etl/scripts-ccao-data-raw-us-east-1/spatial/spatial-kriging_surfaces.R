@@ -48,8 +48,6 @@ ohare_noise$geometry <- st_as_sfc(ohare_noise$geometry, crs = 3435)
 ohare_noise <- st_as_sf(ohare_noise)
 
 
-
-
 ohare_contour <- dbGetQuery(
   conn = AWS_ATHENA_CONN_NOCTUA,
   "SELECT airport, ST_GeomFromBinary(geometry) as geometry
@@ -60,7 +58,6 @@ ohare_contour$geometry <- st_as_sfc(ohare_contour$geometry)
 ohare_contour <- st_as_sf(ohare_contour)
 ohare_contour <- st_set_crs(ohare_contour, 4326)
 ohare_contour <- st_transform(ohare_contour, 3435)
-
 
 
 # Check we read correctly:
@@ -133,7 +130,6 @@ airport_clean <- airport %>%
   summarize(noise = mean(noise, na.rm = TRUE))
 
 
-
 # Create new dataset with Airports included:
 ohare <- c(
   site = "ohare",
@@ -153,7 +149,6 @@ aps <- st_set_crs(aps, 4326)
 aps <- st_transform(aps, 3435)
 
 airport_boost <- rbind(airport_clean, aps)
-
 
 
 # Create new dataset with boundaries as quiet (50!)
@@ -190,7 +185,6 @@ airport_extra_boost <- airport_extra_boost %>%
   slice(-c(57, 66))
 
 
-
 # Add coordinates explicitly:
 airport_clean$X <- st_coordinates(st_as_sf(airport_clean))[, 1]
 airport_clean$Y <- st_coordinates(airport_clean)[, 2]
@@ -209,9 +203,7 @@ raster_mdw <- stars::st_as_stars(midway_bbox, dx = 1000)
 rasters <- stars::st_mosaic(raster_ohare, raster_mdw)
 
 
-
 ## PART 2: BUILD SURFACES AND TEST HOW GOOD THEY ARE ====================
-
 
 
 plot_surface <- function(data) {
@@ -482,7 +474,6 @@ krige_tune_hyper <- function(data,
     print(i)
 
 
-
     out <- compute_krige_rmse(data,
       target_var,
       formula_list[i],
@@ -720,8 +711,6 @@ airport_final <- unique(airport_final)
 airport_final <- mutate(airport_final, noise = as.numeric(noise))
 
 
-
-
 # Create surface for it:
 v <- variogram(noise ~ 1, airport_final, cutoff = 200000, width = 500)
 
@@ -749,7 +738,6 @@ spatial_join_raster_pin <- function(year) {
   print(year)
 
 
-
   # raster_location <- str_c("output/kriging_surfaces/rasters/", year, ".tif") # nolint
   # raster_file <- read_stars(raster_location) # nolint
   ind <- as.numeric(year) - 2009
@@ -761,7 +749,6 @@ spatial_join_raster_pin <- function(year) {
 
   parcel_query_string <- str_c("Select pin10, x_3435, y_3435 FROM spatial.parcel
     Where year = ", "'", year, "'")
-
 
 
   parcels <- dbGetQuery(
@@ -806,7 +793,6 @@ lapply(years_low, spatial_join_raster_pin)
 lapply(years, spatial_join_raster_pin)
 
 
-
 # Same code as above but for new year:
 year <- "2021"
 raster_location <- str_c("output/kriging_surfaces/rasters/", "omp_19.tif")
@@ -816,7 +802,6 @@ print("read raster")
 
 parcel_query_string <- str_c("Select pin10, x_3435, y_3435 FROM spatial.parcel
   Where year = ", "'", year, "'")
-
 
 
 parcels <- dbGetQuery(
@@ -853,7 +838,6 @@ write.csv(parcels_spj, file_name)
 print("wrote")
 
 
-
 # Calculate aggregate stats of parcels by DNL:
 ag_stats_parcels_21 <- parcels_spj %>%
   mutate(sound_bin = cut(noise,
@@ -879,7 +863,6 @@ ag_stats_parcels_21 <- cbind(ag_stats_parcels_21, DNL) %>%
   select(DNL, count, percent)
 
 write.csv(ag_stats_parcels_21, "exposure_DNL_21.csv")
-
 
 
 # Reading:
