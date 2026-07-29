@@ -18,11 +18,8 @@ WITH mail AS (
         NULLIF(mail.mzip1, '00000') AS mail_address_zipcode_1,
         NULLIF(mail.mzip2, '0000') AS mail_address_zipcode_2,
         mail.mailseq = MAX(mail.mailseq)
-            OVER (PARTITION BY mail.parid, mail.taxyr) AS newest,
-        hide.pin AS hide_pin
+            OVER (PARTITION BY mail.parid, mail.taxyr) AS newest
     FROM {{ source('iasworld', 'maildat') }} AS mail
-    LEFT JOIN {{ source('ccao', 'hidename') }} AS hide
-        ON mail.parid = hide.pin
     WHERE mail.cur = 'Y'
         AND mail.deactivat IS NULL
 )
@@ -62,27 +59,35 @@ SELECT
         ' ',
         own.own1, own.own2
     ), '') AS owner_address_name,
-    CASE WHEN NULLIF(own.addr1, '') IS NOT NULL THEN own.addr1
-        WHEN NULLIF(own.addr2, '') IS NOT NULL THEN own.addr2
-        ELSE NULLIF(CONCAT_WS(
-                ' ',
-                CAST(own.adrno AS VARCHAR),
-                own.adrdir, own.adrstr, own.adrsuf,
-                own.unitdesc, own.unitno
-            ), '')
-    END AS owner_address_full,
-    own.cityname AS owner_address_city_name,
-    own.statecode AS owner_address_state,
-    NULLIF(own.zip1, '00000') AS owner_address_zipcode_1,
-    NULLIF(own.zip2, '0000') AS owner_address_zipcode_2,
+    IF(
+        hide.pin IS NULL,
+        CASE WHEN NULLIF(own.addr1, '') IS NOT NULL THEN own.addr1
+            WHEN NULLIF(own.addr2, '') IS NOT NULL THEN own.addr2
+            ELSE NULLIF(CONCAT_WS(
+                    ' ',
+                    CAST(own.adrno AS VARCHAR),
+                    own.adrdir, own.adrstr, own.adrsuf,
+                    own.unitdesc, own.unitno
+                ), '')
+        END, NULL
+    ) AS owner_address_full,
+    IF(hide.pin IS NULL, own.cityname, NULL) AS owner_address_city_name,
+    IF(hide.pin IS NULL, own.statecode, NULL) AS owner_address_state,
+    IF(hide.pin IS NULL, NULLIF(own.zip1, '00000'), NULL)
+        AS owner_address_zipcode_1,
+    IF(hide.pin IS NULL, NULLIF(own.zip2, '0000'), NULL)
+        AS owner_address_zipcode_2,
 
     -- PIN mailing address from MAILDAT
-    mail.mail_address_name,
-    mail.mail_address_full,
-    mail.mail_address_city_name,
-    mail.mail_address_state,
-    mail.mail_address_zipcode_1,
-    mail.mail_address_zipcode_2
+    IF(hide.pin IS NULL, mail.mail_address_name, NULL) AS mail_address_name,
+    IF(hide.pin IS NULL, mail.mail_address_full, NULL) AS mail_address_full,
+    IF(hide.pin IS NULL, mail.mail_address_city_name, NULL)
+        AS mail_address_city_name,
+    IF(hide.pin IS NULL, mail.mail_address_state, NULL) AS mail_address_state,
+    IF(hide.pin IS NULL, mail.mail_address_zipcode_1, NULL)
+        AS mail_address_zipcode_1,
+    IF(hide.pin IS NULL, mail.mail_address_zipcode_2, NULL)
+        AS mail_address_zipcode_2
 
 FROM {{ source('iasworld', 'pardat') }} AS par
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
@@ -99,8 +104,9 @@ LEFT JOIN mail
     ON par.parid = mail.parid
     AND par.taxyr = mail.taxyr
     AND mail.newest
-    -- Exclude mailing columns for PINs with suppression requests
-    AND mail.hide_pin IS NULL
+-- Exclude mailing columns for PINs with suppression requests
+LEFT JOIN {{ source('ccao', 'hidename') }} AS hide
+    ON par.parid = hide.pin
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
     -- Remove any parcels with non-numeric characters
