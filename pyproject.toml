@@ -41,7 +41,7 @@ indented_on_contents = false
 indented_ctes = false
 indented_then = true
 indented_then_contents = false
-implicit_indents = "allow"
+allow_implicit_indents = true
 
 [tool.sqlfluff.rules.aliasing.table]
 aliasing = "explicit"
