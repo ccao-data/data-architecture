@@ -34,7 +34,8 @@ SELECT
     land.oincr,
     land.odecr,
     land.exmppct,
-    land.osize
+    land.osize,
+    land.user7
 FROM {{ source('iasworld', 'land') }} AS land
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
     ON land.parid = legdat.parid
