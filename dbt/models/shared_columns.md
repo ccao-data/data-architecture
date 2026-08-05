@@ -242,8 +242,9 @@ Possible values for this variable are:
 - `1` = Assessor recommendation
 - `2` = Certificate of correction
 - `A` = Current year appeal
-- `C` = Current appeal & certificate of error
-- `E` = Certificate of error only
+- `C` = Current year appeal & prior year(s) certificate of error
+- `D` = ***2026 and later:*** Certificate of error only
+- `E` = ***2026 and later:*** Determinations for C and D records | ***2025 and earlier:*** Certificate of error only
 - `F` = Smartfile exemption certificate of error filing
 - `O` = Omitted assessment
 - `R` = Re-review
@@ -1530,7 +1531,7 @@ Type of valuation model run. Possible values are:
 - `baseline`: A model run that we use to compare alternative model runs
   (i.e. `candidate` runs) in a given assessment year. The baseline model run
   usually has the same features and parameters as the prior assessment year,
-  but with updated data for the current assessment year. 
+  but with updated data for the current assessment year.
 - `candidate`: A model run that we are evaluating as a potential `final` run
   for an assessment year. We compare this type of model run against the
   `baseline` model run to find one winning model. Winners get retagged as
