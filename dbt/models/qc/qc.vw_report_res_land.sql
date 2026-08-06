@@ -19,8 +19,8 @@ WITH base AS (
         asmt_prev.valasm2 AS board_bldg_av_prev,
         asmt_prev.valasm3 AS board_tot_av_prev,
         asmt.valasm1 - asmt_prev.valasm1 AS land_av_diff,
-        (asmt.valasm1 - asmt_prev.valasm1)
-        / NULLIF(asmt_prev.valasm1, 0) AS land_av_pct_diff,
+        100.0 * (asmt.valasm1 - asmt_prev.valasm1)
+        / NULLIF(CAST(asmt_prev.valasm1 AS DOUBLE), 0) AS land_av_pct_diff,
         asmt.valasm3 - asmt_prev.valasm3 AS tot_av_diff,
         land.lline,
         land.ltype,
