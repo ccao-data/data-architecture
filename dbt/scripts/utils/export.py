@@ -407,6 +407,16 @@ def save_model_to_workbook(
             )
             for row in non_header_rows:
                 for cell in row:
+                    # If a cell contains a string value that starts with an
+                    # equals sign, openpyxl will write it as a formula. In
+                    # these cases, we need to explicitly instruct openpyxl
+                    # to write the value as a string, or else Excel may prompt
+                    # the user to repair these nonsense formulae when opening
+                    # the file
+                    if isinstance(cell.value, str) and cell.value[:1] == "=":
+                        cell.data_type = "s"
+                    # Check to see if this model is configured to format blank
+                    # values as empty strings, and implement that conversion
                     if format_blanks_as_empty_string and (
                         cell.value == "" or cell.value is None
                     ):
