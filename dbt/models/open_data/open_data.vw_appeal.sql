@@ -18,8 +18,16 @@ SELECT
     CASE WHEN hearing_type = '1' THEN 'Assessor recommendation'
         WHEN hearing_type = '2' THEN 'Certificate of correction'
         WHEN hearing_type = 'A' THEN 'Current year appeal'
-        WHEN hearing_type = 'C' THEN 'Current appeal & certificate of error'
-        WHEN hearing_type = 'E' THEN 'Certificate of error only'
+        WHEN
+            hearing_type = 'C'
+            THEN 'Current year appeal & prior year(s) certificate of error'
+        WHEN hearing_type = 'D' THEN 'Certificate of error only'
+        WHEN
+            hearing_type = 'E' AND year >= '2026'
+            THEN 'Determinations for C and D records'
+        WHEN
+            hearing_type = 'E' AND year <= '2025'
+            THEN 'Certificate of error only'
         WHEN
             hearing_type = 'F'
             THEN 'Smartfile exemption certificate of error filing'

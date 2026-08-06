@@ -25,7 +25,6 @@ remote_file_town_warehouse <- file.path(
 )
 
 
-
 if (!aws.s3::object_exists(remote_file_town_warehouse)) {
   tmp_file_town <- tempfile(fileext = ".geojson")
   aws.s3::save_object(remote_file_town_raw, file = tmp_file_town)

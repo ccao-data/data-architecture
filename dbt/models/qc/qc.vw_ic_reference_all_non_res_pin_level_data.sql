@@ -10,6 +10,8 @@ SELECT
     aprval.aprtot,
     aprval.aprbldg,
     aprval.dwelval,
+    aprval.ecf,
+    aprval.exmppct,
     legdat.adrno,
     legdat.adrdir,
     legdat.adrstr,

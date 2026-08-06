@@ -36,7 +36,8 @@ census_district_files_df <- aws.s3::get_bucket_df(
 
 # Clean up and merge non-CPS district files from different years
 process_census_district_file <- function(
-    s3_bucket_uri, file_year, uri, dist_type) {
+  s3_bucket_uri, file_year, uri, dist_type
+) {
   # Download S3 files to local temp dir if they don't exist
   tmp_file_local <- file.path(
     school_tmp_dir,
@@ -120,7 +121,8 @@ county_district_files_df <- aws.s3::get_bucket_df(
 
 # Clean up and merge non-CPS district files from different years
 process_county_district_file <- function(
-    s3_bucket_uri, file_year, uri, dist_type) {
+  s3_bucket_uri, file_year, uri, dist_type
+) {
   # Download S3 files to local temp dir if they don't exist
   tmp_file_local <- file.path(
     school_tmp_dir,

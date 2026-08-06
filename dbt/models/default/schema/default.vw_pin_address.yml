@@ -85,6 +85,8 @@ unit_tests:
     description: view should filter out extra spaces from maildat
     model: default.vw_pin_address
     given:
+      # This is the only table that matters; everything else is just necessary
+      # to build the view properly
       - input: source("iasworld", "maildat")
         rows:
           - parid: "00000000000000"
@@ -104,6 +106,8 @@ unit_tests:
           - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null}
       - input: source("iasworld", "owndat")
         rows: *bad-address-pin-row
+      - input: source("ccao", "hidename")
+        rows: []
     expect:
       rows:
         - {mail_address_name: "FOO BAR BAZ", mail_address_full: "123 S MAIN ST"}
@@ -111,6 +115,8 @@ unit_tests:
     description: view should filter for only 14-digit numeric PINs
     model: default.vw_pin_address
     given:
+      # This is the only table that matters; everything else is just necessary
+      # to build the view properly
       - input: source("iasworld", "pardat")
         rows:
           # `parid` is the important column here, and all other columns are
@@ -127,6 +133,8 @@ unit_tests:
         rows: *invalid-pin-rows
       - input: source("iasworld", "maildat")
         rows: *invalid-pin-rows
+      - input: source("ccao", "hidename")
+        rows: []
     expect:
       rows:
         - {pin: "00000000000000"}

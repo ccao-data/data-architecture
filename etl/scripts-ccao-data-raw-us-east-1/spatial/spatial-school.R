@@ -290,7 +290,6 @@ pwalk(sources_list, function(...) {
 file_path <- "//gisemcv1.ccounty.com/ArchiveServices"
 
 crossing(
-
   # Paths for all relevant geodatabases
   data.frame("path" = list.files(file_path, full.names = TRUE)) %>%
     filter(

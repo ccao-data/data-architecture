@@ -21,6 +21,7 @@ This directory stores the configuration for building our data catalog using
   * [Data integrity tests](#data-integrity-tests)
   * [Unit tests](#unit-tests)
   * [QC reports](#qc-reports)
+      * [List of active QC reports](#list-of-active-qc-reports)
 * [🐛 Debugging tips](#-debugging-tips)
 
 ### Outside this document
@@ -793,14 +794,35 @@ dbt models that are configured with attributes that can be parsed by the
 build on it for specific workflows, like the [`export_qc_town_close_reports`
 script](./scripts/export_qc_town_close_reports.py).
 
+#### List of active QC reports
+
+These are the QC reports that we run on a regular basis:
+
+* **Town close QC reports**. Valuations uses these reports to catch common
+  data errors when they are working on closing a town. They mainly use a
+  Tableau version of these reports, but it is still possible to generate them
+  manually. See [Town close QC reports](#town-close-qc-reports) for details.
+* **IC reference files**. Valuations uses these reference files for industrial
+  and commercial QC. See [IC reference files](#ic-reference-files) for details.
+* **AHSAP change in value report**. Engagement occasionally asks for AHSAP AVs
+  for different townships. This view helps the office communicate any large
+  swings in AHSAP values to stakeholders. See [AHSAP change in value
+  report](#ahsap-change-in-value-qc-report) for details.
+* **Condo review**. Data Integrity uses triad-specific output from this view to
+  prioritize condo unit and building characteristics for review each year. See
+  [Condo review](#condo-review) for details.
+
+For docs explaining how to add a new QC report, see [Adding QC
+reports](#adding-qc-reports) below.
+
 #### Running QC reports with `export_models`
 
 We run QC reports when Valuations staff ask for them, which most often occurs before
 a major event in the Valuations calendar like the close of a township.
 
 The [`export_models` script](./scripts/export_models.py) is the foundation for
-our QC reports. The script expects certain Python requirements, which can be installed
-by running `uv sync --frozen --extra dbt_tests`.
+most of our QC reports. The script expects certain Python requirements, which
+can be installed by running `uv sync --frozen --extra dbt_tests`.
 
 The script exposes a few options that help to export the right data:
 
@@ -826,14 +848,37 @@ The script exposes a few options that help to export the right data:
   target](https://docs.getdbt.com/reference/dbt-jinja-functions/target) to run
   queries against. Defaults to `dev`. You should never have to set this option
   when running the script locally.
+* **`--output-dir`** (optional): The path to the directory where the script will
+  store output files. Defaults to `dbt/export/output/`.
+* **`--log-to-file`** (optional): The path to a log file where the script will
+  write logs. When set, each run of the script will overwrite the log file if
+  it exists already. Logs are always written to stdout as well, regardless of
+  whether and how this option is set.
+* **`--log-to-cloudwatch-group`** (optional): CloudWatch log group name. When
+  set, the script will write logs to a stream in that log group named after
+  the current date, in addition to writing logs to stdout.
+
+Note that this list of options might be out of date, since we maintain these
+docs separately from the script itself. For the most up-to-date list of
+options, run `python scripts/export_models.py --help`.
 
 Other scripts that build on `export_models` for specific workflows tend to
 expose similar options. See the documentation for these workflows below for
 more details.
 
-#### Running town close QC reports with `export_qc_town_close_reports`
+#### Town close QC reports
 
-We run town close reports using the [`scripts/export_qc_town_close_reports.py`
+Town close QC reports are a set of reports that Valuations looks at before
+closing a town. These reports help them catch common errors before the town is
+certified to mail. Each report is based on a dbt model in the `qc` database
+whose name uses the prefix `qc.vw_report_town_close_*`, and we tag each of
+these models with the shared tag `qc_report_town_close`.
+
+These days, Valuations mainly uses a Tableau version of the
+reports, so we rarely need to generate them manually. The Tableau reports are
+hosted on our Tableau server under the project "Town Close QC Reports". When we
+do need to generate the reports manually, however, we can do so using the
+[`scripts/export_qc_town_close_reports.py`
 script](./scripts/export_qc_town_close_reports.py), which builds on top of
 `export_models`. As such, `export_qc_town_close_reports` expects the same set
 of Python requirements as `export_models`, which can be installed in a virtual
@@ -861,8 +906,8 @@ The script exposes the following options, many of which are the same as
   See [Refreshing iasWorld tables prior to running town close QC
   reports](#refreshing-iasworld-tables-prior-to-running-town-close-qc-reports) for more
   details.
-* **`output-dir`** (optional): The Unix-formatted path to the directory where
-  the script will store output files. Defaults to `./export/output/`.
+* **`--output-dir`** (optional): The path to the directory where the script will
+  store output files. Defaults to `dbt/export/output/`.
 
 Assuming a township code defined by `$TOWNSHIP_CODE` and a tax year defined by
 `$TAXYR`, the following command will generate town close reports for the township/year combo:
@@ -919,7 +964,36 @@ docker exec spark-node-master-prod ./submit.sh
     --json-string {"aprval": {"table_name": "iasworld.aprval", "min_year": 2024, "cur": ["Y"], ...
 ```
 
-#### Running the AHSAP change in value QC report
+#### IC reference files
+
+We maintain a scheduled process on a Windows VM that exports a set of Excel
+workbooks once per day for the Industrial and Commercial Valuations (IC) team.
+We call these workbooks "IC reference files". Each reference file corresponds to
+a dbt model that we tag with the shared tag `qc_report_ic_reference`.
+
+The IC team maintains their own QC workbooks that use our reference files as a
+data source. We have to run the task to generate these files on a VM because the
+IC team needs us to save them to a location on their network drive, and the Data
+team server can't write to network drives.
+
+Here is a basic version of the command that exports IC reference files:
+
+```
+python3 scripts/export_models.py --select tag:qc_report_ic_reference --where "taxyr = '2026'"
+```
+
+This command is configured to run once per day using Windows Task Scheduler.
+Note that the exact command is slightly different on the VM in order to enable
+running on Windows. Differences include:
+
+* The VM command uses an absolute path for the Python executable
+* The VM command uses the option `--target prod` to query prod data
+* The VM command sets the `--output-dir` option to save files to a network drive
+  location
+* The VM command uses the `--log-to-file` and `--log-to-cloudwatch-group`
+  options in order to preserve logs
+
+#### AHSAP change in value QC report
 
 We define the AHSAP change in value QC report using one model, `qc.vw_change_in_ahsap_values`,
 which we filter for a specific township name (like "Hyde Park") and tax year during export.
@@ -929,6 +1003,22 @@ and a tax year defined by `$TAXYR`:
 
 ```
 python3 scripts/export_models.py --select qc.vw_change_in_ahsap_values --where "taxyr = '$TAXYR' and township_name = '$TOWNSHIP_NAME'"
+```
+
+The script will output the reports to the `dbt/export/output/` directory, and will print the
+name of the report that it exports during execution.
+
+#### Condo review
+
+We define the condo review query using one model, `qc.vw_pin_condo_review`,
+which we filter for a specific triad name (like "South") and tax year during
+export.
+
+Here's an example of how to export that model for a triad defined by `$TRIAD_NAME`
+and a tax year defined by `$YEAR`:
+
+```
+python3 scripts/export_models.py --select qc.vw_pin_condo_review --where "year = '$YEAR' and triad_name = '$TRIAD_NAME'"
 ```
 
 The script will output the reports to the `dbt/export/output/` directory, and will print the

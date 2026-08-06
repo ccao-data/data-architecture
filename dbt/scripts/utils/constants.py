@@ -29,8 +29,8 @@ REBUILD_ARGUMENT_KWARGS: AddArgumentKwargs = {
 OUTPUT_DIR_ARGUMENT_ARGS = ["--output-dir"]
 OUTPUT_DIR_ARGUMENT_KWARGS: AddArgumentKwargs = {
     "help": (
-        "Unix-formatted path to directory where output files will be stored, "
-        "defaults to export/output/"
+        "Path to the directory where output files will be written. "
+        "Defaults to ./export/output/"
     ),
 }
 SELECT_ARGUMENT_ARGS = ["--select"]
@@ -51,14 +51,16 @@ SELECTOR_ARGUMENT_KWARGS: AddArgumentKwargs = {
 LOG_TO_FILE_ARGUMENT_ARGS = ["--log-to-file"]
 LOG_TO_FILE_ARGUMENT_KWARGS: AddArgumentKwargs = {
     "help": (
-        "Flag to indicate whether to log to a local file. If set, logs will be "
-        "written to a user-defined location."
+        "Path to a file where logs will be written. If set and the log file "
+        "already exists, that file will be overwritten with new logs. Logs "
+        "are always written to stdout regardless of whether this option is set"
     )
 }
 LOG_TO_CLOUDWATCH_GROUP_ARGUMENT_ARGS = ["--log-to-cloudwatch-group"]
 LOG_TO_CLOUDWATCH_GROUP_ARGUMENT_KWARGS: AddArgumentKwargs = {
     "help": (
-        "Flag to indicate whether to log to a CloudWatch log group. If set, "
-        "logs will be written to a user-defined AWS CloudWatch log group."
+        "CloudWatch log group name. If set, logs will be written to a stream "
+        "in that log group named after the current date. Logs are always "
+        "written to stdout regardless of whether this option is set"
     )
 }

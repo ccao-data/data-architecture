@@ -146,8 +146,6 @@ walk(remote_files_park_warehouse, function(x) {
 })
 
 
-
-
 ##### INDUSTRIAL CORRIDOR #####
 remote_file_indc_raw <- file.path(
   input_bucket, "industrial_corridor", "2013.geojson"

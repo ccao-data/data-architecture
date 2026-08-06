@@ -168,15 +168,52 @@ Wall time of each stage (train, assess, etc.) for each model run (`run_id`).
 **Primary Key**: `year`, `run_id`
 {% enddocs %}
 
+# train_card
+
+{% docs table_train_card %}
+Card-level (building) model outputs on the training set by model run (`run_id`).
+
+The training set is the in-sample data used to fit the initial model.
+Predictions in this table are made using only sales from the training set.
+
+Note that this table is distinct from the `model.training_data` table, which
+also contains characteristics and predictions for training data. Differences
+include:
+
+1. `model.training_data` is updated manually once per year, and only contains
+   data for final model runs. `model.train_card` is updated automatically on
+   every model run, and it contains data for every run regardless of run type.
+2. `model.training_data` combines the training set and the test set for each
+   final model run. `model.train_card` only includes the training set.
+3. `model.training_data` contains the full set of characteristics for each sale.
+   `model.train_card` only contains a minimal set of the most important
+   characteristics.
+
+In general, you should use this table when you want to evaluate training set
+performance for any model run. You should use `model.training_data` when you
+want access to the exact set of sales that we used for a final model run.
+
+**Primary Key**: `year`, `run_id`, `meta_pin`, `meta_card_num`,
+`meta_sale_document_num`
+{% enddocs %}
+
 # training_data
 
 {% docs table_training_data %}
 
-A table containing the training data from the final model runs.
+A table containing the training data for each of our final model runs.
 
 We update this table once per assessment year after choosing the final model
 runs for the year. As such, only final model run IDs should be present in this
 table.
+
+Note that this table is distinct from the `model.training_data` table, which
+also contains characteristics and predictions for training data. See the docs
+for that table for full details.
+
+In general, you should use this table when you want access to the exact set of
+sales that we used for a final model run. You should use `model.train_card` when
+you want to evaluate training set performance for any model run.
 
 **Primary Key**: `run_id`, `meta_card_num`, `meta_sale_document_num`
 {% enddocs %}
@@ -200,6 +237,15 @@ for more information.
 **Primary Key**: `year`, `meta_pin`, `meta_card_num`
 {% enddocs %}
 
+# vw_model_run_type
+
+{% docs view_vw_model_run_type %}
+View combining metadata from both the production `model` database and the
+development `z_dev_model` database.
+
+**Primary Key**: `run_id`
+{% enddocs %}
+
 # vw_pin_condo_input
 
 {% docs view_vw_pin_condo_input %}
@@ -220,4 +266,12 @@ View to compile PIN-level model inputs shared between the residential
 (`model.vw_card_res_input`) and condo (`model.vw_pin_condo_input`) model views.
 
 **Primary Key**: `year`, `meta_pin`
+{% enddocs %}
+
+# z_dev_model.metadata
+
+{% docs table_z_dev_model_metadata %}
+Development counterpart to `model.metadata`. Used for junk runs that are not intended to be stored indefinitely. Contents are deleted after 30 days.
+
+**Primary Key**: `run_id`
 {% enddocs %}
