@@ -1,4 +1,4 @@
-WITH base AS ( 
+WITH base AS (
     SELECT
         aprval.reascd,
         aprval.revcode,
