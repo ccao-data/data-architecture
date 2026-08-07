@@ -5,7 +5,7 @@ sources:
       - load_auto
       - data_test_iasworld
       - type_condo
-
+ 
     tables:
       - name: oby
         description: '{{ doc("table_oby") }}'
