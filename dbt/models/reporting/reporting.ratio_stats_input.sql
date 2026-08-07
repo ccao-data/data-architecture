@@ -78,4 +78,5 @@ WHERE NOT vwps.is_multisale
     AND NOT vwps.sale_filter_less_than_10k
     AND NOT vwps.sale_filter_same_sale_within_365
     AND cls.modeling_group IS NOT NULL
+    -- hug
     AND ps.pin IS NULL
