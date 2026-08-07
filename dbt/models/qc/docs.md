@@ -202,6 +202,12 @@ classes.
 This view is not currently in use in any QC workflows.
 {% enddocs %}
 
+# vw_report_res_land
+
+{% docs view_vw_report_res_land %}
+QC report for residential land (parcel classes 100–299). Includes errors (things we know are incorrect and need to be fixed) and checks (things which are unlikely or fishy).
+{% enddocs %}
+
 # vw_report_town_close_0_land_value
 
 {% docs view_vw_report_town_close_0_land_value %}
