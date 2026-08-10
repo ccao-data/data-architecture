@@ -51,7 +51,6 @@ SELECT
     vwps.pin,
     av.year,
     vwps.year AS sale_year,
-    av.class,
     cls.modeling_group AS property_group,
     av.assessment_stage,
     towns.triad_code AS triad,
