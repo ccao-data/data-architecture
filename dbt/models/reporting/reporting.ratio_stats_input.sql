@@ -67,7 +67,6 @@ LEFT JOIN {{ source('spatial', 'township') }} AS towns
 INNER JOIN all_values AS av
     ON vwps.pin = av.pin
     AND CAST(vwps.year AS INT) = CAST(av.year AS INT) - 1
-    AND av.total > 0
 LEFT JOIN {{ ref('ccao.class_dict') }} AS cls
     ON av.class = cls.class_code
 -- Grab parking spaces and join them to aggregate stats for removal
@@ -81,3 +80,4 @@ WHERE NOT vwps.is_multisale
     AND NOT vwps.sale_filter_same_sale_within_365
     AND cls.modeling_group IS NOT NULL
     AND ps.pin IS NULL
+    AND av.total > 0
