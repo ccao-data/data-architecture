@@ -67,7 +67,8 @@ LEFT JOIN {{ source('spatial', 'township') }} AS towns
 INNER JOIN all_values AS av
     ON vwps.pin = av.pin
     AND CAST(vwps.year AS INT) = CAST(av.year AS INT) - 1
-    --AND av.total > 0
+    -- Remove NULL and zero FMVs
+    AND av.total > 0
 LEFT JOIN {{ ref('ccao.class_dict') }} AS cls
     ON av.class = cls.class_code
 -- Grab parking spaces and join them to aggregate stats for removal
