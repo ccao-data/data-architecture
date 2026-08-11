@@ -34,9 +34,17 @@ models:
     data_tests:
       - expression_is_true:
           name: reporting_ratio_stats_metrics_are_sensible
-          # pre-mailed values exhibit variance that makes applying the same prb
-          # constraints as other assessment stages trigger a test failure too
-          # often to be helpful
+          # There are two important nuances regarding the PRB condition:
+          #
+          #   1. Pre-mailed values exhibit variance that makes applying the same
+          #      PRB constraints as other assessment stages trigger a test
+          #      failure too often to be helpful, so we exclude pre-mailed
+          #      values from the condition
+          #   2. There is no theoretical limit to PRB, but we set an arbitrary
+          #      error threshold at +-2 because we want to catch anomalous
+          #      values. We may need to extend this range in the future if we
+          #      see valid PRBs lower than the lower bound, or higher than the
+          #      upper bound
           expression: |
             cod >= 0
             AND prd >= 0
