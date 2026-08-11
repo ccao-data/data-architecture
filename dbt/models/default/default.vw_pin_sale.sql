@@ -19,6 +19,71 @@ WITH town_class AS (
         AND par.deactivat IS NULL
 ),
 
+-- doc no's for these sales come from the ccao.additional_mydec_sales table.
+-- Constructing the rows here, upstream of all other logic, means the
+-- additional sales flow through the same dedupe windows and filters as
+-- iasworld sales
+sales_unioned AS (
+    SELECT
+        sales.parid,
+        sales.saledt,
+        sales.price,
+        sales.salekey,
+        sales.instruno,
+        sales.instrtyp,
+        sales.nopar,
+        sales.oldown,
+        sales.own1,
+        sales.saletype,
+        sales.deactivat,
+        sales.cur
+    FROM {{ source('iasworld', 'sales') }} AS sales
+    UNION ALL
+    SELECT
+        REPLACE(md.line_1_primary_pin, '-', '') AS parid,
+        -- Match the exact iasworld saledt string format so that the
+        -- dedupe windows below, which partition on raw saledt, treat
+        -- same-day sales from both sources as equal
+        CONCAT(md.line_4_instrument_date, ' 00:00:00.000') AS saledt,
+        CAST(md.line_11_full_consideration AS DECIMAL(10, 0)) AS price,
+        CAST(NULL AS DECIMAL(8, 0)) AS salekey,
+        md.document_number AS instruno,
+        -- Map mydec instrument types to iasworld deed type codes (see
+        -- the sale.deed_type seed) so that these sales pass downstream
+        -- deed type filters the same way iasworld sales do
+        CASE
+            WHEN md.line_5_instrument_type = 'Warranty Deed' THEN '01'
+            WHEN md.line_5_instrument_type = 'Trustee Deed' THEN '02'
+            WHEN md.line_5_instrument_type = 'Quit Claim Deed' THEN '03'
+            WHEN md.line_5_instrument_type = 'Executor Deed' THEN '04'
+            WHEN md.line_5_instrument_type = 'Beneficial interest'
+                THEN '06'
+            ELSE '05'
+        END AS instrtyp,
+        -- Non-multisale mydec sales are single-parcel by definition
+        CAST(1 AS DECIMAL(4, 0)) AS nopar,
+        NULLIF(TRIM(md.seller_name), '') AS oldown,
+        NULLIF(TRIM(md.buyer_name), '') AS own1,
+        CAST(NULL AS VARCHAR) AS saletype,
+        CAST(NULL AS VARCHAR) AS deactivat,
+        'Y' AS cur
+    FROM {{ source('sale', 'mydec') }} AS md
+    INNER JOIN {{ source('ccao', 'additional_mydec_sales') }} AS ams
+        ON md.document_number = ams.doc_no
+    -- Exclude doc nos already live in iasworld so we keep parity with
+    -- prod for sales that were ingested normally
+    LEFT JOIN (
+        SELECT DISTINCT NULLIF(REPLACE(instruno, 'D', ''), '') AS doc_no
+        FROM {{ source('iasworld', 'sales') }}
+        WHERE deactivat IS NULL
+            AND cur = 'Y'
+    ) AS ias
+        ON md.document_number = ias.doc_no
+    WHERE NOT md.is_multisale
+        AND md.line_11_full_consideration IS NOT NULL
+        AND ias.doc_no IS NULL
+),
+
 -- "nopar" isn't entirely accurate for sales associated with only one parcel,
 -- so we create our own counter
 calculated AS (
@@ -29,7 +94,7 @@ calculated AS (
         SELECT DISTINCT
             parid,
             NULLIF(REPLACE(instruno, 'D', ''), '') AS instruno
-        FROM {{ source('iasworld', 'sales') }}
+        FROM sales_unioned
         WHERE deactivat IS NULL
             AND cur = 'Y'
     )
@@ -128,7 +193,7 @@ unique_sales AS (
                 sales.instrtyp IN ('03', '04', '06') OR sales.instrtyp IS NULL,
                 FALSE
             ) AS sale_filter_deed_type
-        FROM {{ source('iasworld', 'sales') }} AS sales
+        FROM sales_unioned AS sales
         LEFT JOIN calculated
             ON NULLIF(REPLACE(sales.instruno, 'D', ''), '')
             = calculated.instruno
@@ -145,14 +210,15 @@ unique_sales AS (
             )
             AND tc.township_code IS NOT NULL
             AND sales.price IS NOT NULL
-    )
+    ) AS sales_calculated
     -- Only use max price by pin/sale date
     WHERE max_price = 1
         AND (bad_doc_no = 1 OR is_multisale = TRUE)
 ),
 
 mydec_sales AS (
-    SELECT * FROM (
+    SELECT *
+    FROM (
         SELECT
             REPLACE(document_number, 'D', '') AS doc_no,
             REPLACE(line_1_primary_pin, '-', '') AS pin,

@@ -274,7 +274,7 @@ models:
           equals: >
             (
               SELECT COUNT(DISTINCT(meta_sale_document_num))
-              FROM {{ source('sale', 'flag') }}
+              FROM z_dev_miwagne_sale.flag
             )
       - unique_combination_of_columns:
           name: sale_vw_flag_unique_by_doc_no
@@ -430,7 +430,7 @@ models:
               SELECT COUNT(*)
               FROM (
                 SELECT DISTINCT(meta_sale_document_num) AS doc_no
-                FROM {{ source('sale', 'flag') }}
+                FROM z_dev_miwagne_sale.flag
                 UNION
                 SELECT DISTINCT(doc_no) AS doc_no
                 FROM {{ source('sale', 'flag_review') }}
