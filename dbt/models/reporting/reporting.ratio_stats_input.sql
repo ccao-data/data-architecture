@@ -51,22 +51,25 @@ SELECT
     vwps.pin,
     av.year,
     vwps.year AS sale_year,
-    towns.property_group,
+    cls.modeling_group AS property_group,
     av.assessment_stage,
     towns.triad_code AS triad,
-    towns.township_code,
+    vwps.township_code,
     av.total AS fmv,
     vwps.sale_price,
     av.total / vwps.sale_price AS ratio
 FROM {{ ref('default.vw_pin_sale') }} AS vwps
-LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS towns
-    ON vwps.pin = towns.pin
-    AND vwps.year = towns.year
+LEFT JOIN {{ source('spatial', 'township') }} AS towns
+    ON vwps.township_code = towns.township_code
     -- Join sales so that values for a given year can be compared to a
     -- complete set of sales from the previous year
 INNER JOIN all_values AS av
     ON vwps.pin = av.pin
     AND CAST(vwps.year AS INT) = CAST(av.year AS INT) - 1
+    -- Remove NULL and zero FMVs
+    AND av.total > 0
+LEFT JOIN {{ ref('ccao.class_dict') }} AS cls
+    ON av.class = cls.class_code
 -- Grab parking spaces and join them to aggregate stats for removal
 LEFT JOIN {{ ref('default.vw_pin_condo_char') }} AS ps
     ON av.pin = ps.pin
@@ -76,5 +79,5 @@ WHERE NOT vwps.is_multisale
     AND NOT vwps.sale_filter_deed_type
     AND NOT vwps.sale_filter_less_than_10k
     AND NOT vwps.sale_filter_same_sale_within_365
-    AND towns.property_group IS NOT NULL
+    AND cls.modeling_group IS NOT NULL
     AND ps.pin IS NULL
