@@ -9,7 +9,7 @@ sources:
         columns:
           - name: group
             description: '{{ doc("column_group_id") }}'
-          - name: meta_sale_document_number
+          - name: meta_sale_document_num
             description: '{{ doc("shared_column_document_number") }}'
           - name: ptax_flag_original
             description: |
@@ -66,7 +66,7 @@ sources:
           - name: loaded_at
             description: The time at which the data warehouse transformation script ran that produced the data.
           - name: requires_field_check
-            description: '{{ doc("shared_column_requires_field_check") }}'
+            description: '{{ doc("column_requires_field_check") }}'
           - name: source_file
             description: Name of the excel file the data was ingested from.
           - name: work_drawer
@@ -114,12 +114,16 @@ sources:
         columns:
           - name: group
             description: '{{ doc("column_group_id") }}'
+          - name: group_mean
+            description: Mean sale price of the group, in logged dollars
           - name: group_size
             description: '{{ doc("column_group_size") }}'
-          - name: mean_price
-            description: Mean price of the group, in FMV
-          - name: mean_price_per_sqft
-            description: Mean price per sqft (of building) of the group, in FMV
+          - name: group_sqft_mean
+            description: Mean building square footage of the group, logged
+          - name: group_sqft_std
+            description: Standard deviation of logged building square footage of the group
+          - name: group_std
+            description: Standard deviation of sale price of the group, in logged dollars
           - name: run_id
             description: '{{ doc("shared_column_sv_run_id") }}'
 
@@ -136,51 +140,36 @@ sources:
                 description: parameter is unique by run_id
 
         columns:
-          - name: condo_stat_groups
-            description: |
-              Groups used to calculate flagging statistics (std. dev.)
-              for condominium (class 299, 399) properties
-          - name: dev_bounds
-            description: |
-              Boundaries for standard deviation flagging.
-
-              Sales with prices beyond these boundaries are flagged.
           - name: earliest_data_ingest
-            description: |
-              Date of earliest sale used in validation.
-
-              This inclusive of the rolling window period used for
-              calculating statistical groups. In other words, if the earliest
-              sale to-be-flagged is 2013-12-01 and the rolling window period
-              is 9 months, then the earliest sale *used* would be 2013-03-01
+            description: '{{ doc("column_earliest_data_ingest") }}'
+          - name: housing_market_class_codes
+            description: '{{ doc("column_housing_market_class_codes") }}'
           - name: iso_forest_cols
-            description: Columns used as features in the isolation forest model
+            description: '{{ doc("column_iso_forest_cols") }}'
           - name: latest_data_ingest
-            description: Date of latest sale used in validation
+            description: '{{ doc("column_latest_data_ingest") }}'
           - name: min_group_thresh
             description: '{{ doc("column_min_group_thresh") }}'
-          - name: ptax_sd
-            description: |
-              Boundaries for standard deviation flagging in combination
-              with a PTAX-203 flag
-          - name: res_stat_groups
-            description: |
-              Groups used to calculate flagging statistics (std. dev.)
-              for residential (class 2) properties
+          - name: raw_price_threshold
+            description: '{{ doc("column_raw_price_threshold") }}'
           - name: rolling_window
             description: '{{ doc("column_rolling_window") }}'
+          - name: run_filter
+            description: '{{ doc("column_run_filter") }}'
           - name: run_id
             description: '{{ doc("shared_column_sv_run_id") }}'
           - name: sales_flagged
-            description: |
-              Total number of sales flagged.
-
-              Inclusive of both sales flagged as outliers *and* sales
-              flagged as non-outliers
+            description: '{{ doc("column_sales_flagged") }}'
+          - name: sales_to_write_filter
+            description: '{{ doc("column_sales_to_write_filter") }}'
           - name: short_term_owner_threshold
-            description: |
-              Properties with a significant price change and multiple
-              sales within this time duration (in days) are flagged
+            description: '{{ doc("column_short_term_owner_threshold") }}'
+          - name: standard_deviation_bounds
+            description: '{{ doc("column_standard_deviation_bounds") }}'
+          - name: stat_groups
+            description: '{{ doc("column_stat_groups") }}'
+          - name: time_frame
+            description: '{{ doc("column_time_frame") }}'
 
 
       - name: metadata

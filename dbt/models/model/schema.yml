@@ -240,8 +240,8 @@ models:
         description: '{{ doc("shared_column_year") }}'
       - name: run_id
         description: '{{ doc("shared_column_run_id") }}'
-      - name: triad_name
-        description: '{{ doc("shared_column_triad_name") }}'
+      - name: triad_code
+        description: '{{ doc("shared_column_triad_code") }}'
       - name: type
         description: Model type (residential or condo)
       - name: is_final
@@ -583,12 +583,6 @@ models:
       - &other_ihs_avg_year_index
         name: other_ihs_avg_year_index
         description: '{{ doc("shared_column_ihs_avg_year_index") }}'
-      - &other_ari
-        name: other_ari
-        description: '{{ doc("shared_column_ari") }}'
-      - &other_dci
-        name: other_dci
-        description: '{{ doc("shared_column_dci") }}'
       - &other_school_district_elementary_avg_rating
         name: other_school_district_elementary_avg_rating
         description: '{{ doc("shared_column_school_district_elementary_avg_rating") }}'
@@ -837,8 +831,6 @@ models:
       - *meta_triad_name
       - *meta_year
       - *other_ihs_avg_year_index
-      - *other_dci
-      - *other_ari
       - *other_school_district_elementary_avg_rating
       - *other_school_district_secondary_avg_rating
       - *other_tax_bill_amount_total
@@ -1105,8 +1097,6 @@ models:
       - *meta_triad_name
       - *meta_year
       - *other_ihs_avg_year_index
-      - *other_dci
-      - *other_ari
       - *other_school_district_elementary_avg_rating
       - *other_school_district_secondary_avg_rating
       - *other_tax_bill_amount_total

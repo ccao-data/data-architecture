@@ -82,7 +82,7 @@ models:
           this being 0.
       - name: mydec_line_9_other_change
         description: Binary indicator on the ptax-203 form. A subsection of a question about significant physical changes to the property.
-      - name: mydec_line_9_other_description
+      - name: mydec_line_9_other_change_description
         description: This field describes the work done from mydec_line_9_other_change.
       - name: nbhd
         description: '{{ doc("shared_column_nbhd_code") }}'
@@ -92,8 +92,6 @@ models:
         description: '{{ doc("shared_column_outlier_reason") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
-      - name: requires_field_check
-        description: '{{ doc("shared_column_requires_field_check") }}'
       - name: review_has_characteristic_change
         description: '{{ doc("shared_column_has_characteristic_change") }}'
       - name: review_has_class_change
