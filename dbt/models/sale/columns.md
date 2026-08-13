@@ -25,8 +25,8 @@ Typically a combination of a:
 {% docs column_group_size %}
 Count of sales/properties in the group.
 
-This is the population within which price statistics (e.g., standard deviation)
-are calculated.
+This is the number of observations in a population within which price statistics
+(e.g., standard deviation) are calculated.
 {% enddocs %}
 
 ## housing_market_class_codes
@@ -44,7 +44,7 @@ Columns used as features in the isolation forest model
 ## latest_data_ingest
 
 {% docs column_latest_data_ingest %}
-Date of latest sale used in validation
+Date of the latest sale pulled by the ingest query
 {% enddocs %}
 
 ## min_group_thresh
@@ -62,7 +62,8 @@ classified as outliers.
 ## raw_price_threshold
 
 {% docs column_raw_price_threshold %}
-Upper bound price beyond which all sales are flagged as outliers
+Upper bound price beyond which all sales are flagged as outliers, independent
+of any standard deviation or group size thresholds
 {% enddocs %}
 
 ## requires_field_check
@@ -111,8 +112,11 @@ but those flags will not get written to the database.
 ## short_term_owner_threshold
 
 {% docs column_short_term_owner_threshold %}
-Properties with a significant price change and multiple sales within this time
-duration (in days) are flagged
+Threshold that determines the number of days since a property's previous sale at
+which the seller is considered to be a "short-term owner".
+
+Sales under this threshold receive the "Short-term owner" characteristic reason
+in one of the `sv_outlier_reason` fields.
 {% enddocs %}
 
 ## standard_deviation_bounds
