@@ -1550,6 +1550,22 @@ Type of valuation model run. Possible values are:
 
 # Other
 
+## ari
+
+{% docs shared_column_ari %}
+Illinois Housing Development Authority's Affordability Risk Index.
+
+It is unclear of IHDA's data timeline. Year currently refers to final year of census data used.
+{% enddocs %}
+
+## dci
+
+{% docs shared_column_dci %}
+Distressed Communities Index from the Economic Innovation Group.
+
+Unit of observations is ZIP Code. Year refers to year of final year of census data used.
+{% enddocs %}
+
 ## ihs_avg_year_index
 
 {% docs shared_column_ihs_avg_year_index %}
