@@ -132,8 +132,6 @@ sources:
             description: '{{ doc("shared_column_loaded_at") }}'
           - name: loc
             description: Location code
-          - name: name1
-            description: '{{ doc("shared_column_agent_name") }}'
           - name: notcdate
             description: Date of notice from previous hearing level
           - name: noticedate

@@ -68,7 +68,7 @@ sources:
           - name: loaded_at
             description: '{{ doc("shared_column_loaded_at") }}'
           - name: name1
-            description: Name line 1
+            description: '{{ doc("shared_column_agent_name") }}'
           - name: name1_companyname
             description: Agent 1 company name
           - name: name1_firstname

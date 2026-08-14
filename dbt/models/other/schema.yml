@@ -50,6 +50,9 @@ sources:
 
       - name: dci
         description: '{{ doc("table_dci") }}'
+        columns:
+          - name: dci
+            description: '{{ doc("shared_column_dci") }}'
         data_tests:
           - unique_combination_of_columns:
               name: other_dci_unique_by_year_and_geoid
@@ -61,6 +64,9 @@ sources:
 
       - name: ari
         description: '{{ doc("table_ari") }}'
+        columns:
+          - name: ari_score
+            description: '{{ doc("shared_column_ari") }}'
         data_tests:
           - unique_combination_of_columns:
               name: other_ari_unique_by_geoid_and_year
