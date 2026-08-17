@@ -187,7 +187,7 @@ SELECT
             CASE WHEN code IN ('500', '600', 'EX')
                     THEN '🔍 Check: Review land codes 500, 600, and EX'
             END,
-            CASE WHEN land_av_pct_diff_zscore > 2
+            CASE WHEN land_av_pct_diff >= 100
                     THEN '🔍 Check: Review big increases in land AV'
             END,
             CASE WHEN land_sf_zscore > 2
