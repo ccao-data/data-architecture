@@ -185,7 +185,12 @@ sources:
                     AND model.taxyr = external_model.taxyr
                     AND external_model.cur = 'Y'
                     AND external_model.deactivat IS NULL
-                  config: *unique-conditions
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND nbhd NOT LIKE '%999'
                   meta:
                     category: relationships
                     description: nbhd code first 2 digits should match legdat.user1 (township code)
