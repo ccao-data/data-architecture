@@ -143,7 +143,6 @@ iasworld_pardat_nbhd_matches_legdat_township AS (
         AND {{ var('data_test_iasworld_year_end') }}
         AND pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
-        AND pardat.nbhd NOT LIKE '%999'
 ),
 
 iasworld_pardat_nbhd_matches_spatial_town_nbhd AS (
