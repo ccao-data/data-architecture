@@ -205,8 +205,8 @@ This view is not currently in use in any QC workflows.
 # vw_report_iasworld_test_pardat
 
 {% docs view_vw_report_iasworld_test_pardat %}
-Aggregates iasworld.pardat data tests as a queryable view, with one row
-per PIN failing a given test.
+Aggregates test failures, stemming from iasworld pardat. Each observation is a failure
+based on unique PIN, year, and failing test combinations.
 {% enddocs %}
 
 # vw_report_res_land
