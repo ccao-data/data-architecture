@@ -1,9 +1,6 @@
 models:
   - name: qc.vw_report_iasworld_test_pardat
-    description: >
-      Recreates iasworld.pardat data tests as a queryable view, with one row
-      per PIN failing a given test. Used to power the Tableau iasWorld QC
-      dashboard.
+    description: '{{ doc("view_vw_report_iasworld_test_pardat") }}'
 
   - name: qc.vw_change_in_ahsap_values
     description: '{{ doc("view_vw_change_in_ahsap_values") }}'
