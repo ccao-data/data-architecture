@@ -24,8 +24,8 @@ pardat_seq AS (
         wen
     FROM {{ source('iasworld', 'pardat') }}
     WHERE CAST(taxyr AS INT) BETWEEN
-            {{ var('data_test_iasworld_year_start') }}
-            AND {{ var('data_test_iasworld_year_end') }}
+        {{ var('data_test_iasworld_year_start') }}
+        AND {{ var('data_test_iasworld_year_end') }}
         AND cur = 'Y'
         AND deactivat IS NULL
 ),
@@ -53,8 +53,8 @@ iasworld_pardat_adrno_length_lte_5 AS (
         AND pardat.taxyr = legdat.taxyr
     WHERE NOT (LENGTH(CAST(pardat.adrno AS VARCHAR)) <= 5)
         AND CAST(pardat.taxyr AS INT) BETWEEN
-            {{ var('data_test_iasworld_year_start') }}
-            AND {{ var('data_test_iasworld_year_end') }}
+        {{ var('data_test_iasworld_year_start') }}
+        AND {{ var('data_test_iasworld_year_end') }}
         AND pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
 ),
@@ -82,8 +82,8 @@ iasworld_pardat_class_equals_luc AS (
         AND pardat.taxyr = legdat.taxyr
     WHERE NOT (pardat.class = pardat.luc)
         AND CAST(pardat.taxyr AS INT) BETWEEN
-            {{ var('data_test_iasworld_year_start') }}
-            AND {{ var('data_test_iasworld_year_end') }}
+        {{ var('data_test_iasworld_year_start') }}
+        AND {{ var('data_test_iasworld_year_end') }}
         AND pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
 ),
@@ -111,8 +111,8 @@ iasworld_pardat_cur_in_accepted_values AS (
         AND pardat.taxyr = legdat.taxyr
     WHERE pardat.cur NOT IN ('Y', 'D')
         AND CAST(pardat.taxyr AS INT) BETWEEN
-            {{ var('data_test_iasworld_year_start') }}
-            AND {{ var('data_test_iasworld_year_end') }}
+        {{ var('data_test_iasworld_year_start') }}
+        AND {{ var('data_test_iasworld_year_end') }}
 ),
 
 iasworld_pardat_nbhd_matches_legdat_township AS (
@@ -139,8 +139,8 @@ iasworld_pardat_nbhd_matches_legdat_township AS (
         AND pardat.taxyr = legdat.taxyr
         AND SUBSTR(pardat.nbhd, 1, 2) != legdat.township_code
     WHERE CAST(pardat.taxyr AS INT) BETWEEN
-            {{ var('data_test_iasworld_year_start') }}
-            AND {{ var('data_test_iasworld_year_end') }}
+        {{ var('data_test_iasworld_year_start') }}
+        AND {{ var('data_test_iasworld_year_end') }}
         AND pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
         AND pardat.nbhd NOT LIKE '%999'
@@ -171,8 +171,8 @@ iasworld_pardat_nbhd_matches_spatial_town_nbhd AS (
         ON pardat.nbhd = distinct_town_nbhd.town_nbhd
     WHERE distinct_town_nbhd.town_nbhd IS NULL
         AND CAST(pardat.taxyr AS INT) BETWEEN
-            {{ var('data_test_iasworld_year_start') }}
-            AND {{ var('data_test_iasworld_year_end') }}
+        {{ var('data_test_iasworld_year_start') }}
+        AND {{ var('data_test_iasworld_year_end') }}
         AND pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
         AND pardat.nbhd NOT LIKE '%999'
@@ -227,11 +227,14 @@ iasworld_pardat_unique_by_parid_taxyr AS (
         ON pardat.parid = legdat.parid
         AND pardat.taxyr = legdat.taxyr
     INNER JOIN (
-        SELECT parid, taxyr, COUNT(*) AS num_dupes
+        SELECT
+            parid,
+            taxyr,
+            COUNT(*) AS num_dupes
         FROM {{ source('iasworld', 'pardat') }}
         WHERE CAST(taxyr AS INT) BETWEEN
-                {{ var('data_test_iasworld_year_start') }}
-                AND {{ var('data_test_iasworld_year_end') }}
+            {{ var('data_test_iasworld_year_start') }}
+            AND {{ var('data_test_iasworld_year_end') }}
             AND cur = 'Y'
             AND deactivat IS NULL
         GROUP BY parid, taxyr
@@ -240,8 +243,8 @@ iasworld_pardat_unique_by_parid_taxyr AS (
         ON pardat.parid = dupe_counts.parid
         AND pardat.taxyr = dupe_counts.taxyr
     WHERE CAST(pardat.taxyr AS INT) BETWEEN
-            {{ var('data_test_iasworld_year_start') }}
-            AND {{ var('data_test_iasworld_year_end') }}
+        {{ var('data_test_iasworld_year_start') }}
+        AND {{ var('data_test_iasworld_year_end') }}
         AND pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
 )
