@@ -133,6 +133,7 @@ iasworld_pardat_nbhd_matches_legdat_township AS (
         ON pardat.parid = legdat.parid
         AND pardat.taxyr = legdat.taxyr
         AND SUBSTR(pardat.nbhd, 1, 2) != legdat.township_code
+    WHERE pardat.nbhd NOT LIKE '%999'
 ),
 
 iasworld_pardat_nbhd_matches_spatial_town_nbhd AS (
