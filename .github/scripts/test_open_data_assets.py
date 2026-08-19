@@ -47,12 +47,13 @@ REQUESTS.mount(
     "https://datacatalog.cookcountyil.gov", HTTPAdapter(max_retries=retries)
 )
 
-# Data for the most recent two years are permitted to be slightly different,
-# according to this buffer value. This is because we expect some level of
-# change in the Athena data (which is updated daily) compared to the Open Data
-# portal (which is updated bi-weekly or monthly).
-BUFFER_CURRENT = 0.02
-BUFFER_OLD = 0.5
+# Data is permitted to be slightly different, according to these buffer values.
+# This is because we expect some level of change for the most current two years
+# in the Athena data (which is updated daily) compared to the Open Data portal
+# (which is updated bi-weekly or monthly). We expect differences to arise for
+# prior years due to our slower open data update cadence for those years (once
+# a year) despite their relatively static nature in Athena.
+BUFFERS = {"current": 0.02, "prior": 0.3}
 
 
 def main() -> None:
@@ -180,8 +181,7 @@ def diff_row_counts(
     open_data_asset_row_counts: typing.List[typing.Dict],
     athena_model_year_field: str = DEFAULT_YEAR_FIELD,
     open_data_asset_year_field: str = DEFAULT_YEAR_FIELD,
-    current_year_buffer: float = BUFFER_CURRENT,
-    prior_year_buffer: float = BUFFER_OLD,
+    buffers: typing.Dict[str, float] = BUFFERS,
 ) -> typing.List[typing.Dict]:
     """Check whether two lists of row count dicts are the same. Applies a
     buffer to the current year of data to account for the fact that more
@@ -242,9 +242,9 @@ def diff_row_counts(
             continue
 
         buffer = (
-            current_year_buffer
+            buffers["current"]
             if model_year in [current_year, last_year]
-            else prior_year_buffer
+            else buffers["prior"]
         )
         counts_match = (
             model_count * (1 - buffer)
