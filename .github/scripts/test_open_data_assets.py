@@ -51,7 +51,8 @@ REQUESTS.mount(
 # according to this buffer value. This is because we expect some level of
 # change in the Athena data (which is updated daily) compared to the Open Data
 # portal (which is updated bi-weekly or monthly).
-BUFFER = 0.02
+BUFFER_CURRENT = 0.02
+BUFFER_OLD = 0.5
 
 
 def main() -> None:
@@ -179,7 +180,8 @@ def diff_row_counts(
     open_data_asset_row_counts: typing.List[typing.Dict],
     athena_model_year_field: str = DEFAULT_YEAR_FIELD,
     open_data_asset_year_field: str = DEFAULT_YEAR_FIELD,
-    current_year_buffer: float = BUFFER,
+    current_year_buffer: float = BUFFER_CURRENT,
+    prior_year_buffer: float = BUFFER_OLD,
 ) -> typing.List[typing.Dict]:
     """Check whether two lists of row count dicts are the same. Applies a
     buffer to the current year of data to account for the fact that more
@@ -246,7 +248,11 @@ def diff_row_counts(
                 < model_count * (1 + current_year_buffer)
             )
             if model_year in [current_year, last_year]
-            else asset_count == model_count
+            else (
+                model_count * (1 - prior_year_buffer)
+                < asset_count
+                < model_count * (1 + prior_year_buffer)
+            )
         )
 
         if not counts_match:
