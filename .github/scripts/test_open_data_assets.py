@@ -53,7 +53,7 @@ REQUESTS.mount(
 # (which is updated bi-weekly or monthly). We expect differences to arise for
 # prior years due to our slower open data update cadence for those years (once
 # a year) despite their relatively static nature in Athena.
-BUFFERS = {"current": 0.02, "prior": 0.2}
+BUFFERS = {"current": 0.02, "prior": 0.1}
 
 
 def main() -> None:
@@ -159,8 +159,11 @@ def main() -> None:
             "by year:"
         )
 
+        # Declaring column types for agate helps make sure number columns with
+        # values of only 0/1 aren't coerced into booleans and makes printing
+        # our year column cleaner.
         diff_column_types = {
-            DEFAULT_YEAR_FIELD: agate.Text(),
+            "year": agate.Text(),
             source_model_name: agate.Number(),
             asset_name: agate.Number(),
         }
@@ -170,10 +173,6 @@ def main() -> None:
             diff_table = agate.Table.from_object(
                 diff, column_types=diff_column_types
             )
-            # Note that agate adds thousands separators to years, even when
-            # they're strings (as in our data). This is super annoying but
-            # it's still the fastest way we know to print a clean table
-            # in Python :\
             diff_table.print_table(
                 max_rows=None, max_columns=None, max_column_width=None
             )
