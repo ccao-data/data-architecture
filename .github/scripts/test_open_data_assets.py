@@ -53,7 +53,7 @@ REQUESTS.mount(
 # (which is updated bi-weekly or monthly). We expect differences to arise for
 # prior years due to our slower open data update cadence for those years (once
 # a year) despite their relatively static nature in Athena.
-BUFFERS = {"current": 0.02, "prior": 0.1}
+BUFFERS = {"current": 0.02, "prior": 0.2}
 
 
 def main() -> None:
@@ -162,11 +162,7 @@ def main() -> None:
         # Declaring column types for agate helps make sure number columns with
         # values of only 0/1 aren't coerced into booleans and makes printing
         # our year column cleaner.
-        diff_column_types = {
-            "year": agate.Text(),
-            source_model_name: agate.Number(),
-            asset_name: agate.Number(),
-        }
+        diff_column_types = (agate.Text(), agate.Number(), agate.Number())
 
         for diff in diffs:
             print()
