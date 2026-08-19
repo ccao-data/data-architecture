@@ -35,6 +35,11 @@ vars:
   # but can also be use to select specific time frames for testing
   data_test_iasworld_year_end: 2030
 
+  # Current modeling year, for the purposes of running data tests. This filter
+  # helps ensure we are testing the integrity of our model artifacts during
+  # modeling season, while ignoring old data problems that we can't control
+  data_test_model_current_assessment_year: 2027
+
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 models:
