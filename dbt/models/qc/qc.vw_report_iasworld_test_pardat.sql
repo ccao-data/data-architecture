@@ -13,6 +13,16 @@ distinct_town_nbhd AS (
     FROM {{ source('spatial', 'neighborhood') }}
 ),
 
+pardat AS (
+    SELECT *
+    FROM {{ source('iasworld', 'pardat') }}
+    WHERE CAST(taxyr AS INT) BETWEEN
+        {{ var('data_test_iasworld_year_start') }}
+        AND {{ var('data_test_iasworld_year_end') }}
+        AND cur = 'Y'
+        AND deactivat IS NULL
+),
+
 pardat_seq AS (
     SELECT
         parid,
@@ -22,12 +32,7 @@ pardat_seq AS (
         LAG(seq) OVER (PARTITION BY parid, taxyr ORDER BY seq) AS prev_seq,
         who,
         wen
-    FROM {{ source('iasworld', 'pardat') }}
-    WHERE CAST(taxyr AS INT) BETWEEN
-        {{ var('data_test_iasworld_year_start') }}
-        AND {{ var('data_test_iasworld_year_end') }}
-        AND cur = 'Y'
-        AND deactivat IS NULL
+    FROM pardat
 ),
 
 iasworld_pardat_adrno_length_lte_5 AS (
@@ -47,16 +52,11 @@ iasworld_pardat_adrno_length_lte_5 AS (
             ARRAY['adrno'],
             ARRAY[CAST(pardat.adrno AS VARCHAR)]
         ) AS additional_fields
-    FROM {{ source('iasworld', 'pardat') }} AS pardat
+    FROM pardat
     LEFT JOIN legdat_townships AS legdat
         ON pardat.parid = legdat.parid
         AND pardat.taxyr = legdat.taxyr
     WHERE NOT (LENGTH(CAST(pardat.adrno AS VARCHAR)) <= 5)
-        AND CAST(pardat.taxyr AS INT) BETWEEN
-        {{ var('data_test_iasworld_year_start') }}
-        AND {{ var('data_test_iasworld_year_end') }}
-        AND pardat.cur = 'Y'
-        AND pardat.deactivat IS NULL
 ),
 
 iasworld_pardat_class_equals_luc AS (
@@ -76,16 +76,11 @@ iasworld_pardat_class_equals_luc AS (
             ARRAY['luc'],
             ARRAY[pardat.luc]
         ) AS additional_fields
-    FROM {{ source('iasworld', 'pardat') }} AS pardat
+    FROM pardat
     LEFT JOIN legdat_townships AS legdat
         ON pardat.parid = legdat.parid
         AND pardat.taxyr = legdat.taxyr
     WHERE NOT (pardat.class = pardat.luc)
-        AND CAST(pardat.taxyr AS INT) BETWEEN
-        {{ var('data_test_iasworld_year_start') }}
-        AND {{ var('data_test_iasworld_year_end') }}
-        AND pardat.cur = 'Y'
-        AND pardat.deactivat IS NULL
 ),
 
 iasworld_pardat_cur_in_accepted_values AS (
@@ -133,16 +128,11 @@ iasworld_pardat_nbhd_matches_legdat_township AS (
             ARRAY['nbhd'],
             ARRAY[pardat.nbhd]
         ) AS additional_fields
-    FROM {{ source('iasworld', 'pardat') }} AS pardat
+    FROM pardat
     INNER JOIN legdat_townships AS legdat
         ON pardat.parid = legdat.parid
         AND pardat.taxyr = legdat.taxyr
         AND SUBSTR(pardat.nbhd, 1, 2) != legdat.township_code
-    WHERE CAST(pardat.taxyr AS INT) BETWEEN
-        {{ var('data_test_iasworld_year_start') }}
-        AND {{ var('data_test_iasworld_year_end') }}
-        AND pardat.cur = 'Y'
-        AND pardat.deactivat IS NULL
 ),
 
 iasworld_pardat_nbhd_matches_spatial_town_nbhd AS (
@@ -162,18 +152,13 @@ iasworld_pardat_nbhd_matches_spatial_town_nbhd AS (
             ARRAY['nbhd'],
             ARRAY[pardat.nbhd]
         ) AS additional_fields
-    FROM {{ source('iasworld', 'pardat') }} AS pardat
+    FROM pardat
     LEFT JOIN legdat_townships AS legdat
         ON pardat.parid = legdat.parid
         AND pardat.taxyr = legdat.taxyr
     LEFT JOIN distinct_town_nbhd
         ON pardat.nbhd = distinct_town_nbhd.town_nbhd
     WHERE distinct_town_nbhd.town_nbhd IS NULL
-        AND CAST(pardat.taxyr AS INT) BETWEEN
-        {{ var('data_test_iasworld_year_start') }}
-        AND {{ var('data_test_iasworld_year_end') }}
-        AND pardat.cur = 'Y'
-        AND pardat.deactivat IS NULL
         AND pardat.nbhd NOT LIKE '%999'
 ),
 
@@ -221,7 +206,7 @@ iasworld_pardat_unique_by_parid_taxyr AS (
             ARRAY['num_duplicates'],
             ARRAY[CAST(dupe_counts.num_dupes AS VARCHAR)]
         ) AS additional_fields
-    FROM {{ source('iasworld', 'pardat') }} AS pardat
+    FROM pardat
     LEFT JOIN legdat_townships AS legdat
         ON pardat.parid = legdat.parid
         AND pardat.taxyr = legdat.taxyr
@@ -230,22 +215,12 @@ iasworld_pardat_unique_by_parid_taxyr AS (
             parid,
             taxyr,
             COUNT(*) AS num_dupes
-        FROM {{ source('iasworld', 'pardat') }}
-        WHERE CAST(taxyr AS INT) BETWEEN
-            {{ var('data_test_iasworld_year_start') }}
-            AND {{ var('data_test_iasworld_year_end') }}
-            AND cur = 'Y'
-            AND deactivat IS NULL
+        FROM pardat
         GROUP BY parid, taxyr
         HAVING COUNT(*) > 1
     ) AS dupe_counts
         ON pardat.parid = dupe_counts.parid
         AND pardat.taxyr = dupe_counts.taxyr
-    WHERE CAST(pardat.taxyr AS INT) BETWEEN
-        {{ var('data_test_iasworld_year_start') }}
-        AND {{ var('data_test_iasworld_year_end') }}
-        AND pardat.cur = 'Y'
-        AND pardat.deactivat IS NULL
 )
 
 SELECT * FROM iasworld_pardat_adrno_length_lte_5
