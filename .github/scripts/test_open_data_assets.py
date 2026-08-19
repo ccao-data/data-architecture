@@ -241,18 +241,15 @@ def diff_row_counts(
             )
             continue
 
-        counts_match = (
-            (
-                model_count * (1 - current_year_buffer)
-                < asset_count
-                < model_count * (1 + current_year_buffer)
-            )
+        buffer = (
+            current_year_buffer
             if model_year in [current_year, last_year]
-            else (
-                model_count * (1 - prior_year_buffer)
-                < asset_count
-                < model_count * (1 + prior_year_buffer)
-            )
+            else prior_year_buffer
+        )
+        counts_match = (
+            model_count * (1 - buffer)
+            < asset_count
+            < model_count * (1 + buffer)
         )
 
         if not counts_match:
