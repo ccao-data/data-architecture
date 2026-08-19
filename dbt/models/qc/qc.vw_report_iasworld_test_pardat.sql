@@ -50,7 +50,7 @@
     }
 ] -%}
 
-WITH base AS (
+{%- set base_query %}
     SELECT
         -- Identifying columns
         pardat.parid,
@@ -87,53 +87,6 @@ WITH base AS (
         ON pardat.nbhd = nbhd.town_nbhd
     WHERE pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
-),
+{% endset %}
 
-test_result AS (
-    SELECT
-        *,
-    -- noqa: disable=layout.indent
-    {% for test in tests %}
-        NOT({{ test.condition }}) AS {{ test.name }}
-        {{- ", " if not loop.last }}
-    {% endfor %}
-    --noqa: enable=layout.indent
-    FROM base
-    WHERE taxyr BETWEEN '{{ var("data_test_iasworld_year_start") }}'
-        AND '{{ var("data_test_iasworld_year_end") }}'
-)
-
-{% for test in tests %}
-    SELECT
-        parid,
-        taxyr,
-        card,
-        lline,
-        township_code,
-        class,
-        who,
-        wen,
-        '{{ test.name }}' AS test_name,
-        '{{ test.description }}' AS test_description,
-        '{{ test.category }}' AS test_category,
-        {% if test.additional_select_columns -%}
-            MAP(
-                ARRAY[
-                    {%- for col_name in test.additional_select_columns -%}
-                        '{{ col_name }}'{{ ", " if not loop.last }}
-                    {%- endfor %}
-                ],
-                ARRAY[
-                    {%- for col_name in test.additional_select_columns -%}
-                        CAST({{ col_name }} AS VARCHAR)
-                        {{- ", " if not loop.last }}
-                    {%- endfor %}
-                ]
-            ) AS additional_columns
-        {%- else -%}
-            CAST(NULL AS MAP(varchar, varchar)) AS additional_columns
-        {%- endif %}
-    FROM test_result
-    WHERE {{ test.name }}
-    {{ "UNION ALL" if not loop.last }}
-{% endfor %}
+{{ generate_iasworld_qc_test_view(base_query, tests) }}
