@@ -48,11 +48,11 @@ REQUESTS.mount(
 )
 
 # Data is permitted to be slightly different, according to these buffer values.
-# This is because we expect some level of change for the most current two years
-# in the Athena data (which is updated daily) compared to the Open Data portal
-# (which is updated bi-weekly or monthly). We expect differences to arise for
-# prior years due to our slower open data update cadence for those years (once
-# a year) despite their relatively static nature in Athena.
+# We expect some level of change for the most current two years in the Athena
+# data (which is updated daily) compared to the Open Data portal (which is
+# updated bi-weekly or monthly). We also expect differences to arise for prior
+# years due to a slower open data update cadence for those years (once a year)
+# despite their relatively static nature in Athena.
 BUFFERS = {"current": 0.02, "prior": 0.2}
 
 
