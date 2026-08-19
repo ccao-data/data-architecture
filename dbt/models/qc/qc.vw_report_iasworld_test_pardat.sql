@@ -28,7 +28,7 @@
         "additional_select_columns": ["nbhd"]
     },
     {
-        "name": "iasworld_pardat_nbhd_matches_town_nbhd",
+        "name": "iasworld_pardat_nbhd_matches_spatial_town_nbhd",
         "description": "nbhd code not valid",
         "category": "relationships",
         "condition": "town_nbhd IS NOT NULL OR nbhd LIKE '%999'",
