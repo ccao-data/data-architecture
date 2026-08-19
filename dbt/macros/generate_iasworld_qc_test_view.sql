@@ -7,8 +7,8 @@
         base_query: A SQL SELECT statement (as a string) that returns the
             identifying columns plus any additional columns referenced by
             the `condition` or `additional_select_columns` attributes of the
-            `tests` argument. Tables that don't include a required identifying
-            column (usually `card` or `lline`) should return
+            `tests` argument. Source tables that don't include a required
+            identifying column (usually `card` or `lline`) should return
             `CAST(NULL AS <type>) AS <column_name>` for that column to conform
             to the expected shape. Required identifying columns include:
                 - parid: varchar
@@ -20,14 +20,14 @@
                 - who: varchar
                 - wen: varchar
         tests: A list of dicts, each with keys:
-            - name: A unique, descriptive name for the test
+            - name: A unique, descriptive slug for the test
             - description: A human-readable description of what the test checks
             - category: A category slug used to group related tests
             - condition: A SQL boolean expression, evaluated against
                 `base_query`, that is TRUE when the record passes the test
                 and FALSE when it fails
             - additional_select_columns (optional): A list of column names
-                from `base_query` to include in the output as a MAP of column
+                from `base_query` to include in the output as a map of column
                 name -> stringified value for records that fail the test
 
     Returns:
@@ -44,7 +44,7 @@
                 -- noqa: disable=layout.indent
                 {% for test in tests %}
                     not ({{ test.condition }}) as {{ test.name }}
-                    {{- ", " if not loop.last }}
+                    {{- "," if not loop.last }}
                 {% endfor %}
             -- noqa: enable=layout.indent
             from base
