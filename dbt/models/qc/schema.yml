@@ -1,4 +1,7 @@
 models:
+  - name: qc.vw_report_iasworld_test_pardat
+    description: '{{ doc("view_vw_report_iasworld_test_pardat") }}'
+
   - name: qc.vw_change_in_ahsap_values
     description: '{{ doc("view_vw_change_in_ahsap_values") }}'
 

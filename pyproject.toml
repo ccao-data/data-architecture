@@ -74,3 +74,4 @@ load_macros_from_path = "dbt/macros"
 # lints
 get_s3_dependency_dir = "{% macro get_s3_dependency_dir() %}s3://bucket{% endmacro %}"
 insert_hyphens = "{% macro insert_hyphens(str) %}{% set _ = varargs %}'{{ str }}'{% endmacro %}"
+generate_iasworld_qc_test_view = "{% macro generate_iasworld_qc_test_view(base_query, tests) %}select 1{% endmacro %}"
