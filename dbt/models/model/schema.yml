@@ -29,6 +29,9 @@ sources:
                 # data is added after 12/27/2024, warnings should be errors.
                 error_if: ">5748"
 
+      - name: assessment_card_final
+        description: '{{ doc("table_assessment_card") }}'
+
       - name: assessment_pin
         description: '{{ doc("table_assessment_pin") }}'
         tags:
@@ -42,6 +45,9 @@ sources:
                 - run_id
               config:
                 error_if: ">2016"
+
+      - name: assessment_pin_final
+        description: '{{ doc("table_assessment_pin") }}'
 
       - name: feature_importance
         description: '{{ doc("table_feature_importance") }}'
@@ -276,6 +282,9 @@ models:
             - run_id
             - meta_sale_document_num
             - meta_card_num
+
+  - name: model.training_data_final
+    description: '{{ doc("table_training_data") }}'
 
   - name: model.vw_pin_shared_input
     description: '{{ doc("view_vw_pin_shared_input") }}'
