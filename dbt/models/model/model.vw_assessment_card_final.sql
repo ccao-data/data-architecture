@@ -1,4 +1,5 @@
--- This view collects assessment data for each card, only for final model runs
+-- This view collects assessment data at the card-level, only for final model =
+-- runs
 SELECT
     ac.*,
     fm.type

@@ -1,4 +1,5 @@
--- This view collects assessment data for each PIN, only for final model runs
+-- This view collects assessment data at the PIN-level, only for final model
+-- runs
 SELECT
     ap.*,
     fm.type

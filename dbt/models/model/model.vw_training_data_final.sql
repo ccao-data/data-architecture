@@ -1,4 +1,4 @@
--- This view collects training data for each PIN, only for final model runs
+-- This view collects training data at the card-level, only for final model runs
 SELECT
     td.*,
     fm.type
