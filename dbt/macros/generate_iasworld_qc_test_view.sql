@@ -68,17 +68,20 @@
             '{{ test.description }}' as test_description,
             '{{ test.category }}' as test_category,
             {% if test.additional_select_columns -%}
-                map(
-                    array[
-                        {%- for col_name in test.additional_select_columns -%}
-                            '{{ col_name }}'{{ ", " if not loop.last }}
-                        {%- endfor %}
-                    ],
-                    array[
-                        {%- for col_name in test.additional_select_columns -%}
-                            cast({{ col_name }} as varchar) {{- ", " if not loop.last }}
-                        {%- endfor %}
-                    ]
+                map_filter(
+                    map(
+                        array[
+                            {%- for col_name in test.additional_select_columns -%}
+                                '{{ col_name }}'{{ ", " if not loop.last }}
+                            {%- endfor %}
+                        ],
+                        array[
+                            {%- for col_name in test.additional_select_columns -%}
+                                cast({{ col_name }} as varchar) {{- ", " if not loop.last }}
+                            {%- endfor %}
+                        ]
+                    ),
+                    (k, v) -> v IS NOT NULL
                 ) as additional_columns
             {%- else -%} cast(null as map(varchar, varchar)) as additional_columns
             {%- endif %}
