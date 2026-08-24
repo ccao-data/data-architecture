@@ -7,6 +7,9 @@ sources:
     tags:
       - load_manual
     tables:
+      - name: additional_mydec_sales
+        description: '{{ doc("table_additional_mydec_sales") }}'
+
       - name: commercial_valuation
         description: '{{ doc("table_commercial_valuation") }}'
         tags:
