@@ -1,5 +1,7 @@
 -- This view collects assessment data for each PIN, only for final model runs
-SELECT ap.*
+SELECT
+    ap.*,
+    fm.type
 FROM {{ source('model', 'assessment_pin') }} AS ap
 INNER JOIN {{ ref('model.final_model') }} AS fm
     ON ap.run_id = fm.run_id
