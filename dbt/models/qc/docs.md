@@ -202,6 +202,20 @@ classes.
 This view is not currently in use in any QC workflows.
 {% enddocs %}
 
+# vw_report_iasworld_test_all
+
+{% docs view_vw_report_iasworld_test_all %}
+Combines test failures from all iasworld test views. Each observation is a failure
+based on unique PIN, year, and failing test combinations.
+{% enddocs %}
+
+# vw_report_iasworld_test_owndat
+
+{% docs view_vw_report_iasworld_test_owndat %}
+Aggregates test failures, stemming from iasworld owndat. Each observation is a failure
+based on unique PIN, year, and failing test combinations.
+{% enddocs %}
+
 # vw_report_iasworld_test_pardat
 
 {% docs view_vw_report_iasworld_test_pardat %}
