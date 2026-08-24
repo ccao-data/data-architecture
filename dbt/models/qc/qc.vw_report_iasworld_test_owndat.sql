@@ -40,7 +40,7 @@
     },
     {
         "name": "iasworld_owndat_address_columns_no_extra_whitespace",
-        "description": "own1, own2, addr1-5, and other address columns should have no leading or trailing whitespace",
+        "description": "address columns should not have whitespace",
         "category": "column_values",
         "condition": "NOT (" ~ whitespace_parts | join(" OR ") ~ ")",
         "additional_select_columns": whitespace_cols
@@ -72,24 +72,10 @@
         LAG(owndat.seq)
             OVER (PARTITION BY owndat.parid, owndat.taxyr ORDER BY owndat.seq)
             AS prev_seq,
-        owndat.own1,
-        owndat.own2,
-        owndat.addr1,
-        owndat.addr2,
-        owndat.addr3,
-        owndat.addr4,
-        owndat.addr5,
-        owndat.adrpre,
-        owndat.adrdir,
-        owndat.adrstr,
-        owndat.adrsuf,
-        owndat.unitdesc,
-        owndat.unitno,
-        owndat.cityname,
-        owndat.statecode,
-        owndat.zip1,
-        owndat.zip2,
-        owndat.user27,
+        {% for col in whitespace_cols %}
+        CASE WHEN owndat.{{ col }} LIKE '% ' OR owndat.{{ col }} LIKE ' %'
+            THEN owndat.{{ col }} END AS {{ col }},
+        {% endfor %}
         COUNT(*)
             OVER (PARTITION BY owndat.parid, owndat.taxyr)
             AS num_duplicates
