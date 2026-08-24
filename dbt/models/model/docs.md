@@ -222,7 +222,7 @@ you want to evaluate training set performance for any model run.
 
 {% docs view_vw_assessment_card_final %}
 Version of `assessment_card` limited to final model runs and the triad that was
-reassessed. Includes additional column `type` to allow easy filtering between
+reassessed. Includes additional column `model_type` to allow easy filtering between
 condo and single-family models.
 
 **Primary Key**: `year`, `meta_pin`, `meta_card_num`
@@ -232,7 +232,7 @@ condo and single-family models.
 
 {% docs view_vw_assessment_pin %}
 Version of `assessment_pin` limited to final model runs and the triad that was
-reassessed. Includes additional column `type` to allow easy filtering between
+reassessed. Includes additional column `model_type` to allow easy filtering between
 condo and single-family models.
 
 **Primary Key**: `year`, `meta_pin`
@@ -284,7 +284,7 @@ View to compile PIN-level model inputs shared between the residential
 {% docs view_vw_training_data_final %}
 
 Version of `training_data` limited to final model runs. Includes additional
-column `type` to allow easy filtering between condo and single-family models.
+column `model_type` to allow easy filtering between condo and single-family models.
 
 **Primary Key**: `run_id`, `meta_card_num`, `meta_sale_document_num`
 {% enddocs %}

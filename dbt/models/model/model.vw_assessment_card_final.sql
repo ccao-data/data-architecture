@@ -2,7 +2,7 @@
 -- runs
 SELECT
     ac.*,
-    fm.type
+    fm.type AS model_type
 FROM {{ source('model', 'assessment_card') }} AS ac
 INNER JOIN {{ ref('model.final_model') }} AS fm
     ON ac.run_id = fm.run_id
