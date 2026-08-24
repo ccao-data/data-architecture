@@ -218,6 +218,24 @@ you want to evaluate training set performance for any model run.
 **Primary Key**: `run_id`, `meta_card_num`, `meta_sale_document_num`
 {% enddocs %}
 
+# vw_assessment_card_final
+
+{% docs view_vw_assessment_card_final %}
+Version of `assessment_card` limited to final model runs and the triad that was
+reassessed.
+
+**Primary Key**: `year`, `meta_pin`, `meta_card_num`
+{% enddocs %}
+
+# vw_assessment_pin_final
+
+{% docs view_vw_assessment_pin %}
+Version of `assessment_pin` limited to final model runs and the triad that was
+reassessed.
+
+**Primary Key**: `year`, `meta_pin`
+{% enddocs %}
+
 # vw_card_res_input
 
 {% docs view_vw_card_res_input %}
@@ -257,4 +275,13 @@ View to compile PIN-level model inputs shared between the residential
 (`model.vw_card_res_input`) and condo (`model.vw_pin_condo_input`) model views.
 
 **Primary Key**: `year`, `meta_pin`
+{% enddocs %}
+
+# vw_training_data_final
+
+{% docs view_vw_training_data_final %}
+
+Version of `training_data` limited to final model runs.
+
+**Primary Key**: `run_id`, `meta_card_num`, `meta_sale_document_num`
 {% enddocs %}

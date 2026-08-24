@@ -278,7 +278,7 @@ models:
             - meta_card_num
 
   - name: vw_assessment_card_final
-    description: '{{ doc("table_assessment_card") }}'
+    description: '{{ doc("view_vw_assessment_card_final") }}'
     data_tests:
       - count_is_consistent:
           name: model_vw_assessment_card_final_single_triad_code_per_year
@@ -294,7 +294,7 @@ models:
             - meta_year
 
   - name: vw_assessment_pin_final
-    description: '{{ doc("table_assessment_pin") }}'
+    description: '{{ doc("view_vw_assessment_pin_final") }}'
     data_tests:
       - count_is_consistent:
           name: model_vw_assessment_pin_final_single_triad_code_per_year
@@ -1220,7 +1220,7 @@ models:
             - meta_year
 
   - name: model.vw_training_data_final
-    description: '{{ doc("table_training_data") }}'
+    description: '{{ doc("view_vw_training_data") }}'
     data_tests:
       - unique_combination_of_columns:
           name: model_vw_training_data_final_unique_pin_year
