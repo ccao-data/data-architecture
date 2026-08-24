@@ -1,4 +1,4 @@
--- This view collects assessment data at the card-level, only for final model =
+-- This view collects assessment data at the card-level, only for final model
 -- runs
 SELECT
     ac.*,
