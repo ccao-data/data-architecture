@@ -77,11 +77,13 @@
                         ],
                         array[
                             {%- for col_name in test.additional_select_columns -%}
-                                cast({{ col_name }} as varchar) {{- ", " if not loop.last }}
+                                cast(
+                                    {{ col_name }} as varchar
+                                ) {{- ", " if not loop.last }}
                             {%- endfor %}
                         ]
                     ),
-                    (k, v) -> v IS NOT NULL
+                    (k, v) -> v is not null
                 ) as additional_columns
             {%- else -%} cast(null as map(varchar, varchar)) as additional_columns
             {%- endif %}
