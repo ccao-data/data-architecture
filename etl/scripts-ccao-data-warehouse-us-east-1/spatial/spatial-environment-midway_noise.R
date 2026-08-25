@@ -1,3 +1,4 @@
+library(arrow)
 library(dplyr)
 library(geoarrow)
 library(sf)

@@ -1,9 +1,10 @@
-library("ccao")
-library("dplyr")
-library("glue")
-library("geoarrow")
-library("sf")
-library("stringr")
+library(arrow)
+library(ccao)
+library(dplyr)
+library(glue)
+library(geoarrow)
+library(sf)
+library(stringr)
 source("utils.R")
 
 # This script builds shapefiles that are not pure representations of data in the

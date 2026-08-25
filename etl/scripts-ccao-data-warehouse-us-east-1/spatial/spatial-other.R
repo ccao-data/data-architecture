@@ -1,3 +1,4 @@
+library(arrow)
 library(aws.s3)
 library(dplyr)
 library(geoarrow)
