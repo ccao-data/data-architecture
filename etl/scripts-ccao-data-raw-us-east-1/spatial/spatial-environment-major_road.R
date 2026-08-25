@@ -1,10 +1,9 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
+library(geoarrow)
 library(osmdata)
 library(sf)
-library(arrow)
-library(geoarrow)
 source("utils.R")
 
 # This script queries OpenStreetMap for major roads in Cook County and
