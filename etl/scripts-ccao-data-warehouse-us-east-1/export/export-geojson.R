@@ -14,13 +14,12 @@ AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "export")
 
 # Shapefile of the Cook County boundary for clipping
-cook_boundary <- read_geoparquet_sf(
-  file.path(
-    AWS_S3_WAREHOUSE_BUCKET,
-    "spatial/ccao/county/2019.parquet"
-  )
-) %>%
-  st_transform(4326)
+cook_boundary <- read_s3_geoparquet(
+  s3_uri = file.path(
+    AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county_test/2019.parquet"
+  ),
+  crs = 4326
+)
 
 ##### CENSUS TRACT #####
 remote_file_tract_2022_warehouse <- file.path(

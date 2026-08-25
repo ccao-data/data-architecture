@@ -177,13 +177,24 @@ geoparquet_to_s3 <- function(spatial_df, s3_uri, loaded_at = TRUE) {
     ))
   }
 
-  spatial_df %>%
+  spatial_df <- spatial_df %>%
     mutate(
       geometry = as_wkb(geometry),
       geometry_3435 = as_wkb(geometry_3435)
     ) %>%
     {
       if (loaded_at) mutate(., loaded_at = as.character(Sys.time())) else .
-    } %>%
-    write_parquet(s3_uri, compression = "snappy")
+    }
+
+  attributes(spatial_df$geometry) <- NULL
+  attributes(spatial_df$geometry_3435) <- NULL
+
+  write_parquet(spatial_df, s3_uri, compression = "snappy")
+}
+
+read_s3_geoparquet <- function(s3_uri, crs) {
+  read_parquet(s3_uri) %>%
+    as.data.frame() %>%
+    st_as_sf(sf_column_name = "geometry") %>%
+    st_set_crs(crs)
 }
