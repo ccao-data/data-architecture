@@ -153,6 +153,25 @@
       ],
       "Hash": "f252254bcfd13666b673cd465c8711ad"
     },
+    "RSocrata": {
+      "Package": "RSocrata",
+      "Version": "1.7.16-1",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "Chicago",
+      "RemoteRepo": "RSocrata",
+      "RemoteRef": "master",
+      "RemoteSha": "c25832cf8bccbfe44b045306d19d3b8950a84cdc",
+      "Requirements": [
+        "R",
+        "httr",
+        "jsonlite",
+        "mime",
+        "plyr"
+      ],
+      "Hash": "318a7c9b5446c87372f9141ae411f109"
+    },
     "Rcpp": {
       "Package": "Rcpp",
       "Version": "1.1.2",
@@ -2354,6 +2373,17 @@
         "utils"
       ],
       "Hash": "01f28d4278f15c76cddbea05899c5d6f"
+    },
+    "plyr": {
+      "Package": "plyr",
+      "Version": "1.8.9",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp"
+      ],
+      "Hash": "6b8177fd19982f0020743fadbfdbd933"
     },
     "png": {
       "Package": "png",
