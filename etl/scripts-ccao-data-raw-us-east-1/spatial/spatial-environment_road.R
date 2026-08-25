@@ -5,6 +5,7 @@ library(lubridate)
 library(purrr)
 library(sf)
 library(arrow)
+library(geoarrow)
 
 # Define S3 bucket and paths
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
@@ -77,7 +78,7 @@ walk(years, \(x) {
         mutate(year = as.character(x))
 
       # Save the shapefile as a GeoParquet file
-      geoarrow::write_geoparquet(shapefile_data, remote_file_path)
+      geoparquet_to_s3(shapefile_data, remote_file_path, loaded_at = FALSE)
     } else {
       message(paste("No shapefile found for year", x, "."))
     }

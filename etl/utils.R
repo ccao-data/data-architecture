@@ -4,6 +4,7 @@ library(dplyr)
 library(purrr)
 library(geoarrow)
 library(tools)
+library(wk)
 
 
 save_s3_to_local <- function(s3_uri, path, overwrite = FALSE) {
@@ -82,9 +83,21 @@ write_partitions_to_s3 <- function(df,
       message("Now uploading: ", partition_path)
       tmp_file <- tempfile(fileext = ".parquet")
       if (is_spatial) {
-        geoarrow::write_geoparquet(.x, tmp_file, compression = "snappy")
+        if (!all(c("geometry", "geometry_3435") %in% colnames(.x))) {
+          stop(paste(
+            "Error: Both 'geometry' and 'geometry_3435'",
+            "columns must be present in the spatial data frame."
+          ))
+        }
+
+        .x %>%
+          mutate(
+            geometry = as_wkb(geometry),
+            geometry_3435 = as_wkb(geometry_3435)
+          ) %>%
+          write_parquet(tmp_file, compression = "snappy")
       } else {
-        arrow::write_parquet(.x, tmp_file, compression = "snappy")
+        write_parquet(.x, tmp_file, compression = "snappy")
       }
       aws.s3::put_object(tmp_file, remote_path, multipart = TRUE)
     }
@@ -156,8 +169,21 @@ county_gdb_to_s3 <- function(
   }
 }
 
-geoparquet_to_s3 <- function(spatial_df, s3_uri) {
+geoparquet_to_s3 <- function(spatial_df, s3_uri, loaded_at = TRUE) {
+  if (!all(c("geometry", "geometry_3435") %in% colnames(spatial_df))) {
+    stop(paste(
+      "Error: Both 'geometry' and 'geometry_3435'",
+      "columns must be present in the spatial data frame."
+    ))
+  }
+
   spatial_df %>%
-    mutate(loaded_at = as.character(Sys.time())) %>%
-    geoarrow::write_geoparquet(s3_uri, compression = "snappy")
+    mutate(
+      geometry = as_wkb(geometry),
+      geometry_3435 = as_wkb(geometry_3435)
+    ) %>%
+    {
+      if (loaded_at) mutate(., loaded_at = as.character(Sys.time())) else .
+    } %>%
+    write_parquet(s3_uri, compression = "snappy")
 }
