@@ -20,12 +20,6 @@
         "additional_select_columns": ["cur"]
     },
     {
-        "name": "iasworld_owndat_parid_in_pardat_parid",
-        "description": "parid should be in pardat",
-        "category": "parid",
-        "condition": "pardat_parid IS NOT NULL"
-    },
-    {
         "name": "iasworld_owndat_parid_not_null",
         "description": "parid should not be null",
         "category": "incorrect_values",
@@ -67,7 +61,6 @@
         owndat.wen,
         -- Columns to test
         owndat.cur,
-        pardat_parids.parid AS pardat_parid,
         owndat.seq,
         LAG(owndat.seq)
             OVER (PARTITION BY owndat.parid, owndat.taxyr ORDER BY owndat.seq)
@@ -85,11 +78,14 @@
         AND owndat.taxyr = legdat.taxyr
         AND legdat.cur = 'Y'
         AND legdat.deactivat IS NULL
-    LEFT JOIN (
-        SELECT DISTINCT parid
+    INNER JOIN (
+        SELECT DISTINCT parid, taxyr
         FROM iasworld.pardat
+        WHERE cur = 'Y'
+            AND deactivat IS NULL
     ) AS pardat_parids
         ON owndat.parid = pardat_parids.parid
+        AND owndat.taxyr = pardat_parids.taxyr
     WHERE owndat.cur = 'Y'
         AND owndat.deactivat IS NULL
 {% endset %}
