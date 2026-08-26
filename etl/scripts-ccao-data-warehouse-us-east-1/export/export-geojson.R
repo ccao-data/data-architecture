@@ -123,7 +123,6 @@ if (!aws.s3::object_exists(remote_file_nbhd_export)) {
     crs = 4326
   ) %>%
     select(-geometry_3435) %>%
-    st_transform(4326) %>%
     st_write(tmp_file_nbhd)
 
   save_local_to_s3(remote_file_nbhd_export, tmp_file_nbhd)
@@ -141,9 +140,11 @@ remote_file_ward_2023_export <- file.path(
 
 if (!aws.s3::object_exists(remote_file_ward_2023_export)) {
   tmp_file_ward_2023 <- tempfile(fileext = ".geojson")
-  read_geoparquet_sf(remote_file_ward_2023_warehouse) %>%
+  read_s3_geoparquet(
+    s3_uri = remote_file_ward_2023_warehouse,
+    crs = 4326
+  ) %>%
     select(-geometry_3435) %>%
-    st_transform(4326) %>%
     rmapshaper::ms_simplify(keep = 0.7, keep_shapes = TRUE) %>%
     st_write(tmp_file_ward_2023)
 
@@ -162,11 +163,11 @@ remote_file_municipality_2022_export <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_municipality_2022_export)) {
-  municipality_2022 <- read_geoparquet_sf(
-    remote_file_municipality_2022_warehouse
+  municipality_2022 <- read_s3_geoparquet(
+    s3_uri = remote_file_municipality_2022_warehouse,
+    crs = 4326
   ) %>%
     mutate(year = "2022") %>%
-    st_transform(4326) %>%
     rmapshaper::ms_simplify(keep = 0.7, keep_shapes = TRUE)
 
   # Write geojson, then upload to S3
@@ -187,12 +188,12 @@ remote_file_school_elem_2022_export <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_school_elem_2022_export)) {
-  school_elem_2022 <- read_geoparquet_sf(
-    remote_file_school_elem_2022_warehouse
+  school_elem_2022 <- read_s3_geoparquet(
+    remote_file_school_elem_2022_warehouse,
+    crs = 4326
   ) %>%
     select(geoid, name, school_num, is_attendance_boundary) %>%
     mutate(year = "2022") %>%
-    st_transform(4326) %>%
     rmapshaper::ms_simplify(keep = 0.7, keep_shapes = TRUE)
 
   # Write geojson, then upload to S3
@@ -213,12 +214,12 @@ remote_file_school_sec_2022_export <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_school_sec_2022_export)) {
-  school_sec_2022 <- read_geoparquet_sf(
-    remote_file_school_sec_2022_warehouse
+  school_sec_2022 <- read_s3_geoparquet(
+    s3_uri = remote_file_school_sec_2022_warehouse,
+    crs = 4326
   ) %>%
     select(geoid, name, school_num, is_attendance_boundary) %>%
     mutate(year = "2022") %>%
-    st_transform(4326) %>%
     rmapshaper::ms_simplify(keep = 0.7, keep_shapes = TRUE)
 
   # Write geojson, then upload to S3
@@ -239,12 +240,12 @@ remote_file_school_unif_2022_export <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_school_unif_2022_export)) {
-  school_unif_2022 <- read_geoparquet_sf(
-    remote_file_school_unif_2022_warehouse
+  school_unif_2022 <- read_s3_geoparquet(
+    s3_uri = remote_file_school_unif_2022_warehouse,
+    crs = 4326
   ) %>%
     select(geoid, name, school_num, is_attendance_boundary) %>%
     mutate(year = "2022") %>%
-    st_transform(4326) %>%
     rmapshaper::ms_simplify(keep = 0.7, keep_shapes = TRUE)
 
   # Write geojson, then upload to S3

@@ -118,13 +118,13 @@ walk(remote_files_park_warehouse, function(x) {
       add_osm_feature(key = "leisure", value = "park") %>%
       osmdata_sf()
 
-    cook_boundary <- geoarrow::read_geoparquet_sf(
-      file.path(
+    cook_boundary <- read_s3_geoparquet(
+      s3_uri = file.path(
         AWS_S3_WAREHOUSE_BUCKET,
         "spatial/ccao/county/2019.parquet"
-      )
-    ) %>%
-      st_transform(4326)
+      ),
+      crs = 4326
+    )
 
     parks_df <- bind_rows(parks$osm_polygons, parks$osm_multipolygons) %>%
       st_make_valid() %>%

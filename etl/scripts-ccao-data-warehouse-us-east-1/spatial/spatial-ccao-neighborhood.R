@@ -101,11 +101,13 @@ for (year in 2010:2021) {
   # the boundary of the whole county, divide it into a grid, get the difference
   # between the neighborhoods and the grid, the merge the diff'd grid squares to
   # the neighborhoods
-  cook_boundary <- read_geoparquet_sf(file.path(
-    AWS_S3_WAREHOUSE_BUCKET,
-    "spatial/ccao/county/2019.parquet"
-  )) %>%
-    st_transform(3435)
+  cook_boundary <- read_s3_geoparquet(
+    s3_uri = file.path(
+      AWS_S3_WAREHOUSE_BUCKET,
+      "spatial/ccao/county/2019.parquet"
+    ),
+    crs = 3435
+  )
 
   cook_diff <- cook_boundary %>%
     st_make_grid(cellsize = 1000) %>%

@@ -195,5 +195,6 @@ read_s3_geoparquet <- function(s3_uri, crs) {
   read_parquet(s3_uri) %>%
     as.data.frame() %>%
     st_as_sf(sf_column_name = "geometry") %>%
-    st_set_crs(crs)
+    st_set_crs(4326) %>%
+    st_transform(crs)
 }
