@@ -22,7 +22,7 @@
     {
         "name": "iasworld_owndat_parid_not_null",
         "description": "parid should not be null",
-        "category": "incorrect_values",
+        "category": "missing_values",
         "condition": "parid IS NOT NULL"
     },
     {
