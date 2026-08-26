@@ -191,10 +191,10 @@ geoparquet_to_s3 <- function(spatial_df, s3_uri, loaded_at = TRUE) {
   write_parquet(spatial_df, s3_uri, compression = "snappy")
 }
 
-read_s3_geoparquet <- function(s3_uri, crs) {
+read_s3_geoparquet <- function(s3_uri, crs, default_crs = 4326) {
   read_parquet(s3_uri) %>%
     as.data.frame() %>%
     st_as_sf(sf_column_name = "geometry") %>%
-    st_set_crs(4326) %>%
+    st_set_crs(default_crs) %>%
     st_transform(crs)
 }

@@ -43,7 +43,9 @@ for (year in years) {
   )
 
   # Simplify linestrings
-  current_data <- read_geoparquet_sf(ingest_file_secondary) %>%
+  current_data <- read_s3_geoparquet(
+    s3_uri = ingest_file_secondary, crs = 4326
+  ) %>%
     mutate(geometry_3435 = st_simplify(geometry_3435, dTolerance = 10))
 
   # Initiate master data set with first available year, add column for de-duping
@@ -68,9 +70,15 @@ for (year in years) {
       paste0("major_road-", year, ".parquet")
     )
 
-    # Ingest Major roads data for the prior and current year
-    major_roads_prior <- read_geoparquet_sf(ingest_file_major_prior)
-    major_roads_current <- read_geoparquet_sf(ingest_file_major_current)
+    # Ingest Major roads data for the prior and current year. Since we're only
+    # using these shapefiles for a list of road names we can set their CRS to
+    # whatever we like.
+    major_roads_prior <- read_s3_geoparquet(
+      s3_uri = ingest_file_major_prior, crs = 4326
+    )
+    major_roads_current <- read_s3_geoparquet(
+      s3_uri = ingest_file_major_current, crs = 4326
+    )
 
     # This if/else block prevents us from indexing a future
     # year that doesn't exist yet
@@ -83,7 +91,9 @@ for (year in years) {
       )
 
       # Ingest Major roads data for the next year
-      major_roads_post <- read_geoparquet_sf(ingest_file_major_post)
+      major_roads_post <- read_s3_geoparquet(
+        s3_uri = ingest_file_major_post, crs = 4326
+      )
 
       # Apply filter for both prior and post year major roads, this filter
       # accounts for the case where:

@@ -409,7 +409,9 @@ process_parcel_file <- function(s3_bucket_uri,
       tictoc::toc()
     } else {
       message("Loading processed parcels from backup for: ", file_year)
-      spatial_df_final <- read_geoparquet_sf(local_backup_file)
+      spatial_df_final <- read_s3_geoparquet(
+        s3_uri = local_backup_file, crs = 3435
+      )
     }
 
     # Write final dataframe to dataset on S3, partitioned by town and year
