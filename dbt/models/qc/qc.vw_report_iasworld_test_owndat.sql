@@ -42,7 +42,7 @@
     {
         "name": "iasworld_owndat_unique_by_parid_taxyr",
         "description": "owndat should be unique by parid and taxyr",
-        "category": "duplicate_rows",
+        "category": "duplicate_records",
         "condition": "num_duplicates = 1",
         "additional_select_columns": ["num_duplicates"]
     }
