@@ -5,7 +5,6 @@ library(lubridate)
 library(purrr)
 library(sf)
 library(arrow)
-library(geoarrow)
 
 # Define S3 bucket and paths
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")

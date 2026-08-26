@@ -1,7 +1,6 @@
 library(arrow)
 library(ccao)
 library(dplyr)
-library(geoarrow)
 library(geojsonio)
 library(purrr)
 library(sf)

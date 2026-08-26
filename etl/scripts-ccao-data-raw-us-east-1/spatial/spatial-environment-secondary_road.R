@@ -1,7 +1,6 @@
 library(aws.s3)
 library(dplyr)
 library(arrow)
-library(geoarrow)
 library(osmdata)
 library(sf)
 source("utils.R")

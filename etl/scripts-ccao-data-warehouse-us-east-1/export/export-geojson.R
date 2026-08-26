@@ -1,7 +1,6 @@
 library(aws.s3)
 library(arrow)
 library(dplyr)
-library(geoarrow)
 library(purrr)
 library(rmapshaper)
 library(sf)
@@ -32,11 +31,13 @@ remote_file_tract_2022_export <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_tract_2022_export)) {
-  tracts_2022 <- read_geoparquet_sf(remote_file_tract_2022_warehouse) %>%
+  tracts_2022 <- read_s3_geoparquet(
+    s3_uri = remote_file_tract_2022_warehouse,
+    crs = 4326
+  ) %>%
     filter(geoid != "17031990000") %>%
     select(geoid, geometry) %>%
     mutate(year = "2022") %>%
-    st_transform(4326) %>%
     rmapshaper::ms_simplify(keep = 0.7, keep_shapes = TRUE)
 
   # Write geojson, then upload to S3
@@ -62,7 +63,10 @@ remote_file_ihs_warehouse <- file.path(
 
 if (!aws.s3::object_exists(remote_file_puma_2021_export)) {
   ihs_index <- read_parquet(remote_file_ihs_warehouse)
-  puma_2022 <- read_geoparquet_sf(remote_file_puma_2022_warehouse) %>%
+  puma_2022 <- read_s3_geoparquet(
+    s3_uri = remote_file_puma_2022_warehouse,
+    crs = 4326
+  ) %>%
     filter(geoid %in% c(ihs_index$geoid, "1703525")) %>%
     select(geoid, geometry) %>%
     mutate(year = "2021") %>%
@@ -71,7 +75,6 @@ if (!aws.s3::object_exists(remote_file_puma_2021_export)) {
         distinct(geoid, name),
       by = "geoid"
     ) %>%
-    st_transform(4326) %>%
     st_intersection(cook_boundary) %>%
     rmapshaper::ms_simplify(keep = 0.7, keep_shapes = TRUE)
 
@@ -92,9 +95,11 @@ remote_file_town_export <- file.path(
 
 if (!aws.s3::object_exists(remote_file_town_export)) {
   tmp_file_town <- tempfile(fileext = ".geojson")
-  read_geoparquet_sf(remote_file_town_warehouse) %>%
+  read_s3_geoparquet(
+    s3_uri = remote_file_town_warehouse,
+    crs = 4326
+  ) %>%
     select(-geometry_3435) %>%
-    st_transform(4326) %>%
     rmapshaper::ms_simplify(keep = 0.7, keep_shapes = TRUE) %>%
     st_write(tmp_file_town)
 
@@ -113,7 +118,10 @@ remote_file_nbhd_export <- file.path(
 
 if (!aws.s3::object_exists(remote_file_nbhd_export)) {
   tmp_file_nbhd <- tempfile(fileext = ".geojson")
-  nbhds <- read_geoparquet_sf(remote_file_nbhd_warehouse) %>%
+  nbhds <- read_s3_geoparquet(
+    remote_file_nbhd_warehouse,
+    crs = 4326
+  ) %>%
     select(-geometry_3435) %>%
     st_transform(4326) %>%
     st_write(tmp_file_nbhd)

@@ -2,7 +2,6 @@ library(arrow)
 library(aws.s3)
 library(dplyr)
 library(purrr)
-library(geoarrow)
 library(tools)
 library(wk)
 

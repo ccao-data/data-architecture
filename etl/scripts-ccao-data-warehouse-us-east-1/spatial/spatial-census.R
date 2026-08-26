@@ -3,7 +3,6 @@ library(arrow)
 library(dplyr)
 library(purrr)
 library(sf)
-library(geoarrow)
 library(stringr)
 source("utils.R")
 

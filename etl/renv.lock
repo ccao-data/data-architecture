@@ -1035,18 +1035,6 @@
       ],
       "Hash": "4b29bf698d0c7bdb9f1e4976e7ade41d"
     },
-    "geoarrow": {
-      "Package": "geoarrow",
-      "Version": "0.4.3",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "nanoarrow",
-        "wk"
-      ],
-      "Hash": "6a434661a2d81afa805b958de1cf60f4"
-    },
     "geodist": {
       "Package": "geodist",
       "Version": "0.1.1",
@@ -1998,13 +1986,6 @@
         "methods"
       ],
       "Hash": "54388cc0cf3dfc0948a4bfbf9e8cceba"
-    },
-    "nanoarrow": {
-      "Package": "nanoarrow",
-      "Version": "0.9.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "7516639ffbdc8319e4248fc2303a47f0"
     },
     "nlme": {
       "Package": "nlme",

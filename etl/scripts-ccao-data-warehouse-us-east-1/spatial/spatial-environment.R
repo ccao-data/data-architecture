@@ -1,7 +1,6 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
-library(geoarrow)
 library(here)
 library(purrr)
 library(readr)
