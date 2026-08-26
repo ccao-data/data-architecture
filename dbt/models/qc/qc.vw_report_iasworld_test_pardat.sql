@@ -94,7 +94,7 @@
         ON pardat.nbhd = nbhd.town_nbhd
     LEFT JOIN (
         SELECT DISTINCT class_code
-        FROM {{ ref('ccao', 'class_dict') }}
+        FROM {{ ref('ccao.class_dict') }}
     ) AS class_dict
         ON pardat.class = class_dict.class_code
     WHERE pardat.cur = 'Y'
