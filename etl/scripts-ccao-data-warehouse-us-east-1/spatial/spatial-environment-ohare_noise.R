@@ -1,7 +1,7 @@
 library(aws.s3)
 library(DBI)
 library(dplyr)
-library(geoarrow)
+library(sfarrow)
 library(glue)
 library(janitor)
 library(miniUI)

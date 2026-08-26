@@ -1,7 +1,7 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
-library(geoarrow)
+library(sfarrow)
 library(here)
 library(osmdata)
 library(purrr)
@@ -119,7 +119,7 @@ walk(remote_files_park_warehouse, function(x) {
       add_osm_feature(key = "leisure", value = "park") %>%
       osmdata_sf()
 
-    cook_boundary <- geoarrow::read_geoparquet_sf(
+    cook_boundary <- st_read_parquet(
       file.path(
         AWS_S3_WAREHOUSE_BUCKET,
         "spatial/ccao/county/2019.parquet"

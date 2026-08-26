@@ -1,6 +1,6 @@
 library(aws.s3)
 library(dplyr)
-library(geoarrow)
+library(sfarrow)
 library(osmdata)
 library(sf)
 source("utils.R")
@@ -43,6 +43,6 @@ for (year in years) {
       st_transform(4326) %>%
       mutate(geometry_3435 = st_transform(geometry, 3435))
 
-    geoarrow::write_geoparquet(osm_roads, remote_file)
+    st_write_parquet(osm_roads, remote_file)
   }
 }

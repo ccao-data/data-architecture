@@ -1,7 +1,7 @@
 library("ccao")
 library("dplyr")
 library("glue")
-library("geoarrow")
+library("sfarrow")
 library("sf")
 library("stringr")
 source("utils.R")
@@ -19,14 +19,14 @@ output_path <- file.path(
 )
 
 # Ingest county shapefile to make sure we never wander outside its borders
-county <- read_geoparquet_sf(
+county <- st_read_parquet(
   "s3://ccao-data-warehouse-us-east-1/spatial/ccao/county/2019.parquet"
 ) %>%
   st_transform(3435) %>%
   select(geometry)
 
 # Ingest City of Chicago community areas
-city <- read_geoparquet_sf(
+city <- st_read_parquet(
   file.path(
     AWS_S3_WAREHOUSE_BUCKET,
     "spatial/other/community_area/year=2018/part-0.parquet"

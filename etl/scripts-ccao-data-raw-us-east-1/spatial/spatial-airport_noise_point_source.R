@@ -5,7 +5,7 @@
 library(arrow)
 library(ccao)
 library(DBI)
-library(geoarrow)
+library(sfarrow)
 library(glue)
 library(noctua)
 library(sf)

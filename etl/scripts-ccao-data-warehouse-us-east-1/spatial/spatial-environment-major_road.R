@@ -1,7 +1,7 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
-library(geoarrow)
+library(sfarrow)
 library(osmdata)
 library(sf)
 source("utils.R")
@@ -36,7 +36,7 @@ for (year in years) {
   )
 
   # Simplify linestrings
-  current_data <- read_geoparquet_sf(ingest_file) %>%
+  current_data <- st_read_parquet(ingest_file) %>%
     mutate(geometry_3435 = st_simplify(geometry_3435, dTolerance = 10))
 
   # Initiate master data set with first available year, add column for de-duping

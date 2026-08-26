@@ -2,7 +2,7 @@ library(arrow)
 library(aws.s3)
 library(dplyr)
 library(purrr)
-library(geoarrow)
+library(sfarrow)
 library(tools)
 
 
@@ -82,7 +82,7 @@ write_partitions_to_s3 <- function(df,
       message("Now uploading: ", partition_path)
       tmp_file <- tempfile(fileext = ".parquet")
       if (is_spatial) {
-        geoarrow::write_geoparquet(.x, tmp_file, compression = "snappy")
+        st_write_parquet(.x, tmp_file, compression = "snappy")
       } else {
         arrow::write_parquet(.x, tmp_file, compression = "snappy")
       }
@@ -159,5 +159,5 @@ county_gdb_to_s3 <- function(
 geoparquet_to_s3 <- function(spatial_df, s3_uri) {
   spatial_df %>%
     mutate(loaded_at = as.character(Sys.time())) %>%
-    geoarrow::write_geoparquet(s3_uri, compression = "snappy")
+    st_write_parquet(s3_uri, compression = "snappy")
 }

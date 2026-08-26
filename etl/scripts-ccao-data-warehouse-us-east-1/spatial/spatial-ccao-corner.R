@@ -2,12 +2,12 @@ library(arrow)
 library(aws.s3)
 library(ccao)
 library(dplyr)
-library(geoarrow)
 library(glue)
 library(here)
 library(osmdata)
 library(purrr)
 library(sf)
+library(sfarrow)
 library(tictoc)
 
 # This script detects corner lots in Cook County parcels and saves a boolean
@@ -34,7 +34,7 @@ for (iter_year in parcel_years) {
   # Load the full year's parcel file to iterate though by township
   parcels <- open_dataset(parcel_path) %>%
     filter(year == iter_year) %>%
-    geoarrow_collect_sf()
+    read_sf_dataset()
 
   for (iter_town in ccao::town_dict$township_code) {
     print(paste("Now processing township:", iter_town))
