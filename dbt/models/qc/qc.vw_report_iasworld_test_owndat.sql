@@ -72,7 +72,7 @@
         COUNT(*)
             OVER (PARTITION BY owndat.parid, owndat.taxyr)
             AS num_duplicates
-    FROM iasworld.owndat AS owndat
+    FROM {{ source('iasworld', 'owndat') }} AS owndat
     LEFT JOIN iasworld.legdat AS legdat
         ON owndat.parid = legdat.parid
         AND owndat.taxyr = legdat.taxyr
