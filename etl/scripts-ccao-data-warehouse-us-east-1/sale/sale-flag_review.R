@@ -280,7 +280,7 @@ out_dir <- "s3://ccao-data-warehouse-us-east-1/sale/flag_review/"
 purrr::iwalk(
   dfs_ready_to_write,
   ~ {
-    arrow::write_parquet(
+    write_parquet(
       .x,
       sink = paste0(out_dir, .y, ".parquet"),
       compression = "snappy"

@@ -106,7 +106,7 @@ cc_dli_senfrr <- map_dfr(files_cc_dli_senfrr$Key, \(f) {
 cc_dli_senfrr %>%
   mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
-  arrow::write_dataset(
+  write_dataset(
     path = file.path(output_bucket, "cc_dli_senfrr"),
     format = "parquet",
     hive_style = TRUE,
@@ -188,7 +188,7 @@ cc_pifdb_piexemptre_sted <- map_dfr(files_cc_pifdb_piexemptre_sted$Key, \(f) {
 cc_pifdb_piexemptre_sted %>%
   mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
-  arrow::write_dataset(
+  write_dataset(
     path = file.path(
       output_bucket, "cc_pifdb_piexemptre_sted"
     ),
@@ -262,7 +262,7 @@ cc_pifdb_piexemptre_dise <- map_dfr(files_cc_pifdb_piexemptre_dise$Key, \(f) {
 cc_pifdb_piexemptre_dise %>%
   mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
-  arrow::write_dataset(
+  write_dataset(
     path = file.path(
       output_bucket, "cc_pifdb_piexemptre_dise"
     ),
@@ -351,7 +351,7 @@ cc_pifdb_piexemptre_ownr <- map_dfr(files_cc_pifdb_piexemptre_ownr$Key, \(f) {
 cc_pifdb_piexemptre_ownr %>%
   mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
-  arrow::write_dataset(
+  write_dataset(
     path = file.path(
       output_bucket, "cc_pifdb_piexemptre_ownr"
     ),

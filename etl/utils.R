@@ -84,7 +84,7 @@ write_partitions_to_s3 <- function(df,
       if (is_spatial) {
         st_write_parquet(.x, tmp_file, compression = "snappy")
       } else {
-        arrow::write_parquet(.x, tmp_file, compression = "snappy")
+        write_parquet(.x, tmp_file, compression = "snappy")
       }
       aws.s3::put_object(tmp_file, remote_path, multipart = TRUE)
     }
