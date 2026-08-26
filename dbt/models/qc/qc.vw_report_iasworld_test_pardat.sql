@@ -14,6 +14,12 @@
         "additional_select_columns": ["luc"]
     },
     {
+        "name": "iasworld_pardat_class_in_ccao_class_dict",
+        "description": "class_code should be valid",
+        "category": "class_mismatch_or_issue",
+        "condition": "class_dict_class IS NOT NULL"
+    },
+    {
         "name": "iasworld_pardat_cur_in_accepted_values",
         "description": 'cur should be "Y" or "D"',
         "category": "incorrect_values",
@@ -67,6 +73,7 @@
         pardat.cur,
         pardat.nbhd,
         nbhd.town_nbhd,
+        class_dict.class_code AS class_dict_class,
         pardat.seq,
         LAG(pardat.seq)
             OVER (PARTITION BY pardat.parid, pardat.taxyr ORDER BY pardat.seq)
@@ -74,8 +81,8 @@
         COUNT(*)
             OVER (PARTITION BY pardat.parid, pardat.taxyr)
             AS num_duplicates
-    FROM iasworld.pardat AS pardat
-    LEFT JOIN iasworld.legdat AS legdat
+    FROM {{ source('iasworld', 'pardat') }} AS pardat
+    LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
         ON pardat.parid = legdat.parid
         AND pardat.taxyr = legdat.taxyr
         AND legdat.cur = 'Y'
@@ -85,6 +92,11 @@
         FROM {{ source('spatial', 'neighborhood') }}
     ) AS nbhd
         ON pardat.nbhd = nbhd.town_nbhd
+    LEFT JOIN (
+        SELECT DISTINCT class_code
+        FROM {{ ref('ccao', 'class_dict') }}
+    ) AS class_dict
+        ON pardat.class = class_dict.class_code
     WHERE pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
 {% endset %}
