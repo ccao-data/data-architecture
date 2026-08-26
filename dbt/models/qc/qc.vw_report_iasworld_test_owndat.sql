@@ -78,14 +78,11 @@
         AND owndat.taxyr = legdat.taxyr
         AND legdat.cur = 'Y'
         AND legdat.deactivat IS NULL
-    INNER JOIN (
-        SELECT DISTINCT parid, taxyr
-        FROM iasworld.pardat
-        WHERE cur = 'Y'
-            AND deactivat IS NULL
-    ) AS pardat_parids
-        ON owndat.parid = pardat_parids.parid
-        AND owndat.taxyr = pardat_parids.taxyr
+    INNER JOIN {{ source('iasworld', 'pardat') }} AS pardat
+        ON owndat.parid = pardat.parid
+        AND owndat.taxyr = pardat.taxyr
+        AND pardat.cur = 'Y'
+        AND pardat.deactivat IS NULL
     WHERE owndat.cur = 'Y'
         AND owndat.deactivat IS NULL
 {% endset %}
