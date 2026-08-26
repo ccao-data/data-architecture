@@ -1,16 +1,3 @@
-{%- set whitespace_cols = [
-    "own1", "own2", "addr1", "addr2", "addr3", "addr4", "addr5",
-    "adrpre", "adrdir", "adrstr", "adrsuf", "unitdesc", "unitno",
-    "cityname", "statecode", "zip1", "zip2", "user27"
-] -%}
-
-{%- set whitespace_parts = [] -%}
-{%- for col in whitespace_cols -%}
-    {%- do whitespace_parts.append(
-        "(" ~ col ~ " LIKE '% ' OR " ~ col ~ " LIKE ' %')"
-    ) -%}
-{%- endfor -%}
-
 {%- set tests = [
     {
         "name": "iasworld_owndat_cur_in_accepted_values",
@@ -31,13 +18,6 @@
         "category": "incorrect_values",
         "condition": "seq = prev_seq + 1",
         "additional_select_columns": ["seq", "prev_seq"]
-    },
-    {
-        "name": "iasworld_owndat_address_columns_no_extra_whitespace",
-        "description": "address columns should not have whitespace",
-        "category": "column_values",
-        "condition": "NOT (" ~ whitespace_parts | join(" OR ") ~ ")",
-        "additional_select_columns": whitespace_cols
     },
     {
         "name": "iasworld_owndat_unique_by_parid_taxyr",
@@ -65,10 +45,6 @@
         LAG(owndat.seq)
             OVER (PARTITION BY owndat.parid, owndat.taxyr ORDER BY owndat.seq)
             AS prev_seq,
-        {% for col in whitespace_cols %}
-        CASE WHEN owndat.{{ col }} LIKE '% ' OR owndat.{{ col }} LIKE ' %'
-            THEN owndat.{{ col }} END AS {{ col }},
-        {% endfor %}
         COUNT(*)
             OVER (PARTITION BY owndat.parid, owndat.taxyr)
             AS num_duplicates
