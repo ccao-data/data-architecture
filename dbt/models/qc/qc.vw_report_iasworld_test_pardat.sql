@@ -17,7 +17,8 @@
         "name": "iasworld_pardat_class_in_ccao_class_dict",
         "description": "class_code should be valid",
         "category": "class_mismatch_or_issue",
-        "condition": "class_dict_class IS NOT NULL"
+        "condition": "class_dict_class IS NOT NULL",
+        "additional_select_columns": ["class"]
     },
     {
         "name": "iasworld_pardat_cur_in_accepted_values",
