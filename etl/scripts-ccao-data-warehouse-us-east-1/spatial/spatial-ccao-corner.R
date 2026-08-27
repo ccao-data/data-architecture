@@ -33,10 +33,7 @@ for (iter_year in parcel_years) {
   # Load the full year's parcel file to iterate though by township
   parcels <- open_dataset(parcel_path) %>%
     filter(year == iter_year) %>%
-    collect() %>%
-    st_as_sf(sf_column_name = "geometry") %>%
-    st_set_crs(unique(.$crs)) %>%
-    select(-crs)
+    collect_s3_geodataset()
 
   for (iter_town in ccao::town_dict$township_code) {
     print(paste("Now processing township:", iter_town))
