@@ -33,5 +33,5 @@ if (!aws.s3::object_exists(remote_file_county_warehouse)) {
       geometry_3435 = st_transform(geometry, 3435),
     ) %>%
     select(geometry, geometry_3435) %>%
-    geoparquet_to_s3(remote_file_county_warehouse)
+    geoparquet_to_s3(remote_file_county_warehouse, destination = "s3_warehouse")
 }

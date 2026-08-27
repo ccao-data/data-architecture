@@ -56,7 +56,9 @@ walk(coastline_years, function(x) {
         geometry_3435 = st_transform(geometry, 3435)
       ) %>%
       rename_with(tolower) %>%
-      geoparquet_to_s3(remote_file_coastline_warehouse)
+      geoparquet_to_s3(
+        s3_uri = remote_file_coastline_warehouse, destination = "s3_warehouse"
+      )
   }
 })
 
@@ -95,7 +97,7 @@ for (year in fema_years) {
         fema_special_flood_hazard_area = SFHA_TF,
         geometry, geometry_3435
       ) %>%
-      geoparquet_to_s3(flood_fema_warehouse)
+      geoparquet_to_s3(flood_fema_warehouse, destination = "s3_warehouse")
     file.remove(tmp_file)
   }
 }
@@ -122,7 +124,7 @@ if (!aws.s3::object_exists(remote_file_rail_warehouse)) {
     mutate(
       geometry_3435 = st_transform(geometry, 3435)
     ) %>%
-    geoparquet_to_s3(remote_file_rail_warehouse)
+    geoparquet_to_s3(remote_file_rail_warehouse, destination = "s3_warehouse")
 }
 
 
@@ -176,7 +178,9 @@ walk(dest_files_hydro_years, function(year) {
         select(id = HYDROID, name = FULLNAME, hydrology_type, geometry)
     ) %>%
       mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
-      geoparquet_to_s3(remote_file_hydro_warehouse)
+      geoparquet_to_s3(
+        s3_uri = remote_file_hydro_warehouse, destination = "s3_warehouse"
+      )
 
     file.remove(tmp_file)
   }

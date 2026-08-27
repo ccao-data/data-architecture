@@ -43,5 +43,7 @@ if (!aws.s3::object_exists(remote_file_golf_course_warehouse)) {
       geometry_3435 = st_transform(geometry, 3435)
     ) %>%
     select(-touches) %>%
-    geoparquet_to_s3(remote_file_golf_course_warehouse)
+    geoparquet_to_s3(
+      s3_uri = remote_file_golf_course_warehouse, destination = "s3_warehouse"
+    )
 }

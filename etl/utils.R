@@ -169,7 +169,7 @@ county_gdb_to_s3 <- function(
 }
 
 geoparquet_to_s3 <- function(spatial_df, s3_uri, destination) {
-  if (destination == "raw") {
+  if (destination %in% c("s3_raw", "local")) {
     # If we're writing to the raw bucket we don't assume the geometry column is
     # originally named "geometry" and we don't require a geometry_3435 column.
     geometry_column <- attr(spatial_df, "sf_column")
@@ -181,7 +181,7 @@ geoparquet_to_s3 <- function(spatial_df, s3_uri, destination) {
       )
 
     attributes(spatial_df$geometry) <- NULL
-  } else if (destination == "warehouse") {
+  } else if (destination == "s3_warehouse") {
     # This should fail if the both the geometry and geometry_3435 columns are
     # not present in the spatial data frame.
     spatial_df <- spatial_df %>%
@@ -195,7 +195,10 @@ geoparquet_to_s3 <- function(spatial_df, s3_uri, destination) {
     attributes(spatial_df$geometry) <- NULL
     attributes(spatial_df$geometry_3435) <- NULL
   } else {
-    stop("Invalid destination specified. Must be either 'raw' or 'warehouse'.")
+    stop(paste(
+      "Invalid destination specified.",
+      "Must be either 'local', 's3_raw', or 's3_warehouse'."
+    ))
   }
 
   spatial_df %>%

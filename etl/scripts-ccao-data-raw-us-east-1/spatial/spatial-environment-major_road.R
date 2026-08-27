@@ -43,6 +43,6 @@ for (year in years) {
       st_transform(4326) %>%
       mutate(geometry_3435 = st_transform(geometry, 3435))
 
-    geoparquet_to_s3(osm_roads, remote_file, loaded_at = FALSE)
+    geoparquet_to_s3(osm_roads, remote_file, destination = "s3_raw")
   }
 }

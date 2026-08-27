@@ -199,6 +199,7 @@ for (year in 2010:2021) {
       nbhd, town_nbhd, geometry, geometry_3435
     ) %>%
     geoparquet_to_s3(
-      file.path(output_bucket, paste0("year=", year), "part-0.parquet")
+      file.path(output_bucket, paste0("year=", year), "part-0.parquet"),
+      destination = "s3_warehouse"
     )
 }

@@ -296,7 +296,7 @@ walk(parquet_files, \(file_key) {
       paste0("year=", tools::file_path_sans_ext(basename(file_key))),
       "part-0.parquet"
     )
-    geoparquet_to_s3(shapefile_data, output_path)
+    geoparquet_to_s3(shapefile_data, output_path, destination = "s3_warehouse")
 
     print(paste(file_key, "cleaned and uploaded."))
   }

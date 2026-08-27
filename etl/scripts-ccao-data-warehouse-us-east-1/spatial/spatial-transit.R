@@ -69,7 +69,7 @@ process_gtfs_feed <- function(s3_bucket_uri, date, year, agency, feed_url) {
           any_of(c("location_type", "parent_station", "wheelchair_boarding")),
           any_of(c("feed_pull_date", "geometry", "geometry_3435"))
         ) %>%
-        geoparquet_to_s3(remote_file_stop)
+        geoparquet_to_s3(remote_file_stop, destination = "s3_warehouse")
     }
 
     # Now create route geometries and save. Skip PACE since they have no geoms
@@ -100,7 +100,7 @@ process_gtfs_feed <- function(s3_bucket_uri, date, year, agency, feed_url) {
             route_color, route_text_color,
             feed_pull_date, geometry, geometry_3435
           ) %>%
-          geoparquet_to_s3(remote_file_route)
+          geoparquet_to_s3(remote_file_route, destination = "s3_warehouse")
       }
     }
   }

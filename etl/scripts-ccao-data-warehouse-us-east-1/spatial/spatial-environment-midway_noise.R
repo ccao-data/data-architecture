@@ -95,4 +95,4 @@ data.frame(
     geometry_3435 = st_transform(geometry, 3435),
     year = str_replace(year, "X", "")
   ) %>%
-  geoparquet_to_s3(remote_file)
+  geoparquet_to_s3(remote_file, destination = "s3_warehouse")

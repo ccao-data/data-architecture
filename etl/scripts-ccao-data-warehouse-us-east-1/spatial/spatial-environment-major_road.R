@@ -72,5 +72,5 @@ for (year in years) {
     paste0("major_road-", year, ".parquet")
   )
 
-  geoparquet_to_s3(data_to_write, output_file)
+  geoparquet_to_s3(data_to_write, output_file, destination = "s3_warehouse")
 }
