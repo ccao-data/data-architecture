@@ -106,7 +106,8 @@ for (year in 2010:2021) {
     file.path(
       AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county/2019.parquet"
     )
-  )
+  ) %>%
+    st_transform(3435)
 
   cook_diff <- cook_boundary %>%
     st_make_grid(cellsize = 1000) %>%
