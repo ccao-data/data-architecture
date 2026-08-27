@@ -206,11 +206,18 @@ geoparquet_to_s3 <- function(spatial_df, s3_uri, destination) {
 read_s3_geoparquet <- function(s3_uri) {
   # Spatial parquet file must have a geometry column named "geometry" and a
   # CRS column named "crs" for this function to work properly.
-  spatial_df <- read_parquet(s3_uri)
-  crs <- unique(spatial_df$crs)
-
-  spatial_df %>%
+  read_parquet(s3_uri) %>%
     st_as_sf(sf_column_name = "geometry") %>%
-    st_set_crs(crs) %>%
+    st_set_crs(unique(.$crs)) %>%
+    select(-crs)
+}
+
+open_s3_geodataset <- function(s3_uri) {
+  # Spatial dataset must have a geometry column named "geometry" and a CRS
+  # column named "crs" for this function to work properly.
+  open_dataset(s3_uri) %>%
+    collect() %>%
+    st_as_sf(sf_column_name = "geometry") %>%
+    st_set_crs(unique(.$crs)) %>%
     select(-crs)
 }

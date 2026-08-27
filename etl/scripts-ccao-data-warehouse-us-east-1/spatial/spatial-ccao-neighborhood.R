@@ -20,10 +20,9 @@ for (year in 2010:2021) {
   message("Now processing year: ", year)
 
   # Load the parcels file from S3
-  parcels <- open_dataset(
+  parcels <- open_s3_geodataset(
     paste0("s3://ccao-data-warehouse-us-east-1/spatial/parcel/year=", year)
-  ) %>%
-    read_sf_dataset()
+  )
 
   # Use a positive then negative buffer trick to get orthogonal polygons for
   # each neighborhood. Taken from: https://github.com/hdus/pgtools
