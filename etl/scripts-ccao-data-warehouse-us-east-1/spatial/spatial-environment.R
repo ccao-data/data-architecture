@@ -41,6 +41,7 @@ walk(coastline_years, function(x) {
           AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county/2019.parquet"
         )
       ) %>%
+        st_transform(4326) %>%
         st_buffer(1)
     }
 
