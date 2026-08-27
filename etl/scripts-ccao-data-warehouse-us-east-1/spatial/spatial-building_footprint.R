@@ -155,7 +155,8 @@ if (!aws.s3::object_exists(ms_remote)) {
     file.path(
       AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county/2019.parquet"
     )
-  )
+  ) %>%
+    st_transform(4326)
 
   # Load raw geojson file and keep only valid geometries
   ms_df <- st_read(ms_geojson)
