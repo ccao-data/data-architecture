@@ -168,33 +168,49 @@ county_gdb_to_s3 <- function(
   }
 }
 
-geoparquet_to_s3 <- function(spatial_df, s3_uri, loaded_at = TRUE) {
-  if (!all(c("geometry", "geometry_3435") %in% colnames(spatial_df))) {
-    stop(paste(
-      "Error: Both 'geometry' and 'geometry_3435'",
-      "columns must be present in the spatial data frame."
-    ))
+geoparquet_to_s3 <- function(spatial_df, s3_uri, destination) {
+  if (destination == "raw") {
+    # If we're writing to the raw bucket we don't assume the geometry column is
+    # originally named "geometry" and we don't require a geometry_3435 column.
+    geometry_column <- attr(spatial_df, "sf_column")
+    spatial_df <- spatial_df %>%
+      rename(geometry = !!geometry_column) %>%
+      mutate(
+        geometry = as_wkb(geometry),
+        crs = st_crs(geometry)$epsg
+      )
+
+    attributes(spatial_df$geometry) <- NULL
+  } else if (destination == "warehouse") {
+    # This should fail if the both the geometry and geometry_3435 columns are
+    # not present in the spatial data frame.
+    spatial_df <- spatial_df %>%
+      mutate(
+        geometry = as_wkb(geometry),
+        geometry_3435 = as_wkb(geometry_3435),
+        crs = st_crs(geometry)$epsg,
+        loaded_at = as.character(Sys.time())
+      )
+
+    attributes(spatial_df$geometry) <- NULL
+    attributes(spatial_df$geometry_3435) <- NULL
+  } else {
+    stop("Invalid destination specified. Must be either 'raw' or 'warehouse'.")
   }
 
-  spatial_df <- spatial_df %>%
-    mutate(
-      geometry = as_wkb(geometry),
-      geometry_3435 = as_wkb(geometry_3435)
-    ) %>%
-    {
-      if (loaded_at) mutate(., loaded_at = as.character(Sys.time())) else .
-    }
-
-  attributes(spatial_df$geometry) <- NULL
-  attributes(spatial_df$geometry_3435) <- NULL
-
-  write_parquet(spatial_df, s3_uri, compression = "snappy")
+  spatial_df %>%
+    as.data.frame() %>%
+    write_parquet(., s3_uri, compression = "snappy")
 }
 
-read_s3_geoparquet <- function(s3_uri, crs, default_crs = 4326) {
-  read_parquet(s3_uri) %>%
-    as.data.frame() %>%
+read_s3_geoparquet <- function(s3_uri) {
+  # Spatial parquet file must have a geometry column named "geometry" and a
+  # CRS column named "crs" for this function to work properly.
+  spatial_df <- read_parquet(s3_uri)
+  crs <- unique(spatial_df$crs)
+
+  spatial_df %>%
     st_as_sf(sf_column_name = "geometry") %>%
-    st_set_crs(default_crs) %>%
-    st_transform(crs)
+    st_set_crs(crs) %>%
+    select(-crs)
 }
