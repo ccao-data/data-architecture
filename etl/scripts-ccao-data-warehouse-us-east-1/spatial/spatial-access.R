@@ -125,11 +125,9 @@ walk(remote_files_park_warehouse, function(x) {
       osmdata_sf()
 
     cook_boundary <- read_s3_geoparquet(
-      s3_uri = file.path(
-        AWS_S3_WAREHOUSE_BUCKET,
-        "spatial/ccao/county/2019.parquet"
-      ),
-      crs = 4326
+      file.path(
+        AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county/2019.parquet"
+      )
     )
 
     parks_df <- bind_rows(parks$osm_polygons, parks$osm_multipolygons) %>%

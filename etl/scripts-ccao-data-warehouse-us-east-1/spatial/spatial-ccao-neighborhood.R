@@ -103,11 +103,9 @@ for (year in 2010:2021) {
   # between the neighborhoods and the grid, the merge the diff'd grid squares to
   # the neighborhoods
   cook_boundary <- read_s3_geoparquet(
-    s3_uri = file.path(
-      AWS_S3_WAREHOUSE_BUCKET,
-      "spatial/ccao/county/2019.parquet"
-    ),
-    crs = 3435
+    file.path(
+      AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county/2019.parquet"
+    )
   )
 
   cook_diff <- cook_boundary %>%

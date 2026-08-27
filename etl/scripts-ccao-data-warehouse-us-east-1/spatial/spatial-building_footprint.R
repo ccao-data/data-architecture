@@ -152,11 +152,9 @@ if (!aws.s3::object_exists(ms_remote)) {
   # The microsoft footprints file includes the whole state of IL
   # We need to clip it to only include Cook County
   cook_boundary <- read_s3_geoparquet(
-    s3_uri = file.path(
-      AWS_S3_WAREHOUSE_BUCKET,
-      "spatial/ccao/county/2019.parquet"
-    ),
-    crs = 4326
+    file.path(
+      AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county/2019.parquet"
+    )
   )
 
   # Load raw geojson file and keep only valid geometries
