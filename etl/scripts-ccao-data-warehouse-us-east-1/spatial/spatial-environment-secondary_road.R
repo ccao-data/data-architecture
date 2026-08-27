@@ -194,5 +194,9 @@ for (year in years) {
     paste0("secondary_road-", year, ".parquet")
   )
 
-  geoparquet_to_s3(data_to_write, output_file, destination = "s3_warehouse")
+  geoparquet_to_s3(
+    spatial_df = data_to_write,
+    s3_uri = output_file,
+    destination = "s3_warehouse"
+  )
 }

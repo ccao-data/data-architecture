@@ -77,7 +77,11 @@ walk(years, \(x) {
         mutate(year = as.character(x))
 
       # Save the shapefile as a GeoParquet file
-      geoparquet_to_s3(shapefile_data, remote_file_path, destination = "s3_raw")
+      geoparquet_to_s3(
+        spatial_df = shapefile_data,
+        s3_uri = remote_file_path,
+        destination = "s3_raw"
+      )
     } else {
       message(paste("No shapefile found for year", x, "."))
     }

@@ -56,8 +56,8 @@ if (!aws.s3::object_exists(esri_chicago_remote)) {
       geometry, geometry_3435
     )
   geoparquet_to_s3(
-    esri_chicago_df_clean,
-    esri_chicago_remote,
+    spatial_df = esri_chicago_df_clean,
+    s3_uri = esri_chicago_remote,
     destination = "s3_warehouse"
   )
 }

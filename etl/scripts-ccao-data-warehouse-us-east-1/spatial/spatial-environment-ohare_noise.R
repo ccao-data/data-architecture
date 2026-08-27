@@ -159,4 +159,4 @@ ohare_noise_contour <- st_read(tmp_file) %>%
     geometry_3435 = st_transform(geom, 3435)
   ) %>%
   select(airport, decibels, geometry = geom, geometry_3435) %>%
-  geoparquet_to_s3(remote_file, destination = "s3_warehouse")
+  geoparquet_to_s3(s3_uri = remote_file, destination = "s3_warehouse")

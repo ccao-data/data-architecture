@@ -48,5 +48,7 @@ if (!aws.s3::object_exists(remote_file_town_warehouse)) {
       geometry_3435 = st_transform(geometry, 3435),
       across(township_code:triad_code, as.character)
     ) %>%
-    geoparquet_to_s3(remote_file_town_warehouse, destination = "s3_warehouse")
+    geoparquet_to_s3(
+      s3_uri = remote_file_town_warehouse, destination = "s3_warehouse"
+    )
 }

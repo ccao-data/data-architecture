@@ -236,7 +236,7 @@ for (iter_year in parcel_years) {
       select(pin10, id) %>%
       inner_join(cross_final, by = "id") %>%
       select(-id) %>%
-      geoparquet_to_s3(remote_file, destination = "s3_warehouse")
+      geoparquet_to_s3(s3_uri = remote_file, destination = "s3_warehouse")
   }
   tictoc::toc()
 }
