@@ -88,7 +88,10 @@ walk(parquet_files, \(file_key) {
     print(paste("Cleaning", file_key))
 
     # Convert the S3 object into raw data and read using geoarrow
-    shapefile_data <- read_s3_geoparquet(file.path(AWS_S3_RAW_BUCKET, file_key))
+    shapefile_data <- read_s3_geoparquet(
+      file.path(AWS_S3_RAW_BUCKET, file_key)
+    ) %>%
+      st_transform(4326)
 
     # Because column names change, we can't just select,
     # but create an intersection of columns we want

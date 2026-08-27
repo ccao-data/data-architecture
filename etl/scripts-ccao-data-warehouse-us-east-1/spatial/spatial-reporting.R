@@ -22,6 +22,7 @@ output_path <- file.path(
 county <- read_s3_geoparquet(
   "s3://ccao-data-warehouse-us-east-1/spatial/ccao/county/2019.parquet"
 ) %>%
+  st_transform(3435) %>%
   select(geometry)
 
 # Ingest City of Chicago community areas
@@ -31,6 +32,7 @@ city <- read_s3_geoparquet(
     "spatial/other/community_area/year=2018/part-0.parquet"
   )
 ) %>%
+  st_transform(3435) %>%
   mutate(geo_type = "community area", geo_name = community) %>%
   select(geo_type, geo_name, geo_num = area_number, geometry)
 
