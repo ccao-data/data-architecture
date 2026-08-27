@@ -87,7 +87,7 @@ walk(parquet_files, \(file_key) {
   if (!aws.s3::object_exists(file.path(AWS_S3_WAREHOUSE_BUCKET, file_key))) {
     print(paste("Cleaning", file_key))
 
-    # Convert the S3 object into raw data and read using geoarrow
+    # Convert the S3 object into raw data and read
     shapefile_data <- read_s3_geoparquet(
       file.path(AWS_S3_RAW_BUCKET, file_key)
     ) %>%

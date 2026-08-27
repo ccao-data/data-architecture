@@ -2877,19 +2877,6 @@
       ],
       "Hash": "02483c8ee4115581472646cd5d5984d9"
     },
-    "sfarrow": {
-      "Package": "sfarrow",
-      "Version": "0.4.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "arrow",
-        "dplyr",
-        "jsonlite",
-        "sf"
-      ],
-      "Hash": "b320f164b1d7bb7e4582b841e22d15a0"
-    },
     "sfheaders": {
       "Package": "sfheaders",
       "Version": "0.4.5",
