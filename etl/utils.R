@@ -174,11 +174,9 @@ geoparquet_to_s3 <- function(spatial_df, s3_uri, destination) {
     # originally named "geometry" and we don't require a geometry_3435 column.
     geometry_column <- attr(spatial_df, "sf_column")
     if (geometry_column != "geometry") {
-      warning(paste(
-        "Renaming geometry column from",
-        geometry_column,
-        "to geometry."
-      ))
+      warning(
+        paste("Renaming geometry column from", geometry_column, "to geometry.")
+      )
     }
     spatial_df <- spatial_df %>%
       rename(geometry = !!geometry_column) %>%
