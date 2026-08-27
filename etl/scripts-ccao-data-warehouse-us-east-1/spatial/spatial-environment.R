@@ -37,11 +37,9 @@ walk(coastline_years, function(x) {
     # We need to clip the coastlines to only include Cook County
     if (!exists("cook_boundary")) {
       cook_boundary <<- read_s3_geoparquet(
-        s3_uri = file.path(
-          AWS_S3_WAREHOUSE_BUCKET,
-          "spatial/ccao/county/2019.parquet"
-        ),
-        crs = 4326
+        file.path(
+          AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county/2019.parquet"
+        )
       ) %>%
         st_buffer(1)
     }

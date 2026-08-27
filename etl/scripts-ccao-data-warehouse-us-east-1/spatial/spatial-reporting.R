@@ -20,19 +20,16 @@ output_path <- file.path(
 
 # Ingest county shapefile to make sure we never wander outside its borders
 county <- read_s3_geoparquet(
-  s3_uri =
-    "s3://ccao-data-warehouse-us-east-1/spatial/ccao/county/2019.parquet",
-  crs = 3435
+  "s3://ccao-data-warehouse-us-east-1/spatial/ccao/county/2019.parquet"
 ) %>%
   select(geometry)
 
 # Ingest City of Chicago community areas
 city <- read_s3_geoparquet(
-  s3_uri = file.path(
+  file.path(
     AWS_S3_WAREHOUSE_BUCKET,
     "spatial/other/community_area/year=2018/part-0.parquet"
-  ),
-  crs = 3435
+  )
 ) %>%
   mutate(geo_type = "community area", geo_name = community) %>%
   select(geo_type, geo_name, geo_num = area_number, geometry)
