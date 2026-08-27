@@ -35,7 +35,7 @@ for (year in years) {
   )
 
   # Simplify linestrings
-  current_data <- read_s3_geoparquet(s3_uri = ingest_file, crs = 4326) %>%
+  current_data <- read_s3_geoparquet(s3_uri = ingest_file) %>%
     mutate(geometry_3435 = st_simplify(geometry_3435, dTolerance = 10))
 
   # Initiate master data set with first available year, add column for de-duping
