@@ -93,10 +93,7 @@
         FROM {{ source('spatial', 'neighborhood') }}
     ) AS nbhd
         ON pardat.nbhd = nbhd.town_nbhd
-    LEFT JOIN (
-        SELECT DISTINCT class_code
-        FROM {{ ref('ccao.class_dict') }}
-    ) AS class_dict
+    LEFT JOIN {{ ref('ccao.class_dict') }} AS class_dict
         ON pardat.class = class_dict.class_code
     WHERE pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
