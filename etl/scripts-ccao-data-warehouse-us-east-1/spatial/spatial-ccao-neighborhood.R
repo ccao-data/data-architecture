@@ -20,7 +20,7 @@ for (year in 2010:2021) {
 
   # Load the parcels file from S3
   parcels <- open_dataset(
-    paste0("s3://ccao-data-warehouse-us-east-1/spatial/parcel/year=", year)
+    paste0(AWS_S3_WAREHOUSE_BUCKET, "/spatial/parcel/year=", year)
   ) %>%
     collect_s3_geodataset()
 

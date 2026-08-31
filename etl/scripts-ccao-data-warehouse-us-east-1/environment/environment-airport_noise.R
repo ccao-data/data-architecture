@@ -41,7 +41,7 @@ merge_pins_with_raster <- function(raw_file) {
 
   rast <- stars::read_stars(tmp_file)
   pins <- open_dataset(
-    paste0("s3://ccao-data-warehouse-us-east-1/spatial/parcel/year=", year)
+    paste0(AWS_S3_WAREHOUSE_BUCKET, "/spatial/parcel/year=", year)
   ) %>%
     collect_s3_geodataset() %>%
     st_set_geometry(.$geometry_3435)
@@ -72,7 +72,7 @@ message("Now processing:OMP")
 
 rast <- stars::read_stars(tmp_file)
 pins <- open_dataset(
-  "s3://ccao-data-warehouse-us-east-1/spatial/parcel/year=2021"
+  paste0(AWS_S3_WAREHOUSE_BUCKET, "/spatial/parcel/year=2021")
 ) %>%
   collect_s3_geodataset() %>%
   st_set_geometry(.$geometry_3435)

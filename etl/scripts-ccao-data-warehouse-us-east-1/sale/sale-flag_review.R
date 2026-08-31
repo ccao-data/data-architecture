@@ -16,8 +16,11 @@ library(stringr)
 
 source("utils.R")
 
+AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+
 objs <- get_bucket_df(
-  bucket = "ccao-data-raw-us-east-1",
+  bucket = AWS_S3_RAW_BUCKET,
   prefix = "sale/flag_review/"
 ) %>%
   filter(grepl("xlsx", Key)) %>%
@@ -29,7 +32,7 @@ tmp_dir <- tempdir()
 dfs <- objs %>%
   set_names(tools::file_path_sans_ext(objs)) %>%
   map(\(key) {
-    s3_uri <- paste0("s3://ccao-data-raw-us-east-1/sale/flag_review/", key)
+    s3_uri <- paste0(AWS_S3_RAW_BUCKET, "/sale/flag_review/", key)
 
     file_name <- key
     local_path <- file.path(tmp_dir, file_name)
@@ -275,7 +278,7 @@ dfs_ready_to_write <- purrr::imap(
 )
 
 # Output dir
-out_dir <- "s3://ccao-data-warehouse-us-east-1/sale/flag_review/"
+out_dir <- paste0(AWS_S3_WAREHOUSE_BUCKET, "/sale/flag_review/")
 
 purrr::iwalk(
   dfs_ready_to_write,
