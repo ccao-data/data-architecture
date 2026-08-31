@@ -2112,7 +2112,7 @@
     },
     "osmdata": {
       "Package": "osmdata",
-      "Version": "0.4.0",
+      "Version": "0.3.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -2126,7 +2126,7 @@
         "utils",
         "xml2"
       ],
-      "Hash": "94c75a990360d0efb2f03c7c3a428819"
+      "Hash": "bb7044059aa3b8bfcd6076897c726114"
     },
     "otel": {
       "Package": "otel",

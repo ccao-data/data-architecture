@@ -69,10 +69,11 @@ geoparquet_to_s3 <- function(spatial_df, s3_uri, destination) {
         )
       )
     }
+
     spatial_df <- spatial_df %>%
       rename(geometry = !!geometry_column) %>%
       mutate(
-        geometry = as_wkb(geometry),
+        across(starts_with("geometry"), as_wkb),
         crs = st_crs(geometry)$epsg
       )
 
@@ -89,7 +90,6 @@ geoparquet_to_s3 <- function(spatial_df, s3_uri, destination) {
       )
 
     attributes(spatial_df$geometry) <- NULL
-    attributes(spatial_df$geometry_3435) <- NULL
   } else {
     stop(paste(
       "Invalid destination specified.",
