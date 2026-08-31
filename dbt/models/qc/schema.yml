@@ -1,4 +1,13 @@
 models:
+  - name: qc.vw_report_iasworld_test_all
+    description: '{{ doc("view_vw_report_iasworld_test_all") }}'
+
+  - name: qc.vw_report_iasworld_test_owndat
+    description: '{{ doc("view_vw_report_iasworld_test_owndat") }}'
+
+  - name: qc.vw_report_iasworld_test_pardat
+    description: '{{ doc("view_vw_report_iasworld_test_pardat") }}'
+
   - name: qc.vw_change_in_ahsap_values
     description: '{{ doc("view_vw_change_in_ahsap_values") }}'
 
