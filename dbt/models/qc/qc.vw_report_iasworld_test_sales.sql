@@ -8,7 +8,7 @@
     },
     {
         "name": "iasworld_sales_instrtyp_in_accepted_values",
-        "description": "instrtyp should be '01', '02', '03', '04', '05', '06', or 'B'",
+        "description": 'instrtyp should be "01", "02", "03", "04", "05", "06", or "B"',
         "category": "incorrect_values",
         "condition": "instrtyp IN ('01', '02', '03', '04', '05', '06', 'B')",
         "additional_select_columns": ["instrtyp"]
