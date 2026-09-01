@@ -58,44 +58,44 @@ open_data_to_s3 <- function(s3_bucket_uri,
 
 
 geoparquet_to_s3 <- function(spatial_df, s3_uri, destination) {
+  # We are assuming all spatial dataframes passed to this function have a
+  # geometry column named "geometry"
+  geometry_column <- attr(spatial_df, "sf_column")
+
   if (destination %in% c("s3_raw", "local")) {
-    # If we're writing to the raw bucket we don't assume the geometry column is
-    # originally named "geometry" and we don't require a geometry_3435 column.
-    geometry_column <- attr(spatial_df, "sf_column")
-    if (geometry_column != "geometry") {
-      warning(
-        paste0(
-          "Renaming geometry column from '", geometry_column, "' to 'geometry'."
-        )
-      )
-    }
-
     spatial_df <- spatial_df %>%
-      rename(geometry = !!geometry_column) %>%
       mutate(
-        across(starts_with("geometry"), as_wkb),
-        crs = st_crs(geometry)$epsg
+        across(where(~ inherits(., "sfc")), as_wkb),
+        crs = st_crs(.data[[geometry_column]])$epsg,
+        crs_column = geometry_column
       )
-
-    attributes(spatial_df$geometry) <- NULL
   } else if (destination == "s3_warehouse") {
-    # This should fail if the both the geometry and geometry_3435 columns are
-    # not present in the spatial data frame.
+    # This should fail if both the geometry and geometry_3435 columns are not
+    # present in the spatial data frame.
     spatial_df <- spatial_df %>%
       mutate(
-        geometry = as_wkb(geometry),
+        temp = as_wkb(geometry),
         geometry_3435 = as_wkb(geometry_3435),
         crs = st_crs(geometry)$epsg,
         loaded_at = as.character(Sys.time())
-      )
-
-    attributes(spatial_df$geometry) <- NULL
+      ) %>%
+      st_drop_geometry() %>%
+      rename(geometry = temp) %>%
+      relocate(geometry, .before = geometry_3435)
   } else {
     stop(paste(
       "Invalid destination specified.",
       "Must be either 'local', 's3_raw', or 's3_warehouse'."
     ))
   }
+
+  spatial_df[] <- lapply(spatial_df, function(col) {
+    if (inherits(col, "wk_wkb")) {
+      # Keep only the raw list elements, wipe metadata attributes
+      attributes(col) <- NULL
+    }
+    col
+  })
 
   spatial_df %>%
     as.data.frame() %>%

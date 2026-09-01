@@ -26,7 +26,7 @@ footprint_tmp_dir <- here("footprint-tmp")
 ##### ESRI #####
 esri_chicago_geojson <- here(footprint_tmp_dir, "chicago-2008.geojson")
 esri_chicago_remote_raw <- file.path(
-  input_bucket, "esri", "chicago-2008.parquet"
+  input_bucket, "esri", "chicago-2008.geojson"
 )
 esri_chicago_remote <- file.path(
   output_bucket, "source=esri", "chicago-2008.parquet"
@@ -64,7 +64,7 @@ if (!aws.s3::object_exists(esri_chicago_remote)) {
 
 esri_sub_geojson <- here(footprint_tmp_dir, "suburban_cook-2008.geojson")
 esri_sub_remote_raw <- file.path(
-  input_bucket, "esri", "suburban_cook-2008.parquet"
+  input_bucket, "esri", "suburban_cook-2008.geojson"
 )
 esri_sub_remote <- file.path(
   output_bucket, "source=esri", "suburban_cook-2008.parquet"

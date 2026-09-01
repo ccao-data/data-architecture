@@ -28,7 +28,7 @@ con <- dbConnect(noctua::athena(), rstudio_conn_tab = FALSE)
 parcel_files_df <- aws.s3::get_bucket_df(
   max = Inf,
   bucket = AWS_S3_RAW_BUCKET,
-  prefix = file.path("spatial", "parcel")
+  prefix = file.path("spatial", "parcel_test")
 ) %>%
   filter(Size > 0) %>%
   mutate(

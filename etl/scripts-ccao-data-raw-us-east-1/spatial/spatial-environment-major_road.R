@@ -19,7 +19,7 @@ years <- 2014:current_year
 # Iterate over the years
 for (year in years) {
   remote_file <- file.path(
-    output_bucket, "major_road",
+    output_bucket, "major_road_test",
     paste0("year=", year),
     paste0("major_road-", year, ".parquet")
   )

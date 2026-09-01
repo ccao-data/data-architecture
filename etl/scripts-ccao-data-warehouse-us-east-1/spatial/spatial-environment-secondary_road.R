@@ -37,7 +37,7 @@ for (year in years) {
   # Ingest path
   ingest_file_secondary <- file.path(
     AWS_S3_RAW_BUCKET, "spatial",
-    "environment", "secondary_road",
+    "environment", "secondary_road_test",
     paste0("year=", year),
     paste0("secondary_road-", year, ".parquet")
   )

@@ -38,7 +38,7 @@ pwalk(gdb_files, function(...) {
   df <- tibble::tibble(...)
   county_gdb_to_s3(
     s3_bucket_uri = output_bucket,
-    dir_name = "parcel",
+    dir_name = "parcel_test",
     file_path = df$path,
     layer = "Parcel"
   )
@@ -50,60 +50,14 @@ pwalk(gdb_files, function(...) {
 # We grab a little high-level data from iasworld to join with spatial parcel
 # data. Stuff like class, township, etc. that's nice to have.
 # Connect to CCAODATA SQL server
-CCAODATA <- odbc::dbConnect(
-  odbc::odbc(),
-  .connection_string = Sys.getenv("DB_CONFIG_CCAODATA")
-)
-
-# Function to download parcel-level attribute data from old (deprecated) SQL
-# Server. Useful for historical PINs for which data is hard-to-find
-pull_sql_and_write <- function(year) {
-  remote_file_attr <- file.path(
-    output_bucket, "parcel",
-    paste0(year, "-attr.parquet")
-  )
-
-  if (!aws.s3::object_exists(remote_file_attr)) {
-    message("Now grabbing year: ", year)
-    tmp_file <- tempfile(fileext = ".parquet")
-    DBI::dbGetQuery(
-      CCAODATA, glue("
-      SELECT
-        PIN AS pin,
-        HD_CLASS AS class,
-        HD_TOWN AS tax_code,
-        HD_NBHD AS nbhd_code,
-        LEFT(HD_TOWN, 2) AS town_code,
-        TAX_YEAR AS taxyr
-      FROM AS_HEADT
-      WHERE TAX_YEAR = {year}")
-    ) %>%
-      mutate(
-        pin = str_pad(pin, 14, "left", "0"),
-        tax_code = str_pad(tax_code, 5, "left", "0"),
-        nbhd_code = str_pad(nbhd_code, 3, "left", "0"),
-        town_code = str_pad(town_code, 2, "left", "0")
-      ) %>%
-      distinct(pin, .keep_all = TRUE) %>%
-      write_parquet(tmp_file)
-
-    save_local_to_s3(remote_file_attr, tmp_file)
-    file.remove(tmp_file)
-  }
-}
-
-walk(2000:2020, pull_sql_and_write)
-
-
-##### MODERN PARCELS #####
-iasworld_years <- unique(2021:format(Sys.Date(), "%Y"))
-parcels_current_remote_attr <- file.path(
-  output_bucket, "parcel",
+iasworld_years <- unique(2000:format(Sys.Date(), "%Y"))
+parcels_remote_attr <- file.path(
+  output_bucket, "parcel_test",
   paste0(iasworld_years, "-attr.parquet")
 )
 
 # Query iasWorld via Athena to get attribute data we can pre-join
-walk(parcels_current_remote_attr, function(x) {
+walk(parcels_remote_attr, function(x) {
   if (!aws.s3::object_exists(x)) {
     year <- str_sub(x, -17, -14)
 
@@ -111,22 +65,26 @@ walk(parcels_current_remote_attr, function(x) {
 
     dbGetQuery(
       AWS_ATHENA_CONN_NOCTUA, glue("
-        SELECT
-          p.parid AS pin,
-          p.class AS class,
-          l.taxdist AS tax_code,
-          p.nbhd AS nbhd_code,
-          p.taxyr AS taxyr
-        FROM iasworld.pardat p
-        LEFT JOIN iasworld.legdat l
-        ON p.parid = l.parid AND p.taxyr = l.taxyr
-        WHERE p.taxyr = '{year}'")
+        SELECT par.parid AS pin,
+        par.class,
+        leg.taxdist AS tax_code,
+        REGEXP_REPLACE(par.nbhd, '([^0-9])', '') AS nbhd_code,
+        leg.user1 AS town_code,
+        par.taxyr
+      FROM iasworld.pardat AS par
+        LEFT JOIN iasworld.legdat AS leg ON par.parid = leg.parid
+        AND par.taxyr = leg.taxyr
+        AND leg.cur = 'Y'
+        AND leg.deactivat IS NULL
+      WHERE par.cur = 'Y'
+        AND par.deactivat IS NULL
+        AND par.taxyr = '{year}'")
     ) %>%
       mutate(
         pin = str_pad(pin, 14, "left", "0"),
         tax_code = str_pad(tax_code, 5, "left", "0"),
         nbhd_code = str_sub(str_pad(nbhd_code, 5, "left", "0"), 3, 5),
-        town_code = str_sub(tax_code, 1, 2),
+        town_code = str_pad(town_code, 2, "left", "0"),
         taxyr = as.integer(taxyr)
       ) %>%
       distinct(pin, .keep_all = TRUE) %>%
@@ -139,5 +97,4 @@ walk(parcels_current_remote_attr, function(x) {
 
 
 # Cleanup
-dbDisconnect(CCAODATA)
 dbDisconnect(AWS_ATHENA_CONN_NOCTUA)
