@@ -278,14 +278,3 @@ View to compile PIN-level model inputs shared between the residential
 
 **Primary Key**: `year`, `meta_pin`
 {% enddocs %}
-
-# vw_training_data_final
-
-{% docs view_vw_training_data_final %}
-
-Version of `training_data` limited to final model runs. Includes additional
-column `model_type` to allow easy filtering between condo and single-family
-models.
-
-**Primary Key**: `run_id`, `meta_card_num`, `meta_sale_document_num`
-{% enddocs %}
