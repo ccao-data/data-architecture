@@ -78,13 +78,20 @@ road_codes <- c(
 
 # Get the 'Key'
 parquet_files <- get_bucket_df(
-  bucket = AWS_S3_RAW_BUCKET, prefix = s3_folder
+  bucket = AWS_S3_RAW_BUCKET, prefix = paste0(s3_folder, "_test")
 ) %>%
-  pull(Key)
+  mutate(
+    output_path = file.path(
+      output_bucket,
+      paste0("year=", file_path_sans_ext(basename(Key))),
+      "part-0.parquet"
+    ),
+  ) %>%
+  select(Key, output_path)
 
 # Loop through each parquet file and process it
-walk(parquet_files, \(file_key) {
-  if (!aws.s3::object_exists(file.path(AWS_S3_WAREHOUSE_BUCKET, file_key))) {
+walk2(parquet_files$Key, parquet_files$output_path, \(file_key, output_path) {
+  if (!aws.s3::object_exists(str_remove(output_path, "_test"))) {
     print(paste("Cleaning", file_key))
 
     # Convert the S3 object into raw data and read

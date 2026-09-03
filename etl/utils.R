@@ -211,10 +211,15 @@ county_gdb_to_s3 <- function(
 read_s3_geoparquet <- function(s3_uri) {
   # Spatial parquet file must have a geometry column named "geometry" and a
   # CRS column named "crs" for this function to work properly.
-  read_parquet(s3_uri) %>%
-    st_as_sf(sf_column_name = "geometry") %>%
+  spatial_df <- read_parquet(s3_uri) %>%
+    st_as_sf(sf_column_name = "geometry", crs = unique(.$crs)) %>%
     st_set_crs(unique(.$crs)) %>%
     select(-crs)
+
+  if ("geometry_3435" %in% colnames(spatial_df)) {
+    st_crs(spatial_df$geometry_3435) <- 3435
+  }
+  spatial_df
 }
 
 
