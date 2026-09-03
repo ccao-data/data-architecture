@@ -1,7 +1,6 @@
 library(arrow)
 library(ccao)
 library(dplyr)
-library(geoarrow)
 library(geojsonio)
 library(purrr)
 library(sf)
@@ -20,9 +19,10 @@ for (year in 2010:2021) {
   message("Now processing year: ", year)
 
   # Load the parcels file from S3
-  parcels <- geoarrow::geoarrow_collect_sf(arrow::open_dataset(
-    paste0("s3://ccao-data-warehouse-us-east-1/spatial/parcel/year=", year)
-  ))
+  parcels <- open_dataset(
+    paste0(AWS_S3_WAREHOUSE_BUCKET, "/spatial/parcel/year=", year)
+  ) %>%
+    collect_s3_geodataset()
 
   # Use a positive then negative buffer trick to get orthogonal polygons for
   # each neighborhood. Taken from: https://github.com/hdus/pgtools
@@ -102,10 +102,11 @@ for (year in 2010:2021) {
   # the boundary of the whole county, divide it into a grid, get the difference
   # between the neighborhoods and the grid, the merge the diff'd grid squares to
   # the neighborhoods
-  cook_boundary <- read_geoparquet_sf(file.path(
-    AWS_S3_WAREHOUSE_BUCKET,
-    "spatial/ccao/county/2019.parquet"
-  )) %>%
+  cook_boundary <- read_s3_geoparquet(
+    file.path(
+      AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county/2019.parquet"
+    )
+  ) %>%
     st_transform(3435)
 
   cook_diff <- cook_boundary %>%
@@ -197,6 +198,8 @@ for (year in 2010:2021) {
       nbhd, town_nbhd, geometry, geometry_3435
     ) %>%
     geoparquet_to_s3(
-      file.path(output_bucket, paste0("year=", year), "part-0.parquet")
+      s3_uri =
+        file.path(output_bucket, paste0("year=", year), "part-0.parquet"),
+      destination = "s3_warehouse"
     )
 }

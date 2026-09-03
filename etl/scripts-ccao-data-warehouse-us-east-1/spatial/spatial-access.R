@@ -1,7 +1,6 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
-library(geoarrow)
 library(here)
 library(osmdata)
 library(purrr)
@@ -42,7 +41,9 @@ if (!aws.s3::object_exists(remote_file_bike_warehouse)) {
       trail_width = trailwdth, trail_type = trailtype,
       trail_surface = trailsurfa
     ) %>%
-    geoparquet_to_s3(remote_file_bike_warehouse)
+    geoparquet_to_s3(
+      s3_uri = remote_file_bike_warehouse, destination = "s3_warehouse"
+    )
 }
 
 
@@ -68,7 +69,9 @@ if (!aws.s3::object_exists(remote_file_ceme_warehouse)) {
       name = cfname, address, gniscode, source, community, comment, mergeid,
       geometry, geometry_3435
     ) %>%
-    geoparquet_to_s3(remote_file_ceme_warehouse)
+    geoparquet_to_s3(
+      s3_uri = remote_file_ceme_warehouse, destination = "s3_warehouse"
+    )
 }
 
 
@@ -94,7 +97,9 @@ if (!aws.s3::object_exists(remote_file_hosp_warehouse)) {
       name = cfname, address, gniscode, source, community, comment, mergeid,
       geometry, geometry_3435
     ) %>%
-    geoparquet_to_s3(remote_file_hosp_warehouse)
+    geoparquet_to_s3(
+      s3_uri = remote_file_hosp_warehouse, destination = "s3_warehouse"
+    )
 }
 
 
@@ -119,13 +124,11 @@ walk(remote_files_park_warehouse, function(x) {
       add_osm_feature(key = "leisure", value = "park") %>%
       osmdata_sf()
 
-    cook_boundary <- geoarrow::read_geoparquet_sf(
+    cook_boundary <- read_s3_geoparquet(
       file.path(
-        AWS_S3_WAREHOUSE_BUCKET,
-        "spatial/ccao/county/2019.parquet"
+        AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county/2019.parquet"
       )
-    ) %>%
-      st_transform(4326)
+    )
 
     parks_df <- bind_rows(parks$osm_polygons, parks$osm_multipolygons) %>%
       st_make_valid() %>%
@@ -141,7 +144,11 @@ walk(remote_files_park_warehouse, function(x) {
         ))
       )
 
-    geoparquet_to_s3(parks_df, x)
+    geoparquet_to_s3(
+      spatial_df = parks_df,
+      s3_uri = x,
+      destination = "s3_warehouse"
+    )
   }
 })
 
@@ -169,7 +176,9 @@ if (!aws.s3::object_exists(remote_file_indc_warehouse)) {
       num = no, hud_qualif, acres,
       geometry, geometry_3435
     ) %>%
-    geoparquet_to_s3(remote_file_indc_warehouse)
+    geoparquet_to_s3(
+      s3_uri = remote_file_indc_warehouse, destination = "s3_warehouse"
+    )
 }
 
 ##### WALKABILITY #####
@@ -199,5 +208,7 @@ if (!aws.s3::object_exists(remote_file_walk_warehouse)) {
     rename_with(~"walk_num", contains("subzone")) %>%
     standardize_expand_geo() %>%
     select(-contains("shape")) %>%
-    geoparquet_to_s3(remote_file_walk_warehouse)
+    geoparquet_to_s3(
+      s3_uri = remote_file_walk_warehouse, destination = "s3_warehouse"
+    )
 }

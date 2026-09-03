@@ -115,5 +115,6 @@ st_read(tmp_file) %>%
     year = "2025"
   ) %>%
   geoparquet_to_s3(
-    file.path(output_bucket, "sidwell_grid", "sidwell_grid.parquet")
+    s3_uri = file.path(output_bucket, "sidwell_grid", "sidwell_grid.parquet"),
+    destination = "s3_warehouse"
   )

@@ -1,6 +1,6 @@
+library(arrow)
 library(aws.s3)
 library(dplyr)
-library(geoarrow)
 library(osmdata)
 library(sf)
 source("utils.R")
@@ -54,6 +54,6 @@ for (year in years) {
         geometry_3435 = st_transform(geometry, 3435)
       ) %>%
       select(osm_id, name, category = shop, geometry, geometry_3435) %>%
-      geoparquet_to_s3(remote_file)
+      geoparquet_to_s3(s3_uri = remote_file, destination = "s3_warehouse")
   }
 }

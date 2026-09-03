@@ -1,6 +1,6 @@
 library(aws.s3)
 library(dplyr)
-library(geoarrow)
+library(arrow)
 library(osmdata)
 library(sf)
 source("utils.R")
@@ -19,7 +19,7 @@ years <- 2014:current_year
 # Iterate over the years
 for (year in years) {
   remote_file <- file.path(
-    output_bucket, "secondary_road",
+    output_bucket, "secondary_road_test",
     paste0("year=", year),
     paste0("secondary_road-", year, ".parquet")
   )
@@ -43,6 +43,10 @@ for (year in years) {
       st_transform(4326) %>%
       mutate(geometry_3435 = st_transform(geometry, 3435))
 
-    geoarrow::write_geoparquet(osm_roads, remote_file)
+    geoparquet_to_s3(
+      spatial_df = osm_roads,
+      s3_uri = remote_file,
+      destination = "s3_raw"
+    )
   }
 }

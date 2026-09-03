@@ -2,8 +2,8 @@ library(arrow)
 library(aws.s3)
 library(dplyr)
 library(purrr)
-library(geoarrow)
 library(tools)
+library(wk)
 
 
 save_s3_to_local <- function(s3_uri, path, overwrite = FALSE) {
@@ -57,6 +57,52 @@ open_data_to_s3 <- function(s3_bucket_uri,
 }
 
 
+geoparquet_to_s3 <- function(spatial_df, s3_uri, destination) {
+  # We are assuming all spatial dataframes passed to this function have a
+  # geometry column named "geometry"
+  geometry_column <- attr(spatial_df, "sf_column")
+
+  if (destination %in% c("s3_raw", "local")) {
+    spatial_df <- spatial_df %>%
+      mutate(
+        across(where(~ inherits(., "sfc")), as_wkb),
+        crs = st_crs(.data[[geometry_column]])$epsg,
+        crs_column = geometry_column
+      )
+  } else if (destination == "s3_warehouse") {
+    # This should fail if both the geometry and geometry_3435 columns are not
+    # present in the spatial data frame.
+    spatial_df <- spatial_df %>%
+      mutate(
+        temp = as_wkb(geometry),
+        geometry_3435 = as_wkb(geometry_3435),
+        crs = st_crs(geometry)$epsg,
+        loaded_at = as.character(Sys.time())
+      ) %>%
+      st_drop_geometry() %>%
+      rename(geometry = temp) %>%
+      relocate(geometry, .before = geometry_3435)
+  } else {
+    stop(paste(
+      "Invalid destination specified.",
+      "Must be either 'local', 's3_raw', or 's3_warehouse'."
+    ))
+  }
+
+  spatial_df[] <- lapply(spatial_df, function(col) {
+    if (inherits(col, "wk_wkb")) {
+      # Keep only the raw list elements, wipe metadata attributes
+      attributes(col) <- NULL
+    }
+    col
+  })
+
+  spatial_df %>%
+    as.data.frame() %>%
+    write_parquet(., s3_uri, compression = "snappy")
+}
+
+
 write_partitions_to_s3 <- function(df,
                                    s3_output_path,
                                    is_spatial = TRUE,
@@ -82,11 +128,15 @@ write_partitions_to_s3 <- function(df,
       message("Now uploading: ", partition_path)
       tmp_file <- tempfile(fileext = ".parquet")
       if (is_spatial) {
-        geoarrow::write_geoparquet(.x, tmp_file, compression = "snappy")
+        geoparquet_to_s3(.x, s3_uri = tmp_file, destination = "s3_warehouse")
       } else {
-        arrow::write_parquet(.x, tmp_file, compression = "snappy")
+        write_parquet(.x, tmp_file, compression = "snappy")
       }
-      aws.s3::put_object(tmp_file, remote_path, multipart = TRUE)
+      aws.s3::put_object(
+        file = tmp_file,
+        object = remote_path,
+        multipart = TRUE
+      )
     }
   })
 }
@@ -120,6 +170,7 @@ standardize_expand_geo <- function(
       }
   )
 }
+
 
 county_gdb_to_s3 <- function(
   s3_bucket_uri,
@@ -156,8 +207,28 @@ county_gdb_to_s3 <- function(
   }
 }
 
-geoparquet_to_s3 <- function(spatial_df, s3_uri) {
-  spatial_df %>%
-    mutate(loaded_at = as.character(Sys.time())) %>%
-    geoarrow::write_geoparquet(s3_uri, compression = "snappy")
+
+read_s3_geoparquet <- function(s3_uri) {
+  # Spatial parquet file must have a geometry column named "geometry" and a
+  # CRS column named "crs" for this function to work properly.
+  spatial_df <- read_parquet(s3_uri) %>%
+    st_as_sf(sf_column_name = "geometry", crs = unique(.$crs)) %>%
+    st_set_crs(unique(.$crs)) %>%
+    select(-crs)
+
+  if ("geometry_3435" %in% colnames(spatial_df)) {
+    st_crs(spatial_df$geometry_3435) <- 3435
+  }
+  spatial_df
+}
+
+
+collect_s3_geodataset <- function(spatial_dataset) {
+  # Spatial dataset must have a geometry column named "geometry" and a CRS
+  # column named "crs" for this function to work properly.
+  spatial_dataset %>%
+    collect() %>%
+    st_as_sf(sf_column_name = "geometry") %>%
+    st_set_crs(unique(.$crs)) %>%
+    select(-crs)
 }

@@ -2,7 +2,6 @@ library(arrow)
 library(aws.s3)
 library(DBI)
 library(dplyr)
-library(geoarrow)
 library(glue)
 library(here)
 library(noctua)
@@ -27,7 +26,7 @@ footprint_tmp_dir <- here("footprint-tmp")
 ##### ESRI #####
 esri_chicago_geojson <- here(footprint_tmp_dir, "chicago-2008.geojson")
 esri_chicago_remote_raw <- file.path(
-  input_bucket, "esri", "chicago-2008.parquet"
+  input_bucket, "esri", "chicago-2008.geojson"
 )
 esri_chicago_remote <- file.path(
   output_bucket, "source=esri", "chicago-2008.parquet"
@@ -57,14 +56,15 @@ if (!aws.s3::object_exists(esri_chicago_remote)) {
       geometry, geometry_3435
     )
   geoparquet_to_s3(
-    esri_chicago_df_clean,
-    esri_chicago_remote
+    spatial_df = esri_chicago_df_clean,
+    s3_uri = esri_chicago_remote,
+    destination = "s3_warehouse"
   )
 }
 
 esri_sub_geojson <- here(footprint_tmp_dir, "suburban_cook-2008.geojson")
 esri_sub_remote_raw <- file.path(
-  input_bucket, "esri", "suburban_cook-2008.parquet"
+  input_bucket, "esri", "suburban_cook-2008.geojson"
 )
 esri_sub_remote <- file.path(
   output_bucket, "source=esri", "suburban_cook-2008.parquet"
@@ -93,7 +93,11 @@ if (!aws.s3::object_exists(esri_sub_remote)) {
       lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1,
       geometry, geometry_3435
     )
-  geoparquet_to_s3(esri_sub_df_clean, esri_sub_remote)
+  geoparquet_to_s3(
+    spatial_df = esri_sub_df_clean,
+    s3_uri = esri_sub_remote,
+    destination = "s3_warehouse"
+  )
 }
 
 
@@ -125,7 +129,11 @@ if (!aws.s3::object_exists(osm_remote)) {
       lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1,
       geometry, geometry_3435
     )
-  geoparquet_to_s3(osm_df_clean, osm_remote)
+  geoparquet_to_s3(
+    spatial_df = osm_df_clean,
+    s3_uri = osm_remote,
+    destination = "s3_warehouse"
+  )
 }
 
 
@@ -143,10 +151,9 @@ if (!aws.s3::object_exists(ms_remote)) {
 
   # The microsoft footprints file includes the whole state of IL
   # We need to clip it to only include Cook County
-  cook_boundary <- read_geoparquet_sf(
+  cook_boundary <- read_s3_geoparquet(
     file.path(
-      AWS_S3_WAREHOUSE_BUCKET,
-      "spatial/ccao/county/2019.parquet"
+      AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county/2019.parquet"
     )
   ) %>%
     st_transform(4326)
@@ -181,5 +188,9 @@ if (!aws.s3::object_exists(ms_remote)) {
       lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1,
       geometry, geometry_3435
     )
-  geoparquet_to_s3(ms_df_clean_cook_only, ms_remote)
+  geoparquet_to_s3(
+    spatial_df = ms_df_clean_cook_only,
+    s3_uri = ms_remote,
+    destination = "s3_warehouse"
+  )
 }

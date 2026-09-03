@@ -1,7 +1,6 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
-library(geoarrow)
 library(osmdata)
 library(sf)
 library(sfnetworks)
@@ -38,13 +37,13 @@ for (year in years) {
   # Ingest path
   ingest_file_secondary <- file.path(
     AWS_S3_RAW_BUCKET, "spatial",
-    "environment", "secondary_road",
+    "environment", "secondary_road_test",
     paste0("year=", year),
     paste0("secondary_road-", year, ".parquet")
   )
 
   # Simplify linestrings
-  current_data <- read_geoparquet_sf(ingest_file_secondary) %>%
+  current_data <- read_s3_geoparquet(ingest_file_secondary) %>%
     mutate(geometry_3435 = st_simplify(geometry_3435, dTolerance = 10))
 
   # Initiate master data set with first available year, add column for de-duping
@@ -70,8 +69,8 @@ for (year in years) {
     )
 
     # Ingest Major roads data for the prior and current year
-    major_roads_prior <- read_geoparquet_sf(ingest_file_major_prior)
-    major_roads_current <- read_geoparquet_sf(ingest_file_major_current)
+    major_roads_prior <- read_s3_geoparquet(ingest_file_major_prior)
+    major_roads_current <- read_s3_geoparquet(ingest_file_major_current)
 
     # This if/else block prevents us from indexing a future
     # year that doesn't exist yet
@@ -84,7 +83,7 @@ for (year in years) {
       )
 
       # Ingest Major roads data for the next year
-      major_roads_post <- read_geoparquet_sf(ingest_file_major_post)
+      major_roads_post <- read_s3_geoparquet(ingest_file_major_post)
 
       # Apply filter for both prior and post year major roads, this filter
       # accounts for the case where:
@@ -185,5 +184,9 @@ for (year in years) {
     paste0("secondary_road-", year, ".parquet")
   )
 
-  geoparquet_to_s3(data_to_write, output_file)
+  geoparquet_to_s3(
+    spatial_df = data_to_write,
+    s3_uri = output_file,
+    destination = "s3_warehouse"
+  )
 }

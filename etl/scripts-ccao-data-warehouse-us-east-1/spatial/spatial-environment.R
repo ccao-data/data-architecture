@@ -1,7 +1,6 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
-library(geoarrow)
 library(here)
 library(purrr)
 library(readr)
@@ -37,10 +36,9 @@ walk(coastline_years, function(x) {
 
     # We need to clip the coastlines to only include Cook County
     if (!exists("cook_boundary")) {
-      cook_boundary <<- read_geoparquet_sf(
+      cook_boundary <<- read_s3_geoparquet(
         file.path(
-          AWS_S3_WAREHOUSE_BUCKET,
-          "spatial/ccao/county/2019.parquet"
+          AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county/2019.parquet"
         )
       ) %>%
         st_transform(4326) %>%
@@ -57,7 +55,9 @@ walk(coastline_years, function(x) {
         geometry_3435 = st_transform(geometry, 3435)
       ) %>%
       rename_with(tolower) %>%
-      geoparquet_to_s3(remote_file_coastline_warehouse)
+      geoparquet_to_s3(
+        s3_uri = remote_file_coastline_warehouse, destination = "s3_warehouse"
+      )
   }
 })
 
@@ -96,7 +96,9 @@ for (year in fema_years) {
         fema_special_flood_hazard_area = SFHA_TF,
         geometry, geometry_3435
       ) %>%
-      geoparquet_to_s3(flood_fema_warehouse)
+      geoparquet_to_s3(
+        s3_uri = flood_fema_warehouse, destination = "s3_warehouse"
+      )
     file.remove(tmp_file)
   }
 }
@@ -123,7 +125,9 @@ if (!aws.s3::object_exists(remote_file_rail_warehouse)) {
     mutate(
       geometry_3435 = st_transform(geometry, 3435)
     ) %>%
-    geoparquet_to_s3(remote_file_rail_warehouse)
+    geoparquet_to_s3(
+      s3_uri = remote_file_rail_warehouse, destination = "s3_warehouse"
+    )
 }
 
 
@@ -177,7 +181,9 @@ walk(dest_files_hydro_years, function(year) {
         select(id = HYDROID, name = FULLNAME, hydrology_type, geometry)
     ) %>%
       mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
-      geoparquet_to_s3(remote_file_hydro_warehouse)
+      geoparquet_to_s3(
+        s3_uri = remote_file_hydro_warehouse, destination = "s3_warehouse"
+      )
 
     file.remove(tmp_file)
   }

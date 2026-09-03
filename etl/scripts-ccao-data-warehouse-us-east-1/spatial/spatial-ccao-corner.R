@@ -2,7 +2,6 @@ library(arrow)
 library(aws.s3)
 library(ccao)
 library(dplyr)
-library(geoarrow)
 library(glue)
 library(here)
 library(osmdata)
@@ -34,7 +33,7 @@ for (iter_year in parcel_years) {
   # Load the full year's parcel file to iterate though by township
   parcels <- open_dataset(parcel_path) %>%
     filter(year == iter_year) %>%
-    geoarrow_collect_sf()
+    collect_s3_geodataset()
 
   for (iter_town in ccao::town_dict$township_code) {
     print(paste("Now processing township:", iter_town))
@@ -238,7 +237,7 @@ for (iter_year in parcel_years) {
       select(pin10, id) %>%
       inner_join(cross_final, by = "id") %>%
       select(-id) %>%
-      geoparquet_to_s3(remote_file)
+      geoparquet_to_s3(s3_uri = remote_file, destination = "s3_warehouse")
   }
   tictoc::toc()
 }

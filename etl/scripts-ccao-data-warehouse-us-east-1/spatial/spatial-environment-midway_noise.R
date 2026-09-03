@@ -1,9 +1,10 @@
+library(arrow)
 library(dplyr)
-library(geoarrow)
 library(sf)
 library(stringr)
 library(tidygeocoder)
 library(tidyr)
+source("utils.R")
 
 # Script to transform raw data on Midway noise into clean Athena tables.
 # Data is located here:
@@ -95,4 +96,4 @@ data.frame(
     geometry_3435 = st_transform(geometry, 3435),
     year = str_replace(year, "X", "")
   ) %>%
-  geoparquet_to_s3(remote_file)
+  geoparquet_to_s3(s3_uri = remote_file, destination = "s3_warehouse")

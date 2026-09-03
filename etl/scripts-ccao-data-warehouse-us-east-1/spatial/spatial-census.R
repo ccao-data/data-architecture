@@ -3,7 +3,6 @@ library(arrow)
 library(dplyr)
 library(purrr)
 library(sf)
-library(geoarrow)
 library(stringr)
 source("utils.R")
 
@@ -81,7 +80,7 @@ normalize_census_geo <- function(key) {
         geometry, geometry_3435
       ) %>%
       filter(!str_detect(geoid, "Z")) %>%
-      geoparquet_to_s3(remote_file)
+      geoparquet_to_s3(s3_uri = remote_file, destination = "s3_warehouse")
   }
 }
 

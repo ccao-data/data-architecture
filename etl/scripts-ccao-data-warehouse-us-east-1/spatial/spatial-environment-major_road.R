@@ -1,7 +1,6 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
-library(geoarrow)
 library(osmdata)
 library(sf)
 source("utils.R")
@@ -30,13 +29,13 @@ for (year in years) {
   # Ingest path
   ingest_file <- file.path(
     AWS_S3_RAW_BUCKET, "spatial",
-    "environment", "major_road",
+    "environment", "major_road_test",
     paste0("year=", year),
     paste0("major_road-", year, ".parquet")
   )
 
   # Simplify linestrings
-  current_data <- read_geoparquet_sf(ingest_file) %>%
+  current_data <- read_s3_geoparquet(s3_uri = ingest_file) %>%
     mutate(geometry_3435 = st_simplify(geometry_3435, dTolerance = 10))
 
   # Initiate master data set with first available year, add column for de-duping
@@ -73,5 +72,9 @@ for (year in years) {
     paste0("major_road-", year, ".parquet")
   )
 
-  geoparquet_to_s3(data_to_write, output_file)
+  geoparquet_to_s3(
+    spatial_df = data_to_write,
+    s3_uri = output_file,
+    destination = "s3_warehouse"
+  )
 }

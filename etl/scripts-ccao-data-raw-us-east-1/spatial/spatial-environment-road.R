@@ -5,12 +5,13 @@ library(lubridate)
 library(purrr)
 library(sf)
 library(arrow)
+source("utils.R")
 
 # Define S3 bucket and paths
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(
   AWS_S3_RAW_BUCKET,
-  "spatial", "environment", "road"
+  "spatial", "environment", "road_test"
 )
 
 # Get list of available files
@@ -74,10 +75,20 @@ walk(years, \(x) {
         } else {
           INV_CO == "016"
         }) %>%
-        mutate(year = as.character(x))
+        mutate(year = as.character(x)) %>%
+        # The IDOT shapefiles don't have a set CRS. As far as I can tell, the
+        # CRS is EPSG:3436. We will set it to that and then transform to
+        # EPSG:4326.
+        st_set_crs(3436) %>%
+        st_transform(4326) %>%
+        st_make_valid()
 
       # Save the shapefile as a GeoParquet file
-      geoarrow::write_geoparquet(shapefile_data, remote_file_path)
+      geoparquet_to_s3(
+        spatial_df = shapefile_data,
+        s3_uri = remote_file_path,
+        destination = "s3_raw"
+      )
     } else {
       message(paste("No shapefile found for year", x, "."))
     }

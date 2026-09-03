@@ -2,7 +2,6 @@ library(arrow)
 library(aws.s3)
 library(data.table)
 library(dplyr)
-library(geoarrow)
 library(here)
 library(noctua)
 library(purrr)
@@ -29,7 +28,7 @@ con <- dbConnect(noctua::athena(), rstudio_conn_tab = FALSE)
 parcel_files_df <- aws.s3::get_bucket_df(
   max = Inf,
   bucket = AWS_S3_RAW_BUCKET,
-  prefix = file.path("spatial", "parcel")
+  prefix = file.path("spatial", "parcel_test")
 ) %>%
   filter(Size > 0) %>%
   mutate(
@@ -406,11 +405,15 @@ process_parcel_file <- function(s3_bucket_uri,
       }
 
       # Write local backup copy
-      geoparquet_to_s3(spatial_df_final, local_backup_file)
+      geoparquet_to_s3(
+        spatial_df = spatial_df_final,
+        s3_uri = local_backup_file,
+        destination = "local"
+      )
       tictoc::toc()
     } else {
       message("Loading processed parcels from backup for: ", file_year)
-      spatial_df_final <- read_geoparquet_sf(local_backup_file)
+      spatial_df_final <- read_s3_geoparquet(local_backup_file)
     }
 
     # Write final dataframe to dataset on S3, partitioned by town and year

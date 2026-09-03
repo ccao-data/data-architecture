@@ -3,7 +3,6 @@ library(aws.s3)
 library(dplyr)
 library(purrr)
 library(sf)
-library(sfarrow)
 library(stars)
 library(stringr)
 library(tidyr)
@@ -41,10 +40,10 @@ merge_pins_with_raster <- function(raw_file) {
   message("Now processing:", year)
 
   rast <- stars::read_stars(tmp_file)
-  pins <- sfarrow::read_sf_dataset(arrow::open_dataset(paste0(
-    "s3://ccao-data-warehouse-us-east-1/spatial/parcel/year=",
-    year
-  ))) %>%
+  pins <- open_dataset(
+    paste0(AWS_S3_WAREHOUSE_BUCKET, "/spatial/parcel/year=", year)
+  ) %>%
+    collect_s3_geodataset() %>%
     st_set_geometry(.$geometry_3435)
 
   pins %>%
@@ -72,9 +71,10 @@ aws.s3::save_object(raw_files_omp, file = tmp_file)
 message("Now processing:OMP")
 
 rast <- stars::read_stars(tmp_file)
-pins <- read_sf_dataset(arrow::open_dataset(paste0(
-  "s3://ccao-data-warehouse-us-east-1/spatial/parcel/year=2021"
-))) %>%
+pins <- open_dataset(
+  paste0(AWS_S3_WAREHOUSE_BUCKET, "/spatial/parcel/year=2021")
+) %>%
+  collect_s3_geodataset() %>%
   st_set_geometry(.$geometry_3435)
 
 pins %>%
