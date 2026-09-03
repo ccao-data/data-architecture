@@ -4,6 +4,7 @@ library(sf)
 library(stringr)
 library(tidygeocoder)
 library(tidyr)
+source("utils.R")
 
 # Script to transform raw data on Midway noise into clean Athena tables.
 # Data is located here:
