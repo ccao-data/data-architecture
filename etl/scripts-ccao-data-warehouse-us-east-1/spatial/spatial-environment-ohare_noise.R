@@ -7,6 +7,16 @@ library(janitor)
 library(miniUI)
 library(noctua)
 library(purrr)
+# rJava's LD_LIBRARY_PATH from .Renviron isn't picked up by the dynamic
+# linker in time, so preload libjvm.so by absolute path first.
+dyn.load("/usr/lib/jvm/java-21-openjdk-amd64/lib/server/libjvm.so")
+# tabulizer/RJavaTools reflects into JDK internals (e.g. java.util
+# iterators), which Java 16+'s module system denies by default (JEP 396).
+# Must be set before the JVM starts, i.e. before library(rJava).
+options(java.parameters = c(
+  "--add-opens=java.base/java.util=ALL-UNNAMED",
+  "--add-opens=java.base/java.lang=ALL-UNNAMED"
+))
 library(rJava)
 library(shiny)
 library(sf)
@@ -147,7 +157,7 @@ tmp_file <- tempfile(fileext = ".geojson")
 aws.s3::save_object(file_paths["contour"], file = tmp_file)
 
 # Read file and cleanup
-ohare_noise_contour <- st_read(tmp_file) %>%
+st_read(tmp_file) %>%
   st_transform(4326) %>%
   st_cast("POLYGON") %>%
   summarize(geometry = st_union(geometry)) %>%
@@ -156,7 +166,7 @@ ohare_noise_contour <- st_read(tmp_file) %>%
   mutate(
     airport = "ORD",
     decibels = 65L,
-    geometry_3435 = st_transform(geom, 3435)
+    geometry_3435 = st_transform(geometry, 3435)
   ) %>%
-  select(airport, decibels, geometry = geom, geometry_3435) %>%
+  select(airport, decibels, geometry, geometry_3435) %>%
   geoparquet_to_s3(s3_uri = remote_file, destination = "s3_warehouse")
