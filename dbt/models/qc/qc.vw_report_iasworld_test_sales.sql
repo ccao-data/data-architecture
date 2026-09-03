@@ -21,7 +21,7 @@
     },
     {
         "name": "iasworld_sales_parid_in_pardat_parid",
-        "description": "parid should be in pardat",
+        "description": "parid should be in pardat for year of sale",
         "category": "relationships",
         "condition": "pardat_parid IS NOT NULL"
     },
@@ -52,7 +52,9 @@
     SELECT
         -- Identifying columns
         sales.parid,
-        SUBSTR(sales.saledt, 1, 4) AS taxyr,
+        MAX(SUBSTR(sales.saledt, 1, 4))
+            OVER (PARTITION BY sales.parid, sales.instruno)
+            AS taxyr,
         CAST(NULL AS INTEGER) AS card,
         CAST(NULL AS INTEGER) AS lline,
         legdat.user1 AS township_code,
@@ -75,13 +77,18 @@
         AND SUBSTR(sales.saledt, 1, 4) = legdat.taxyr
         AND legdat.cur = 'Y'
         AND legdat.deactivat IS NULL
-    LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
+    LEFT JOIN (
+        SELECT parid, class,
+            ROW_NUMBER() OVER (PARTITION BY parid ORDER BY taxyr DESC) AS rn
+        FROM {{ source('iasworld', 'pardat') }}
+        WHERE cur = 'Y'
+            AND deactivat IS NULL
+    ) AS pardat
         ON sales.parid = pardat.parid
-        AND SUBSTR(sales.saledt, 1, 4) = pardat.taxyr
-        AND pardat.cur = 'Y'
-        AND pardat.deactivat IS NULL
+        AND pardat.rn = 1
     WHERE sales.cur = 'Y'
         AND sales.deactivat IS NULL
+        AND SUBSTR(sales.saledt, 1, 4) >= '2011'
 {% endset %}
 
-{{ generate_iasworld_qc_test_view(base_query, tests) }}
+{{ generate_iasworld_qc_test_view(base_query, tests, start_year='2011') }}

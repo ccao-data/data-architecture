@@ -29,11 +29,17 @@
             - additional_select_columns (optional): A list of column names
                 from `base_query` to include in the output as a map of column
                 name -> stringified value for records that fail the test
+        start_year (optional): The earliest taxyr to include. Defaults to the
+            `data_test_iasworld_year_start` dbt variable.
+        end_year (optional): The latest taxyr to include. Defaults to the
+            `data_test_iasworld_year_end` dbt variable.
 
     Returns:
         A query that selects one row per record per failing test.
 -#}
-{% macro generate_iasworld_qc_test_view(base_query, tests) %}
+{% macro generate_iasworld_qc_test_view(base_query, tests, start_year=none, end_year=none) %}
+    {%- set start_year = start_year if start_year is not none else var("data_test_iasworld_year_start") -%}
+    {%- set end_year = end_year if end_year is not none else var("data_test_iasworld_year_end") -%}
     {% do _validate_iasworld_qc_tests(tests, exceptions.raise_compiler_error) %}
     with
         base as ({{ base_query }}),
@@ -50,8 +56,8 @@
             from base
             where
                 taxyr
-                between '{{ var("data_test_iasworld_year_start") }}'
-                and '{{ var("data_test_iasworld_year_end") }}'
+                between '{{ start_year }}'
+                and '{{ end_year }}'
         )
 
     {% for test in tests %}
