@@ -277,7 +277,7 @@ models:
             - meta_sale_document_num
             - meta_card_num
 
-  - name: vw_assessment_card_final
+  - name: model.vw_assessment_card_final
     description: '{{ doc("view_vw_assessment_card_final") }}'
     data_tests:
       - count_is_consistent:
@@ -293,7 +293,7 @@ models:
             - meta_card_num
             - meta_year
 
-  - name: vw_assessment_pin_final
+  - name: model.vw_assessment_pin_final
     description: '{{ doc("view_vw_assessment_pin_final") }}'
     data_tests:
       - count_is_consistent:

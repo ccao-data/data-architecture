@@ -230,7 +230,7 @@ between condo and single-family models.
 
 # vw_assessment_pin_final
 
-{% docs view_vw_assessment_pin %}
+{% docs view_vw_assessment_pin_final %}
 Version of `assessment_pin` limited to final model runs and the triad that was
 reassessed. Includes additional column `model_type` to allow easy filtering
 between condo and single-family models.
