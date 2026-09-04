@@ -7,3 +7,8 @@ SELECT
     *,
     'owndat' AS source_table
 FROM {{ ref('qc.vw_report_iasworld_test_owndat') }}
+UNION ALL
+SELECT
+    *,
+    'sales' AS source_table
+FROM {{ ref('qc.vw_report_iasworld_test_sales') }}
