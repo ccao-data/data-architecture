@@ -88,7 +88,6 @@
         AND pardat.rn = 1
     WHERE sales.cur = 'Y'
         AND sales.deactivat IS NULL
-        AND SUBSTR(sales.saledt, 1, 4) >= '2011'
 {% endset %}
 
 {{ generate_iasworld_qc_test_view(base_query, tests, start_year='2011') }}
