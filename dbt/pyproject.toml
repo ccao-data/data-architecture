@@ -15,7 +15,7 @@ dbt_tests = [
   "numpy==1.26.4",
   "openpyxl~=3.1.5",
   "pandas~=2.2.2",
-  "pyarrow==15.0.2",
+  "pyarrow~=25.0.1",
   "pyathena~=3.8.3",
   "simplejson~=3.19.2",
   "watchtower>=3.4.0",
