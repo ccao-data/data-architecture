@@ -77,14 +77,16 @@
         AND SUBSTR(sales.saledt, 1, 4) = legdat.taxyr
         AND legdat.cur = 'Y'
         AND legdat.deactivat IS NULL
-    LEFT JOIN (
-        SELECT DISTINCT parid, taxyr, class
-        FROM {{ source('iasworld', 'pardat') }}
-        WHERE cur = 'Y'
-            AND deactivat IS NULL
-    ) AS pardat
-        ON sales.parid = pardat.parid
-        AND SUBSTR(sales.saledt, 1, 4) = pardat.taxyr
+    LEFT JOIN LATERAL (
+        SELECT parid, class
+        FROM {{ source('iasworld', 'pardat') }} AS pardat_src
+        WHERE pardat_src.parid = sales.parid
+            AND pardat_src.taxyr <= SUBSTR(sales.saledt, 1, 4)
+            AND pardat_src.cur = 'Y'
+            AND pardat_src.deactivat IS NULL
+        ORDER BY pardat_src.taxyr DESC
+        LIMIT 1
+    ) AS pardat ON TRUE
     WHERE sales.cur = 'Y'
         AND sales.deactivat IS NULL
 {% endset %}
