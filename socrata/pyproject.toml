@@ -7,7 +7,7 @@ dependencies = [
   "dbt-core==1.9.1",
   "PyAthena~=3.9.0",
   "pandas~=2.2.2",
-  "pyarrow~=17.0.0",
+  "pyarrow~=25.0.1",
   "requests~=2.34.2",
 ]
 
