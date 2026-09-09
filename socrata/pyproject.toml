@@ -8,7 +8,7 @@ dependencies = [
   "PyAthena~=3.9.0",
   "pandas~=2.2.2",
   "pyarrow~=17.0.0",
-  "requests~=2.32.3",
+  "requests~=2.34.2",
 ]
 
 [tool.setuptools]
