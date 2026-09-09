@@ -4,7 +4,7 @@ version = "0.0.1"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-  "dbt-athena-community==1.8.4",
+  "dbt-athena>=1.10.2",
   "dbt-core==1.9.1",
 ]
 
