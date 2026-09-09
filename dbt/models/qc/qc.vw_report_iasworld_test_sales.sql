@@ -44,7 +44,7 @@
         "description": "sales should be unique by parid and instruno",
         "category": "duplicate_records",
         "condition": "num_duplicates = 1",
-        "additional_select_columns": ["num_duplicates", "instruno"]
+        "additional_select_columns": ["instruno"]
     }
 ] -%}
 
@@ -78,14 +78,13 @@
         AND legdat.cur = 'Y'
         AND legdat.deactivat IS NULL
     LEFT JOIN (
-        SELECT parid, class,
-            ROW_NUMBER() OVER (PARTITION BY parid ORDER BY taxyr DESC) AS rn
+        SELECT DISTINCT parid, taxyr, class
         FROM {{ source('iasworld', 'pardat') }}
         WHERE cur = 'Y'
             AND deactivat IS NULL
     ) AS pardat
         ON sales.parid = pardat.parid
-        AND pardat.rn = 1
+        AND SUBSTR(sales.saledt, 1, 4) = pardat.taxyr
     WHERE sales.cur = 'Y'
         AND sales.deactivat IS NULL
 {% endset %}
