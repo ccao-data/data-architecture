@@ -5,7 +5,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
   "dbt-athena>=1.10.2",
-  "dbt-core==1.9.1",
+  "dbt-core==1.12.4",
 ]
 
 [project.optional-dependencies]
