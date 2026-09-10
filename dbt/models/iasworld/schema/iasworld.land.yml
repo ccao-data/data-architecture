@@ -1,18 +1,8 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
-    tags:
-      - load_auto
-      - data_test_iasworld
-      - type_land
-
     tables:
       - name: land
         description: '{{ doc("table_land") }}'
-        freshness:
-          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
-          warn_after: {count: 24, period: hour}
-          error_after: {count: 48, period: hour}
 
         columns:
           - name: acres
@@ -20,22 +10,22 @@ sources:
             data_tests:
               - expression_is_true:
                   name: iasworld_land_acres_is_sf_transformed
-                  expression: '* 43560 BETWEEN sf - 5 AND sf + 5'
-                  additional_select_columns:
-                    - taxyr
-                    - parid
-                    - lline
-                    - who
-                    - wen
-                    - sf
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
-                  meta:
-                    category: relationships
-                    description: acres should be approximately sf * 43560
+                    meta:
+                      description: taxyr should not be null
+                  arguments:
+                    expression: '* 43560 BETWEEN sf - 5 AND sf + 5'
+                    additional_select_columns:
+                      - taxyr
+                      - parid
+                      - lline
+                      - who
+                      - wen
+                      - sf
           - name: adjfact
             description: '{{ doc("column_adjfact") }}'
           - name: agflg
@@ -45,18 +35,16 @@ sources:
             data_tests:
               - not_accepted_values:
                   name: iasworld_land_allocpct_not_0
-                  values: [0]
-                  quote: false
-                  additional_select_columns: &select-columns
-                    - taxyr
-                    - parid
-                    - lline
-                    - who
-                    - wen
                   config: *unique-conditions
-                  meta:
-                    description: >
-                      allocpct (land proration percentage) should not be 0
+                  arguments:
+                    values: [0]
+                    quote: false
+                    additional_select_columns: &select-columns
+                      - taxyr
+                      - parid
+                      - lline
+                      - who
+                      - wen
           - name: bdecr
             description: Decremental rate
           - name: bincr
@@ -78,29 +66,24 @@ sources:
             data_tests:
               - res_class_matches_pardat:
                   name: iasworld_land_class_ex_matches_pardat_class_ex
-                  major_class_only: false
-                  join_type: inner
-                  additional_select_columns: &select-columns-aggregated
-                    - column: taxyr
-                      agg_func: max
-                    - column: parid
-                      agg_func: max
-                    - column: lline
-                      agg_func: array_agg
-                    - column: who
-                      agg_func: max
-                    - column: wen
-                      agg_func: max
-                  additional_pardat_filter: AND class = 'EX'
                   config: *unique-conditions
-                  meta:
-                    description: >
-                      class should be EX if pardat class is EX
+                  arguments:
+                    major_class_only: false
+                    join_type: inner
+                    additional_select_columns: &select-columns-aggregated
+                      - column: taxyr
+                        agg_func: max
+                      - column: parid
+                        agg_func: max
+                      - column: lline
+                        agg_func: array_agg
+                      - column: who
+                        agg_func: max
+                      - column: wen
+                        agg_func: max
+                    additional_pardat_filter: AND class = 'EX'
               - relationships:
                   name: iasworld_land_class_in_ccao_class_dict
-                  to: ref('ccao.class_dict')
-                  field: class_code
-                  additional_select_columns: *select-columns
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
@@ -108,22 +91,27 @@ sources:
                       AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
                       AND cur = 'Y'
                       AND deactivat IS NULL
-                  meta:
-                    category: class_mismatch_or_issue
-                    description: class code should be valid
+                    meta:
+                      category: class_mismatch_or_issue
+                      description: class code should be valid
+                  arguments:
+                    to: ref('ccao.class_dict')
+                    field: class_code
+                    additional_select_columns: *select-columns
               - res_class_matches_pardat:
                   name: iasworld_land_class_matches_pardat_class
-                  major_class_only: true
-                  additional_select_columns: *select-columns-aggregated
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND class NOT IN ('EX', 'RR')
                       AND cur = 'Y'
                       AND deactivat IS NULL
-                  meta:
-                    description: >
-                      at least one major class (first digit) should match pardat class
+                    meta:
+                      description: >
+                        at least one major class (first digit) should match pardat class
+                  arguments:
+                    major_class_only: true
+                    additional_select_columns: *select-columns-aggregated
           - name: code
             description: Code
           - name: comres
@@ -135,13 +123,14 @@ sources:
             data_tests:
               - accepted_values:
                   name: iasworld_land_cur_in_accepted_values
-                  values: ['Y', 'D']
-                  additional_select_columns: *select-columns
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
-                  meta:
-                    description: cur should be 'Y' or 'D'
+                    meta:
+                      description: cur should be 'Y' or 'D'
+                  arguments:
+                    values: ['Y', 'D']
+                    additional_select_columns: *select-columns
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: depfact
@@ -177,12 +166,11 @@ sources:
             data_tests:
               - accepted_range:
                   name: iasworld_land_influ_between_neg_100_and_pos_100
-                  min_value: -100
-                  max_value: 100
-                  additional_select_columns: *select-columns
                   config: *unique-conditions
-                  meta:
-                    description: influ should be between -100 and 100
+                  arguments:
+                    min_value: -100
+                    max_value: 100
+                    additional_select_columns: *select-columns
           - name: influ2
             description: Influence percent (+/-)
           - name: jur
@@ -196,15 +184,14 @@ sources:
             data_tests:
               - sequential_values:
                   name: iasworld_land_lline_is_sequential
-                  group_by_columns:
-                    - parid
-                    - taxyr
-                  additional_select_columns:
-                    - who
-                    - wen
                   config: *unique-conditions
-                  meta:
-                    description: lline should be sequential
+                  arguments:
+                    group_by_columns:
+                      - parid
+                      - taxyr
+                    additional_select_columns:
+                      - who
+                      - wen
           - name: lmod
             description: Land location model number
           - name: loaded_at
@@ -256,38 +243,32 @@ sources:
             data_tests:
               - relationships:
                   name: iasworld_land_parid_in_pardat_parid
-                  to: source('iasworld', 'pardat')
-                  field: parid
-                  additional_select_columns: &select-columns-no-parid
-                    - taxyr
-                    - lline
-                    - who
-                    - wen
                   config: *unique-conditions
-                  meta:
-                    category: parid
-                    description: parid should be in pardat
+                  arguments:
+                    to: source('iasworld', 'pardat')
+                    field: parid
+                    additional_select_columns: &select-columns-no-parid
+                      - taxyr
+                      - lline
+                      - who
+                      - wen
               - not_null:
                   name: iasworld_land_parid_not_null
-                  additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
-                  meta:
-                    description: parid should not be null
+                  arguments:
+                    additional_select_columns: *select-columns-no-parid
           - name: price
             description: Price
             data_tests:
               - accepted_range:
                   name: iasworld_land_price_gte_1
-                  min_value: 1
-                  additional_select_columns: *select-columns
                   config:
-                    where:
-                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
-                      AND class NOT IN ('EX', 'RR', '999')
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
-                  meta:
-                    description: price should be >= 1
+                    where: CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }} AND class NOT IN ('EX', 'RR', '999') AND cur = 'Y' AND deactivat IS NULL
+                    meta:
+                      description: price should be >= 1
+                  arguments:
+                    min_value: 1
+                    additional_select_columns: *select-columns
           - name: recnr
             description: '{{ doc("column_recnr") }}'
           - name: salekey
@@ -299,29 +280,27 @@ sources:
             data_tests:
               - sequential_values:
                   name: iasworld_land_seq_all_sequential_exist
-                  group_by_columns:
-                    - parid
-                    - taxyr
-                    - lline
-                  additional_select_columns:
-                    - who
-                    - wen
                   config:
-                    where:
-                      cur = 'Y'
-                      AND deactivat IS NULL
-                  meta:
-                    description: seq should be sequential
+                    where: cur = 'Y' AND deactivat IS NULL
+                    meta:
+                      description: seq should be sequential
+                  arguments:
+                    group_by_columns:
+                      - parid
+                      - taxyr
+                      - lline
+                    additional_select_columns:
+                      - who
+                      - wen
           - name: sf
             description: '{{ doc("shared_column_char_land_sf") }}'
             data_tests:
               - accepted_range:
                   name: iasworld_land_sf_gte_1
-                  min_value: 1
-                  additional_select_columns: *select-columns
                   config: *unique-conditions
-                  meta:
-                    description: sf should be >= 1
+                  arguments:
+                    min_value: 1
+                    additional_select_columns: *select-columns
           - name: sfact
             description: S factor
           - name: sizefact
@@ -345,13 +324,12 @@ sources:
             data_tests:
               - not_null:
                   name: iasworld_land_taxyr_not_null
-                  additional_select_columns:
-                    - parid
-                    - who
-                    - wen
                   config: *unique-conditions
-                  meta:
-                    description: taxyr should not be null
+                  arguments:
+                    additional_select_columns:
+                      - parid
+                      - who
+                      - wen
           - name: topofact
             description: Topography Factor
           - name: trans_id
@@ -378,17 +356,27 @@ sources:
         data_tests:
           - unique_combination_of_columns:
               name: iasworld_land_unique_by_parid_lline_taxyr
-              combination_of_columns:
-                - parid
-                - lline
-                - taxyr
-              additional_select_columns:
-                - column: who
-                  alias: who
-                  agg_func: array_agg
-                - column: wen
-                  alias: wen
-                  agg_func: array_agg
               config: *unique-conditions
-              meta:
-                description: land should be unique by parid, lline, and taxyr
+              arguments:
+                combination_of_columns:
+                  - parid
+                  - lline
+                  - taxyr
+                additional_select_columns:
+                  - column: who
+                    alias: who
+                    agg_func: array_agg
+                  - column: wen
+                    alias: wen
+                    agg_func: array_agg
+        config:
+          freshness:
+            filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+            warn_after: {count: 24, period: hour}
+            error_after: {count: 48, period: hour}
+    config:
+      loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
+      tags:
+        - load_auto
+        - data_test_iasworld
+        - type_land

@@ -1,14 +1,10 @@
 -- CTAS to create a table of schools counts and ratings. Public schools must be
 -- within 1/2 mile AND in the same district as the target PIN. Private/charter
 -- schools must be within 1/2 mile
-{{
-    config(
-        materialized='table',
-        partitioned_by=['year'],
-        bucketed_by=['pin10'],
-        bucket_count=1
-    )
-}}
+{{ config(
+    materialized='table', 
+    meta={'partitioned_by': ['year'], 'bucketed_by': ['pin10'], 'bucket_count': 1}
+) }}
 
 WITH distinct_pins AS (
     SELECT DISTINCT

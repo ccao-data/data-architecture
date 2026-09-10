@@ -1,14 +1,10 @@
 -- This view only exists since the IHS House Price Index uses 2020 geoids for
 -- for all years.
 
-{{
-    config(
-        materialized='table',
-        partitioned_by=['year'],
-        bucketed_by=['pin10'],
-        bucket_count=1
-    )
-}}
+{{ config(
+    materialized='table', 
+    meta={'partitioned_by': ['year'], 'bucketed_by': ['pin10'], 'bucket_count': 1}
+) }}
 
 WITH distinct_pins AS (
     SELECT DISTINCT

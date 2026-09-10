@@ -2,23 +2,11 @@ exposures:
   - name: appeals
     label: Appeals
     type: dashboard
-    tags:
-      - semimonthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Appeals/y282-6ig3
     depends_on:
       - ref('open_data.vw_appeal')
     owner:
       name: Data Department
-    meta:
-      test_row_count: true
-      asset_id: y282-6ig3
-      primary_key:
-        - case_no
-        - hearing_type
-        - subkey
-        - pin
-        - year
-      years_active: 1
     description: |
       Land, building, and total assessed values, pre and post-appeal with the Cook County Assessor’s office, for all Cook County parcels, from 1999 to present.
 
@@ -26,23 +14,27 @@ exposures:
 
       Use cases: Alone, can be used to investigate appeal trends. Can be combined with geographies to see how AV shifts around the county between mailing and assessor certified stages.
 
+    config:
+      tags:
+        - semimonthly
+      meta:
+        test_row_count: true
+        asset_id: y282-6ig3
+        primary_key:
+          - case_no
+          - hearing_type
+          - subkey
+          - pin
+          - year
+        years_active: 1
   - name: assessed_values
     label: Assessed Values
     type: dashboard
-    tags:
-      - semimonthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Assessed-Values/uzyt-m557
     depends_on:
       - ref('open_data.vw_assessed_value')
     owner:
       name: Data Department
-    meta:
-      test_row_count: true
-      asset_id: uzyt-m557
-      primary_key:
-        - pin
-        - year
-      years_active: 2
     description: |
       Land, building, and total assessed values for all Cook County parcels, from 1999 to present.
 
@@ -51,23 +43,24 @@ exposures:
       Use cases: Alone, can characterize assessments in a given area. Can be combined with characteristic data to make more nuanced generalizations about assessments. Can be combined with sales data to conduct ratio studies.
 
 
+    config:
+      tags:
+        - semimonthly
+      meta:
+        test_row_count: true
+        asset_id: uzyt-m557
+        primary_key:
+          - pin
+          - year
+        years_active: 2
   - name: parcel_addresses
     label: Parcel Addresses
     type: dashboard
-    tags:
-      - semimonthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Addresses/3723-97qp
     depends_on:
       - ref('open_data.vw_parcel_address')
     owner:
       name: Data Department
-    meta:
-      test_row_count: true
-      asset_id: 3723-97qp
-      primary_key:
-        - pin
-        - year
-      years_active: 1
     description: |
       Situs and mailing addresses of Cook County parcels.
 
@@ -75,26 +68,24 @@ exposures:
 
       Use cases: Can be used for geocoding or joining address-level data to other datasets.
 
+    config:
+      tags:
+        - semimonthly
+      meta:
+        test_row_count: true
+        asset_id: 3723-97qp
+        primary_key:
+          - pin
+          - year
+        years_active: 1
   - name: parcel_proximity
     label: Parcel Proximity
     type: dashboard
-    tags:
-      # This asset is technically active, but it only needs to be updated
-      # annually. We use the socrata agent since the entire dataset is refreshed
-      # at once.
-      - inactive
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Proximity/ydue-e5u3
     depends_on:
       - ref('open_data.vw_parcel_proximity')
     owner:
       name: Data Department
-    meta:
-      test_row_count: true
-      asset_id: ydue-e5u3
-      primary_key:
-        - pin10
-        - year
-      years_active: 1
     description: |
       Cook County 10-digit parcels with attached distances to various spatial features.
 
@@ -102,22 +93,27 @@ exposures:
 
       Use cases: Can be used to isolate parcels by distance to specific spatial features.
 
+    config:
+      tags:
+      # This asset is technically active, but it only needs to be updated
+      # annually. We use the socrata agent since the entire dataset is refreshed
+      # at once.
+        - inactive
+      meta:
+        test_row_count: true
+        asset_id: ydue-e5u3
+        primary_key:
+          - pin10
+          - year
+        years_active: 1
   - name: parcel_sales
     label: Parcel Sales
     type: dashboard
-    tags:
-      - semimonthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Sales/wvhk-k5uv
     depends_on:
       - ref('open_data.vw_parcel_sale')
     owner:
       name: Data Department
-    meta:
-      test_row_count: true
-      asset_id: wvhk-k5uv
-      primary_key:
-        - sale_key
-      years_active: 1
     description: |
       Parcel sales for real property in Cook County, from 1999 to present.
 
@@ -125,46 +121,46 @@ exposures:
 
       Use cases: Alone, sales data can be used to characterize real estate markets. Sales paired with characteristics can be used to find comparable properties or as an input to an automated modeling application. Sales paired with assessments can be used to calculate sales ratio statistics. Outliers can be easily removed using filters constructed from class, township, and year variables.
 
+    config:
+      tags:
+        - semimonthly
+      meta:
+        test_row_count: true
+        asset_id: wvhk-k5uv
+        primary_key:
+          - sale_key
+        years_active: 1
   - name: parcel_status
     label: Parcel Status
     type: dashboard
-    tags:
-      - inactive
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Status/uuu4-fqy8
     depends_on:
       - ref('open_data.vw_parcel_status')
     owner:
       name: Data Department
-    meta:
-      # Disabled until the asset is public
-      test_row_count: false
-      asset_id: uuu4-fqy8
-      primary_key:
-        - pin
-        - year
-      years_active: 1
     description: |
       Collection of various different PIN-level physical and assessment-related
       statuses collected and documented across the CCAO and Data Department.
       Constructs the Data Department's AHSAP indicator.
 
+    config:
+      tags:
+        - inactive
+      meta:
+        test_row_count: false
+        asset_id: uuu4-fqy8
+        primary_key:
+          - pin
+          - year
+        years_active: 1
   - name: parcel_universe_current_year
     label: Parcel Universe (Current Year Only)
     type: dashboard
-    tags:
-      - semimonthly
     url: https://datacatalog.cookcountyil.gov/dataset/Assessor-Parcel-Universe-Current-Year-/pabr-t5kh
     depends_on:
       - ref('open_data.vw_parcel_universe_current')
     owner:
       name: Data Department
-    meta:
-      test_row_count: true
-      asset_id: pabr-t5kh
-      primary_key:
-        - pin
-        - year
-      years_active: 1
     description: |
       Most recent year universe of Cook County parcels with attached geographic, governmental, and spatial data.
 
@@ -172,23 +168,24 @@ exposures:
 
       Use cases: Joining parcel-level data to this dataset allows analysis and reporting across a number of different political, tax, Census, and other boundaries.
 
+    config:
+      tags:
+        - semimonthly
+      meta:
+        test_row_count: true
+        asset_id: pabr-t5kh
+        primary_key:
+          - pin
+          - year
+        years_active: 1
   - name: parcel_universe_historical
     label: Parcel Universe (Historic)
     type: dashboard
-    tags:
-      - semimonthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Universe/nj4t-kc8j
     depends_on:
       - ref('open_data.vw_parcel_universe_historical')
     owner:
       name: Data Department
-    meta:
-      test_row_count: true
-      asset_id: nj4t-kc8j
-      primary_key:
-        - pin
-        - year
-      years_active: 1
     description: |
       A complete, historic universe of Cook County parcels with attached geographic, governmental, and spatial data.
 
@@ -196,46 +193,48 @@ exposures:
 
       Use cases: Joining parcel-level data to this dataset allows analysis and reporting across a number of different political, tax, Census, and other boundaries.
 
+    config:
+      tags:
+        - semimonthly
+      meta:
+        test_row_count: true
+        asset_id: nj4t-kc8j
+        primary_key:
+          - pin
+          - year
+        years_active: 1
   - name: permits
     label: Permits
     type: dashboard
-    tags:
-      - semimonthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Permits/6yjf-dfxs
     depends_on:
       - ref('open_data.vw_permit')
     owner:
       name: Data Department
-    meta:
-      test_row_count: true
-      year_field: year
-      asset_id: 6yjf-dfxs
-      primary_key:
-        - pin
-        - permit_number
-        - date_issued
-      years_active: 5
     description: |
       Building permits organized by PIN, with extra metadata recorded by CCAO
       permit specialists during the permit processing workflow.
 
+    config:
+      tags:
+        - semimonthly
+      meta:
+        test_row_count: true
+        year_field: year
+        asset_id: 6yjf-dfxs
+        primary_key:
+          - pin
+          - permit_number
+          - date_issued
+        years_active: 5
   - name: property_tax_exempt_parcels
     label: Property Tax-Exempt Parcels
     type: dashboard
-    tags:
-      - semimonthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Property-Tax-Exempt-Parcels/vgzx-68gb
     depends_on:
       - ref('open_data.vw_property_tax_exempt_parcel')
     owner:
       name: Data Department
-    meta:
-      test_row_count: true
-      asset_id: vgzx-68gb
-      primary_key:
-        - pin
-        - year
-      years_active: 1
     description: |
       Parcels with property tax-exempt status across all of Cook County per tax year, from Tax Year 2022 on, with geographic coordinates and addresses.
 
@@ -244,24 +243,24 @@ exposures:
       Use cases: Can be used to study parcels that are exempted from paying property taxes.
 
 
+    config:
+      tags:
+        - semimonthly
+      meta:
+        test_row_count: true
+        asset_id: vgzx-68gb
+        primary_key:
+          - pin
+          - year
+        years_active: 1
   - name: residential_condominium_unit_characteristics
     label: Residential Condominium Unit Characteristics
     type: dashboard
-    tags:
-      - type_condo
-      - semimonthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Residential-Condominium-Unit-Characteri/3r7i-mrz4
     depends_on:
       - ref('open_data.vw_res_condo_unit_char')
     owner:
       name: Data Department
-    meta:
-      test_row_count: true
-      asset_id: 3r7i-mrz4
-      primary_key:
-        - pin
-        - year
-      years_active: 1
     description: |
       Residential condominium unit characteristics collected and maintained by the Assessor's office for all of Cook County, from 1999 to present.
 
@@ -271,25 +270,25 @@ exposures:
         * Joined to assessments for analysis of assessments across geographies and housing types
         * Joined to sales for the construction of hedonic home value estimates
 
+    config:
+      tags:
+        - type_condo
+        - semimonthly
+      meta:
+        test_row_count: true
+        asset_id: 3r7i-mrz4
+        primary_key:
+          - pin
+          - year
+        years_active: 1
   - name: single_and_multi_family_improvement_characteristics
     label: Single and Multi-Family Improvement Characteristics
     type: dashboard
-    tags:
-      - type_res
-      - semimonthly
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Single-and-Multi-Family-Improvement-Chara/x54s-btds
     depends_on:
       - ref('open_data.vw_sf_mf_improvement_char')
     owner:
       name: Data Department
-    meta:
-      test_row_count: true
-      asset_id: x54s-btds
-      primary_key:
-        - pin
-        - card
-        - year
-      years_active: 1
     description: |
       Single and multi-family (less than 7 units) property characteristics collected and maintained by the Assessor's Office for all of Cook County, from 1999 to present.
 
@@ -300,3 +299,15 @@ exposures:
         * Used on its own to characterize the housing stock in a specific location
         * Joined to assessments for analysis of assessments across geographies and housing types
         * Joined to sales for the construction of hedonic home value estimates
+    config:
+      tags:
+        - type_res
+        - semimonthly
+      meta:
+        test_row_count: true
+        asset_id: x54s-btds
+        primary_key:
+          - pin
+          - card
+          - year
+        years_active: 1

@@ -16,16 +16,12 @@ of 2022 in model.assessment_pin will populate the table with a value of 2023 for
 Intended to be materialized daily through a GitHub action.
 */
 
-{{
-    config(
-        materialized='table',
-        table_type='hive',
-        format='parquet',
-        write_compression='zstd',
-        bucketed_by=['year'],
-        bucket_count=1
-    )
-}}
+{{ config(
+    materialized='table', 
+    table_type='hive', 
+    format='parquet', 
+    meta={'write_compression': 'zstd', 'bucketed_by': ['year'], 'bucket_count': 1}
+) }}
 
 -- Assign input tables to CTEs for ease of reference in macros
 WITH all_values AS (
