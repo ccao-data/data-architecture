@@ -1,222 +1,249 @@
 sources:
   - name: tax
-    tags:
-      - load_manual
     tables:
       - name: agency
         description: '{{ doc("table_agency") }}'
         data_tests:
           - unique_combination_of_columns:
               name: tax_agency_unique_by_year_agency_num
-              combination_of_columns:
-                - year
-                - agency_num
-              meta:
-                description: agency is unique by year and agency_num
+              config:
+                meta:
+                  description: agency is unique by year and agency_num
 
+              arguments:
+                combination_of_columns:
+                  - year
+                  - agency_num
       - name: agency_crosswalk
         description: '{{ doc("table_agency_crosswalk") }}'
         data_tests:
           - unique_combination_of_columns:
               name: tax_agency_crosswalk_unique_by_agency_num
-              combination_of_columns:
-                - agency_num
-              meta:
-                description: agency_crosswalk is unique by agency_num
+              config:
+                meta:
+                  description: agency_crosswalk is unique by agency_num
 
+              arguments:
+                combination_of_columns:
+                  - agency_num
       - name: agency_fund
         description: '{{ doc("table_agency_fund") }}'
         data_tests:
           - unique_combination_of_columns:
               name: tax_agency_fund_unique_by_year_agency_num_fund_num
-              combination_of_columns:
-                - year
-                - agency_num
-                - fund_num
-              meta:
-                description: agency_fund is unique by year, agency_num and fund_num
+              config:
+                meta:
+                  description: agency_fund is unique by year, agency_num and fund_num
 
+              arguments:
+                combination_of_columns:
+                  - year
+                  - agency_num
+                  - fund_num
       - name: agency_fund_crosswalk
         description: '{{ doc("table_agency_fund_crosswalk") }}'
         data_tests:
           - unique_combination_of_columns:
               name: tax_agency_fund_crosswalk_unique_by_agency_num_fund_num
-              combination_of_columns:
-                - agency_num
-                - fund_num
-              meta:
-                description: agency_fund_crosswalk is unique by agency_num and fund_num
+              config:
+                meta:
+                  description: agency_fund_crosswalk is unique by agency_num and fund_num
 
+              arguments:
+                combination_of_columns:
+                  - agency_num
+                  - fund_num
       - name: agency_fund_info
         description: '{{ doc("table_agency_fund_info") }}'
         data_tests:
           - unique_combination_of_columns:
               name: tax_agency_fund_info_unique_by_agency_num_fund_num
-              combination_of_columns:
-                - agency_num
-                - fund_num
-              meta:
-                description: agency_fund_info is unique by agency_num and fund_num
+              config:
+                meta:
+                  description: agency_fund_info is unique by agency_num and fund_num
 
+              arguments:
+                combination_of_columns:
+                  - agency_num
+                  - fund_num
       - name: agency_info
         description: '{{ doc("table_agency_info") }}'
         data_tests:
           - unique_combination_of_columns:
               name: tax_agency_info_unique_by_agency_num
-              combination_of_columns:
-                - agency_num
-              meta:
-                description: agency_info is unique by agency_num
+              config:
+                meta:
+                  description: agency_info is unique by agency_num
 
+              arguments:
+                combination_of_columns:
+                  - agency_num
       - name: cpi
         description: '{{ doc("table_cpi") }}'
         data_tests:
           - unique_combination_of_columns:
               name: tax_cpi_unique_by_levy_year
-              combination_of_columns:
-                - levy_year
-              meta:
-                description: cpi is unique by levy_year
+              config:
+                meta:
+                  description: cpi is unique by levy_year
 
+              arguments:
+                combination_of_columns:
+                  - levy_year
       - name: eq_factor
         description: '{{ doc("table_eq_factor") }}'
         data_tests:
           - unique_combination_of_columns:
               name: tax_eq_factor_unique_by_year
-              combination_of_columns:
-                - year
-              meta:
-                description: eq_factor is unique by year
+              config:
+                meta:
+                  description: eq_factor is unique by year
 
+              arguments:
+                combination_of_columns:
+                  - year
       - name: pin
         description: '{{ doc("table_pin") }}'
         data_tests:
           - unique_combination_of_columns:
               name: tax_pin_unique_by_year_pin
-              combination_of_columns:
-                - year
-                - pin
-              meta:
-                description: pin is unique by year and pin
+              config:
+                meta:
+                  description: pin is unique by year and pin
+              arguments:
+                combination_of_columns:
+                  - year
+                  - pin
         columns:
           - name: class
             description: '{{ doc("shared_column_char_class")}}'
             data_tests:
               - relationships:
                   name: tax_pin_all_class_in_ccao_class_dict
-                  to: ref('ccao.class_dict')
-                  field: class_code
-                  additional_select_columns: &select-columns
-                    - year
                   config:
-                    where:
-                      CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
-                  meta:
-                    category: class_mismatch_or_issue
-                    description: class code must be valid
+                    where: CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                    meta:
+                      category: class_mismatch_or_issue
+                      description: class code must be valid
+                  arguments:
+                    to: ref('ccao.class_dict')
+                    field: class_code
+                    additional_select_columns:
+                      - year
               - res_class_matches_pardat:
                   name: tax_pin_class_equals_iasworld_pardat
-                  parid_column_name: pin
-                  taxyr_column_name: year
-                  additional_select_columns:
-                    - agg_func: max
-                      column: year
                   config:
-                    where:
-                      CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
-                  meta:
-                    description: at least one class should match pardat class
+                    where: CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                    meta:
+                      description: at least one class should match pardat class
 
+                  arguments:
+                    parid_column_name: pin
+                    taxyr_column_name: year
+                    additional_select_columns:
+                      - agg_func: max
+                        column: year
           - name: tax_code_num
             description: '{{ doc("shared_column_tax_code")}}'
             data_tests:
               - row_values_match_after_join:
                   name: pin_tax_dist_matches_iasworld_legdat
-                  external_model: source('iasworld', 'legdat')
-                  external_column_name: taxdist
-                  column_alias: tax_code_num
-                  external_column_alias: taxdist
-                  group_by:
-                    - year
-                    - pin
-                  join_condition:
-                    ON  model.pin = external_model.parid
-                    AND model.year = external_model.taxyr
-                    AND external_model.cur = 'Y'
-                    AND external_model.deactivat IS NULL
                   config:
-                    where:
-                      CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                    where: CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                     severity: warn
-                  meta:
-                    description: tax_code_num should match legdat.taxdist
+                    meta:
+                      description: tax_code_num should match legdat.taxdist
 
+                  arguments:
+                    external_model: source('iasworld', 'legdat')
+                    external_column_name: taxdist
+                    column_alias: tax_code_num
+                    external_column_alias: taxdist
+                    group_by:
+                      - year
+                      - pin
+                    join_condition: ON  model.pin = external_model.parid AND model.year = external_model.taxyr AND external_model.cur = 'Y' AND external_model.deactivat IS NULL
       - name: pin_geometry_raw
         description: '{{ doc("table_pin_geometry_raw") }}'
         data_tests:
           - unique_combination_of_columns:
               name: tax_pin_geometry_raw_unique_by_pin10_start_year_end_year
-              combination_of_columns:
-                - pin10
-                - start_year
-                - end_year
-              meta:
-                description: pin_geometry_raw is unique by pin10 start_year and end_year
+              config:
+                meta:
+                  description: pin_geometry_raw is unique by pin10 start_year and end_year
 
+              arguments:
+                combination_of_columns:
+                  - pin10
+                  - start_year
+                  - end_year
       - name: pin_tif_distribution
         description: '{{ doc("table_pin_tif_distribution") }}'
         data_tests:
           - unique_combination_of_columns:
               name: tax_pin_tif_distribution_unique_by_year_pin_agency_num
-              combination_of_columns:
-                - year
-                - pin
-                - agency_num
-              meta:
-                description: pin_tif_distribution is unique by year, pin, and agency_num
+              config:
+                meta:
+                  description: pin_tif_distribution is unique by year, pin, and agency_num
 
+              arguments:
+                combination_of_columns:
+                  - year
+                  - pin
+                  - agency_num
       - name: tax_code
         description: '{{ doc("table_tax_code") }}'
         data_tests:
           - unique_combination_of_columns:
               name: tax_tax_code_unique_by_year_agency_num_tax_code_num
-              combination_of_columns:
-                - year
-                - agency_num
-                - tax_code_num
-              meta:
-                description: tax_code is unique by year, agency_num, and tax_code_num
+              config:
+                meta:
+                  description: tax_code is unique by year, agency_num, and tax_code_num
 
+              arguments:
+                combination_of_columns:
+                  - year
+                  - agency_num
+                  - tax_code_num
       - name: tif
         description: '{{ doc("table_tif") }}'
         data_tests:
           - unique_combination_of_columns:
               name: tax_tif_unique_by_year_agency_num
-              combination_of_columns:
-                - year
-                - agency_num
-              meta:
-                description: tif is unique by year and agency_num
+              config:
+                meta:
+                  description: tif is unique by year and agency_num
 
+              arguments:
+                combination_of_columns:
+                  - year
+                  - agency_num
       - name: tif_crosswalk
         description: '{{ doc("table_tif_crosswalk") }}'
         data_tests:
           - unique_combination_of_columns:
               name: tax_tif_crosswalk_unique_by_year_agency_num_dist
-              combination_of_columns:
-                - year
-                - agency_num_dist
-              meta:
-                description: tif_crosswalk is unique by year and agency_num_dist
+              config:
+                meta:
+                  description: tif_crosswalk is unique by year and agency_num_dist
 
+              arguments:
+                combination_of_columns:
+                  - year
+                  - agency_num_dist
       - name: tif_distribution
         description: '{{ doc("table_tif_distribution") }}'
         data_tests:
           - unique_combination_of_columns:
               name: tax_tif_distribution_unique_by_year_agency_num_tax_code_num
-              combination_of_columns:
-                - year
-                - agency_num
-                - tax_code_num
-              meta:
-                description: tif_distribution is unique by year, agency_num, and tax_code_num
+              config:
+                meta:
+                  description: tif_distribution is unique by year, agency_num, and tax_code_num
+              arguments:
+                combination_of_columns:
+                  - year
+                  - agency_num
+                  - tax_code_num
+    config:
+      tags:
+        - load_manual

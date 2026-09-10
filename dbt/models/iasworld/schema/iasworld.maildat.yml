@@ -1,17 +1,8 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
-    tags:
-      - load_auto
-      - data_test_iasworld
-
     tables:
       - name: maildat
         description: '{{ doc("table_maildat") }}'
-        freshness:
-          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
-          warn_after: {count: 24, period: hour}
-          error_after: {count: 48, period: hour}
 
         columns:
           - name: addrtype
@@ -37,17 +28,18 @@ sources:
             data_tests:
               - accepted_values:
                   name: iasworld_maildat_cur_in_accepted_values
-                  values: ['Y', 'D']
-                  additional_select_columns: &select-columns
-                    - taxyr
-                    - parid
-                    - who
-                    - wen
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
-                  meta:
-                    description: cur should be 'Y' or 'D'
+                    meta:
+                      description: cur should be 'Y' or 'D'
+                  arguments:
+                    values: ['Y', 'D']
+                    additional_select_columns:
+                      - taxyr
+                      - parid
+                      - who
+                      - wen
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: delinstalltype
@@ -173,26 +165,25 @@ sources:
             data_tests:
               - relationships:
                   name: iasworld_maildat_parid_in_pardat_parid
-                  to: source('iasworld', 'pardat')
-                  field: parid
-                  additional_select_columns: &select-columns-no-parid
-                    - taxyr
-                    - who
-                    - wen
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
-                  meta:
-                    category: parid
-                    description: parid should be in pardat
+                    meta:
+                      description: parid should not be null
+                  arguments:
+                    to: source('iasworld', 'pardat')
+                    field: parid
+                    additional_select_columns: &select-columns-no-parid
+                      - taxyr
+                      - who
+                      - wen
               - not_null:
                   name: iasworld_maildat_parid_not_null
-                  additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
-                  meta:
-                    description: parid should not be null
+                  arguments:
+                    additional_select_columns: *select-columns-no-parid
           - name: parlink
             description: Parcel linkage number
           - name: paycode
@@ -239,17 +230,26 @@ sources:
         data_tests:
           - unique_combination_of_columns:
               name: iasworld_maildat_unique_by_parid_taxyr_mailseq
-              combination_of_columns:
-                - parid
-                - taxyr
-                - mailseq
-              additional_select_columns:
-                - column: who
-                  alias: who
-                  agg_func: array_agg
-                - column: wen
-                  alias: wen
-                  agg_func: array_agg
               config: *unique-conditions
-              meta:
-                description: maildat should be unique by parid and taxyr
+              arguments:
+                combination_of_columns:
+                  - parid
+                  - taxyr
+                  - mailseq
+                additional_select_columns:
+                  - column: who
+                    alias: who
+                    agg_func: array_agg
+                  - column: wen
+                    alias: wen
+                    agg_func: array_agg
+        config:
+          freshness:
+            filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+            warn_after: {count: 24, period: hour}
+            error_after: {count: 48, period: hour}
+    config:
+      loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
+      tags:
+        - load_auto
+        - data_test_iasworld

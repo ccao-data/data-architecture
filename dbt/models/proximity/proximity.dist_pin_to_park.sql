@@ -1,12 +1,8 @@
 -- CTAS to create a table of distance to the nearest park (2+ acre) for each PIN
-{{
-    config(
-        materialized='table',
-        partitioned_by=['year'],
-        bucketed_by=['pin10'],
-        bucket_count=1
-    )
-}}
+{{ config(
+    materialized='table', 
+    meta={'partitioned_by': ['year'], 'bucketed_by': ['pin10'], 'bucket_count': 1}
+) }}
 
 WITH parks AS (  -- noqa: ST03
     SELECT *
