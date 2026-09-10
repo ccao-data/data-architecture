@@ -21,7 +21,7 @@
     },
     {
         "name": "iasworld_sales_parid_in_pardat_parid",
-        "description": "parid should be in pardat for year of sale",
+        "description": "parid should be in pardat",
         "category": "relationships",
         "condition": "pardat_parid IS NOT NULL"
     },
