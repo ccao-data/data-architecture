@@ -4,13 +4,15 @@ models:
 
 sources:
   - name: ccao
-    tags:
-      - load_manual
+    config:
+      tags:
+        - load_manual
     tables:
       - name: commercial_valuation
         description: '{{ doc("table_commercial_valuation") }}'
-        tags:
-          - type_ic
+        config:
+          tags:
+            - type_ic
 
       - name: cc_dli_senfrr
         description: '{{ doc("table_cc_dli_senfrr") }}'
@@ -81,47 +83,55 @@ sources:
         data_tests:
           - unique_combination_of_columns:
               name: ccao_hidename_unique_by_pin
-              combination_of_columns:
-                - pin
+              arguments:
+                combination_of_columns:
+                  - pin
 
       - name: hie
         description: '{{ doc("table_hie") }}'
-        tags:
-          - type_res
+        config:
+          tags:
+            - type_res
 
       - name: land_nbhd_rate
         description: '{{ doc("table_land_nbhd_rate") }}'
-        tags:
-          - type_land
+        config:
+          tags:
+            - type_land
         data_tests:
           - unique_combination_of_columns:
               name: ccao_land_nbhd_rate_unique_by_town_nbhd_class_and_year
-              combination_of_columns:
-                - town_nbhd
-                - class
-                - year
-              meta:
-                description: ccao land nbhd rate should be unique by town_nbhd, class, and year
+              arguments:
+                combination_of_columns:
+                  - town_nbhd
+                  - class
+                  - year
+              config:
+                meta:
+                  description: ccao land nbhd rate should be unique by town_nbhd, class, and year
 
       - name: land_site_rate
         description: '{{ doc("table_land_site_rate") }}'
-        tags:
-          - type_land
+        config:
+          tags:
+            - type_land
 
       - name: pin_condo_char
         description: '{{ doc("table_pin_condo_char") }}'
-        tags:
-          - type_condo
+        config:
+          tags:
+            - type_condo
         data_tests:
           - unique_combination_of_columns:
               name: ccao_pin_condo_char_unique_by_pin_and_year
-              combination_of_columns:
-                - pin
-                - year
+              arguments:
+                combination_of_columns:
+                  - pin
+                  - year
               config:
                 error_if: ">1"
-              meta:
-                description: ccao pin condo char should be unique by pin and year
+                meta:
+                  description: ccao pin condo char should be unique by pin and year
         columns:
           - name: bedrooms
             description: '{{ doc("shared_column_char_beds") }}'
@@ -146,33 +156,40 @@ sources:
 
       - name: pin_nonlivable
         description: '{{ doc("table_pin_nonlivable") }}'
-        tags:
-          - type_condo
+        config:
+          tags:
+            - type_condo
         data_tests:
           - unique_combination_of_columns:
               name: ccao_pin_nonlivable_unique_by_pin_and_year
-              combination_of_columns:
-                - pin
-                - year
-              meta:
-                description: pin nonlivable should be unique by pin and year
+              arguments:
+                combination_of_columns:
+                  - pin
+                  - year
+              config:
+                meta:
+                  description: pin nonlivable should be unique by pin and year
         columns:
           - name: flag
             data_tests:
               - accepted_values:
                   name: ccao_pin_nonlivable_flag_accepted_values
-                  values: ["questionable", "negative pred", "399 GR"]
-            meta:
-              description: pin nonlivable flag should have values of questionable, negative pre or 399 GR
+                  arguments:
+                    values: ["questionable", "negative pred", "399 GR"]
+                  config:
+                    meta:
+                      description: pin nonlivable flag should have values of questionable, negative pre or 399 GR
       - name: zoning
         description: '{{ doc("table_zoning") }}'
         data_tests:
           - unique_combination_of_columns:
               name: ccao_zoning_unique_by_pin
-              combination_of_columns:
-                - pin
-              meta:
-                description: zoning should be unique by pin
+              arguments:
+                combination_of_columns:
+                  - pin
+              config:
+                meta:
+                  description: zoning should be unique by pin
 
 exposures:
   - name: commercial_valuation_data
