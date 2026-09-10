@@ -238,7 +238,7 @@ unit_tests:
         # `class` is the important column here, and all other columns are only
         # provided to ensure proper joins when creating the dummy table
         rows:
-          - {parid: "123", taxyr: "2024", class: "200", procname: "CCAOVALUE", rolltype: "RP", valasm3: 10, class: "2.1-1)A"}
+          - {parid: "123", taxyr: "2024", procname: "CCAOVALUE", rolltype: "RP", valasm3: 10, class: "2.1-1)A"}
       # The input tables below are not important, and are only included for the
       # sake of completing the joins that construct the view
       - input: source("iasworld", "aprval")
