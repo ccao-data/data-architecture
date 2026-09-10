@@ -1,8 +1,14 @@
 -- CTAS to create a table of distance to the nearest Metra route for each PIN
-{{ config(
-    materialized='table', 
-    meta={'partitioned_by': ['year'], 'bucketed_by': ['pin10'], 'bucket_count': 1}
-) }}
+{{
+    config(
+        materialized='table',
+        meta={
+            'partitioned_by': ['year'],
+            'bucketed_by': ['pin10'],
+            'bucket_count': 1
+        }
+    )
+}}
 
 WITH metra_route AS (  -- noqa: ST03
     SELECT *

@@ -7,7 +7,6 @@ def model(dbt, session):
     dbt.config(
         materialized="incremental",
         incremental_strategy="insert_overwrite",
-        on_schema_change="append_new_columns",
         meta={
             "partitioned_by": [
                 "assessment_year",
@@ -15,6 +14,7 @@ def model(dbt, session):
                 "meta_township_code",
             ]
         },
+        on_schema_change="append_new_columns",
     )
 
     # Get model metadata for every final model. We do this by inner joining

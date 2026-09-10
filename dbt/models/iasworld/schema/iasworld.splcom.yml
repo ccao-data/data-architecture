@@ -1,8 +1,20 @@
 sources:
   - name: iasworld
+    config:
+      loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
+      tags:
+        - load_auto
+        - data_test_iasworld
+
     tables:
       - name: splcom
         description: '{{ doc("table_splcom") }}'
+        config:
+          freshness:
+            filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+            warn_after: {count: 192, period: hour} # 8 days
+            error_after: {count: 360, period: hour} # 15 days
+
         columns:
           - name: alt_splitnum
             description: Alternate split/combination tracking number
@@ -102,14 +114,3 @@ sources:
             description: '{{ doc("shared_column_updated_at") }}'
           - name: who
             description: '{{ doc("shared_column_updated_by") }}'
-        config:
-          freshness:
-            filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
-            warn_after: {count: 192, period: hour} # 8 days
-            error_after: {count: 360, period: hour} # 15 days
-
-    config:
-      loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
-      tags:
-        - load_auto
-        - data_test_iasworld
