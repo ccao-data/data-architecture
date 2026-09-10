@@ -45,6 +45,9 @@ vars:
 models:
   ccao_data_athena:
     +materialized: view
+    +meta:
+      write_compression: zstd
+      ha: true
     +format: parquet
     ccao:
       +schema: ccao
@@ -72,9 +75,6 @@ models:
       +schema: spatial
     qc:
       +schema: qc
-    +meta:
-      write_compression: zstd
-      ha: true
 data_tests:
   +schema: test_failure
 

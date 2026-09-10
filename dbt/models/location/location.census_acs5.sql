@@ -2,10 +2,16 @@
 -- current PINs. For example, 2020 ACS data is not yet released, but we do have
 -- current (2021) geographies and PINs. We need to join 2019 geographies to
 -- 2021 PINs to facilitate joining 2019 ACS5 data
-{{ config(
-    materialized='table', 
-    meta={'partitioned_by': ['year'], 'bucketed_by': ['pin10'], 'bucket_count': 1}
-) }}
+{{
+    config(
+        materialized='table',
+        meta={
+            'partitioned_by': ['year'],
+            'bucketed_by': ['pin10'],
+            'bucket_count': 1
+        }
+    )
+}}
 
 WITH distinct_pins AS (
     SELECT DISTINCT
