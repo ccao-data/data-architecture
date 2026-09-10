@@ -1,17 +1,8 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
-    tags:
-      - load_auto
-      - data_test_iasworld
-
     tables:
       - name: lpnbhd
         description: '{{ doc("table_lpnbhd") }}'
-        freshness:
-          warn_after: {count: 192, period: hour} # 8 days
-          error_after: {count: 360, period: hour} # 15 days
-
         columns:
           - name: acmod
             description: Type A (Acre) land model assignment
@@ -97,3 +88,13 @@ sources:
             description: '{{ doc("shared_column_updated_at") }}'
           - name: who
             description: '{{ doc("shared_column_updated_by") }}'
+        config:
+          freshness:
+            warn_after: {count: 192, period: hour} # 8 days
+            error_after: {count: 360, period: hour} # 15 days
+
+    config:
+      loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
+      tags:
+        - load_auto
+        - data_test_iasworld

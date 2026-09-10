@@ -1,14 +1,10 @@
 -- CTAS that finds the 3 nearest neighbor PINs for every PIN for every year
 -- within a 500 foot radius, filtered for PINs that do not have three
 -- neighbors within a 100 foot radius
-{{
-    config(
-        materialized='table',
-        partitioned_by=['year'],
-        bucketed_by=['pin10'],
-        bucket_count=1
-    )
-}}
+{{ config(
+    materialized='table', 
+    meta={'partitioned_by': ['year'], 'bucketed_by': ['pin10'], 'bucket_count': 1}
+) }}
 
 WITH missing_matches AS (  -- noqa: ST03
     SELECT

@@ -201,7 +201,9 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
 
 
 def model(dbt, spark_session):
-    dbt.config(materialized="table", engine_config={"MaxConcurrentDpus": 40})
+    dbt.config(
+        materialized="table", meta={"engine_config": {"MaxConcurrentDpus": 40}}
+    )
     athena_user_logger.info("Loading ratio stats input table")
 
     input = dbt.ref("reporting.ratio_stats_input")

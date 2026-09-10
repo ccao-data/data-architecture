@@ -1,13 +1,9 @@
 -- CTAS to create a table of foreclosure counts per PIN. Counts are within 1/2
 -- mile and past 5 years of each target PIN
-{{
-    config(
-        materialized='table',
-        partitioned_by=['year'],
-        bucketed_by=['pin10'],
-        bucket_count=1
-    )
-}}
+{{ config(
+    materialized='table', 
+    meta={'partitioned_by': ['year'], 'bucketed_by': ['pin10'], 'bucket_count': 1}
+) }}
 
 WITH pin_locations AS (
     SELECT

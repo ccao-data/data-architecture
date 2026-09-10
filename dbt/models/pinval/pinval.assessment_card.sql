@@ -10,14 +10,10 @@
 -- two main filters we use in the code that consumes this table. We don't use
 -- run ID here because card values and SHAPs can have different run IDs per
 -- assessment year, so assessment year ties the various runs together
-{{
-    config(
-        materialized='table',
-        partitioned_by=['assessment_year', 'meta_township_code'],
-        bucketed_by=['meta_pin'],
-        bucket_count=1
-    )
-}}
+{{ config(
+    materialized='table', 
+    meta={'partitioned_by': ['assessment_year', 'meta_township_code'], 'bucketed_by': ['meta_pin'], 'bucket_count': 1}
+) }}
 
 -- Get some metadata for the model runs that we want to use as the basis for
 -- the characteristics and values in our reports

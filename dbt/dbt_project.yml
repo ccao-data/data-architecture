@@ -45,9 +45,7 @@ vars:
 models:
   ccao_data_athena:
     +materialized: view
-    +write_compression: zstd
     +format: parquet
-    +ha: true
     ccao:
       +schema: ccao
     census:
@@ -74,6 +72,9 @@ models:
       +schema: spatial
     qc:
       +schema: qc
+    +meta:
+      write_compression: zstd
+      ha: true
 data_tests:
   +schema: test_failure
 
@@ -91,3 +92,5 @@ seeds:
       +schema: sale
     spatial:
       +schema: spatial
+flags:
+  require_generic_test_arguments_property: true
