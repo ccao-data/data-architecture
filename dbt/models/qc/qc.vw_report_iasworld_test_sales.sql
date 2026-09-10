@@ -52,7 +52,9 @@
     SELECT
         -- Identifying columns
         sales.parid,
-        SUBSTR(sales.saledt, 1, 4) AS taxyr,
+        MAX(SUBSTR(sales.saledt, 1, 4))
+            OVER (PARTITION BY sales.parid, sales.instruno)
+            AS taxyr,
         CAST(NULL AS INTEGER) AS card,
         CAST(NULL AS INTEGER) AS lline,
         legdat.user1 AS township_code,
