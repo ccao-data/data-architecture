@@ -17,10 +17,14 @@ See `reporting.res_report_summary` for a full description of these data.
 Intended to be materialized daily through a GitHub action.
 */
 
-{{ config(
-    materialized='table', 
-    meta={'partitioned_by': ['year']}
-) }}
+{{
+    config(
+        materialized='table',
+        meta={
+            'partitioned_by': ['year']
+        }
+    )
+}}
 
 -- AVs and model values
 WITH all_fmvs AS (

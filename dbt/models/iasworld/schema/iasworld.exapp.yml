@@ -1,8 +1,20 @@
 sources:
   - name: iasworld
+    config:
+      loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
+      tags:
+        - load_auto
+        - data_test_iasworld
+
     tables:
       - name: exapp
         description: '{{ doc("table_exapp") }}'
+        config:
+          freshness:
+            filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+            warn_after: {count: 192, period: hour} # 8 days
+            error_after: {count: 360, period: hour} # 15 days
+
         columns:
           - name: apaddr1
             description: Applicant address line 1
@@ -108,14 +120,3 @@ sources:
             description: Year begin date
           - name: yrend
             description: Year end date
-        config:
-          freshness:
-            filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
-            warn_after: {count: 192, period: hour} # 8 days
-            error_after: {count: 360, period: hour} # 15 days
-
-    config:
-      loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
-      tags:
-        - load_auto
-        - data_test_iasworld
