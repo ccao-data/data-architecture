@@ -2,6 +2,7 @@ library(arrow)
 library(aws.s3)
 library(dplyr)
 library(purrr)
+library(sf)
 library(tools)
 library(wk)
 
@@ -75,13 +76,13 @@ geoparquet_to_s3 <- function(spatial_df, s3_uri, destination) {
     spatial_df <- spatial_df %>%
       mutate(
         temp = as_wkb(geometry),
-        geometry_3435 = as_wkb(geometry_3435),
-        crs = st_crs(geometry)$epsg,
-        loaded_at = as.character(Sys.time())
+        temp_3435 = as_wkb(geometry_3435),
+        crs = st_crs(geometry)$epsg
       ) %>%
       st_drop_geometry() %>%
-      rename(geometry = temp) %>%
-      relocate(geometry, .before = geometry_3435)
+      select(-any_of(c("geometry", "geometry_3435"))) %>%
+      rename_with(~ str_replace_all(., "temp", "geometry")) %>%
+      mutate(loaded_at = as.character(Sys.time()))
   } else {
     stop(paste(
       "Invalid destination specified.",

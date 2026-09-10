@@ -424,6 +424,8 @@ process_parcel_file <- function(s3_bucket_uri,
         year = file_year
       ) %>%
       relocate(year, town_code, .after = last_col()) %>%
+      st_set_geometry("geometry") %>%
+      st_set_crs(4326) %>%
       group_by(year, town_code) %>%
       write_partitions_to_s3(
         s3_bucket_uri,

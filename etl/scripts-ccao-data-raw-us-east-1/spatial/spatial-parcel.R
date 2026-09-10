@@ -56,12 +56,12 @@ parcels_remote_attr <- file.path(
   paste0(iasworld_years, "-attr.parquet")
 )
 
+AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena())
+
 # Query iasWorld via Athena to get attribute data we can pre-join
 walk(parcels_remote_attr, function(x) {
   if (!aws.s3::object_exists(x)) {
     year <- str_sub(x, -17, -14)
-
-    AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena())
 
     dbGetQuery(
       AWS_ATHENA_CONN_NOCTUA, glue("
