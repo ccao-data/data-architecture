@@ -176,14 +176,6 @@ sources:
         description: '{{ doc("metadata") }}'
         tags:
           - load_auto
-        data_tests:
-          - unique_combination_of_columns:
-              name: sale_metadata_unique_by_run_id
-              combination_of_columns:
-                - run_id
-              meta:
-                description: metadata is unique by run_id
-
         columns:
           - name: long_commit_sha
             description: Full commit SHA of the code used for the model run
@@ -199,13 +191,18 @@ sources:
               or `manual_update`
           - name: short_commit_sha
             description: Short commit SHA of the code used for the model run
-
         data_tests:
           - unique:
               name: sale_metadata_singular_initial_run
               column_name: run_id
               config:
                 where: run_id = 'initial_flagging'
+          - unique_combination_of_columns:
+              name: sale_metadata_unique_by_run_id
+              combination_of_columns:
+                - run_id
+              meta:
+                description: metadata is unique by run_id
 
       - name: mydec
         description: '{{ doc("mydec") }}'
