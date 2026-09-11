@@ -1,25 +1,70 @@
 anchors:
-  - &unique-conditions
-    # Excludes non-regression classes, as defined in Assessor's
-    # online PDF of all class definitions
-    where: |
+  # Excludes non-regression classes, as defined in Assessor's
+  # online PDF of all class definitions
+  - &unique-conditions |
       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
       AND cur = 'Y'
       AND deactivat IS NULL
       AND class NOT IN ('201', '213', '218', '219', '220', '221', '224', '225', '236', '240', '241', '290', '294', '297')
-  - &unique-conditions-with-garage-size
-    where: |
+  - &unique-conditions-with-garage-size |
       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
       AND cur = 'Y'
       AND deactivat IS NULL
       AND class NOT IN ('201', '213', '218', '219', '220', '221', '224', '225', '236', '240', '241', '290', '294', '297')
       AND user33 != '7'
-  - &unique-conditions-class-212
-    where: |
+  - &unique-conditions-class-212 |
       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
       AND cur = 'Y'
       AND deactivat IS NULL
       AND class = '212'
+  - &select-columns
+    - taxyr
+    - parid
+    - card
+    - who
+    - wen
+  - &select-columns-no-card
+    - parid
+    - taxyr
+    - who
+    - wen
+  - &select-columns-no-parid
+    - taxyr
+    - card
+    - who
+    - wen
+  - &select-columns-with-class
+    - taxyr
+    - parid
+    - card
+    - class
+    - who
+    - wen
+  - &select-columns-with-garage-size
+    - taxyr
+    - parid
+    - card
+    - who
+    - wen
+    - user33
+  - &select-columns-with-num-units
+    - taxyr
+    - parid
+    - card
+    - who
+    - wen
+    - user14
+  - &select-columns-for-pardat-join
+    - column: card
+      agg_func: array_agg
+    - column: taxyr
+      agg_func: max
+    - column: parid
+      agg_func: max
+    - column: who
+      agg_func: max
+    - column: wen
+      agg_func: max
 
 sources:
   - name: iasworld
@@ -77,14 +122,9 @@ sources:
                   name: iasworld_dweldat_attic_in_accepted_values
                   arguments:
                     values: ['1', '2', '3', '4', '5']
-                    additional_select_columns: &select-columns
-                      - taxyr
-                      - parid
-                      - card
-                      - who
-                      - wen
+                    additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: >
                         attic (Attic Type) should be an integer between 1 and 5
@@ -93,7 +133,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: attic (Attic Type) should not be null
           - name: atticarea
@@ -121,7 +161,7 @@ sources:
                     values: ['1', '2', '3', '4', '5', '6', '7']
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: >
                         bsmt (Basement Type) should be an integer between 1 and 7
@@ -130,7 +170,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: bsmt (Basement Type) should not be null
           - name: bsmtarea
@@ -166,13 +206,9 @@ sources:
                   name: iasworld_dweldat_card_gte_1
                   arguments:
                     min_value: 1
-                    additional_select_columns: &select-columns-no-card
-                      - parid
-                      - taxyr
-                      - who
-                      - wen
+                    additional_select_columns: *select-columns-no-card
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: card should be >= 1
               - not_null:
@@ -180,7 +216,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns-no-card
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: card should not be null
           - name: catharea
@@ -218,19 +254,9 @@ sources:
               - res_class_matches_pardat:
                   name: iasworld_dweldat_class_matches_pardat_class
                   arguments:
-                    additional_select_columns: &select-columns-for-pardat-join
-                      - column: card
-                        agg_func: array_agg
-                      - column: taxyr
-                        agg_func: max
-                      - column: parid
-                        agg_func: max
-                      - column: who
-                        agg_func: max
-                      - column: wen
-                        agg_func: max
+                    additional_select_columns: *select-columns-for-pardat-join
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: at least one class should match pardat class
               - res_class_matches_pardat:
@@ -336,7 +362,7 @@ sources:
                     quote: false
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: external_calc_rcnld (Net Market Value) should not be 0
           - name: external_occpct
@@ -349,7 +375,7 @@ sources:
                     quote: false
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: external_occpct (Occupancy %) should not be 0
               - not_null:
@@ -385,7 +411,7 @@ sources:
                     quote: false
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: external_propct (Proration %) should not be 0
           - name: external_rcnld
@@ -398,7 +424,7 @@ sources:
                     quote: false
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: external_rcnld (Full Market Value) should not be 0
           - name: extwall
@@ -409,7 +435,7 @@ sources:
                   arguments:
                     values: ['1', '2', '3', '4', '6', '7', '8', '9']
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: extwall (Exterior Construction) should be 1, 2, 3, 4, 6, 7, 8, or 9
               - not_null:
@@ -417,7 +443,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: extwall (Exterior Construction) should not be null
           - name: extwall1
@@ -451,15 +477,9 @@ sources:
                         WHEN user14 = '5' THEN 42
                         ELSE 7
                       END
-                    additional_select_columns: &select-columns-with-num-units
-                      - taxyr
-                      - parid
-                      - card
-                      - who
-                      - wen
-                      - user14
+                    additional_select_columns: *select-columns-with-num-units
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: >
                         fixbath (Number of Full Baths) should be <= 7 times the
@@ -469,7 +489,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: fixbath (Number of Full Baths) should not be null
           - name: fixbath1
@@ -509,7 +529,7 @@ sources:
                     min_value: 0
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: >
                         fixhalf (Number of Half Baths) should be >= 0
@@ -529,7 +549,7 @@ sources:
                       END
                     additional_select_columns: *select-columns-with-num-units
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: >
                         fixhalf (Number of Half Baths) should be <= 5 times the
@@ -601,7 +621,7 @@ sources:
                     values: ['1', '2', '3', '4']
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: >
                         heat (Heating) should be an integer between 1 and 4
@@ -610,7 +630,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: >
                         heat (Heating) should not be null
@@ -756,13 +776,9 @@ sources:
                   arguments:
                     to: source('iasworld', 'pardat')
                     field: parid
-                    additional_select_columns: &select-columns-no-parid
-                      - taxyr
-                      - card
-                      - who
-                      - wen
+                    additional_select_columns: *select-columns-no-parid
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       category: parid
                       description: parid should be in pardat
@@ -771,7 +787,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns-no-parid
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: parid should not be null
           - name: pctcomplete
@@ -845,7 +861,7 @@ sources:
                       - wen
                       - rmtot
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       category: relationships
                       description: >
@@ -866,7 +882,7 @@ sources:
                       END
                     additional_select_columns: *select-columns-with-num-units
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: >
                         rmbed (Number of Bedrooms) should be <= 8 times the
@@ -876,7 +892,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: >
                         rmbed (Number of Bedrooms) should not be null
@@ -946,7 +962,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: rmtot (Number of Rooms) should not be null
               - accepted_range:
@@ -993,7 +1009,7 @@ sources:
                       - who
                       - wen
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: seq should be sequential
           - name: sfla
@@ -1004,13 +1020,7 @@ sources:
                   arguments:
                     min_value: 1
                     max_value: 999
-                    additional_select_columns: &select-columns-with-class
-                      - taxyr
-                      - parid
-                      - card
-                      - class
-                      - who
-                      - wen
+                    additional_select_columns: *select-columns-with-class
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
@@ -1234,7 +1244,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: sfla (Building Square Footage) should not be null
           - name: shfact
@@ -1262,7 +1272,7 @@ sources:
                     expression: 'IN (1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 9.90)'
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       category: incorrect_values
                       description: >
@@ -1273,7 +1283,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: stories (Type of Residence) should not be null
           - name: style
@@ -1294,7 +1304,7 @@ sources:
                       - who
                       - wen
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: taxyr should not be null
           - name: trans_id
@@ -1334,7 +1344,7 @@ sources:
                     values: ['0', '1']
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: user3 (Renovated) should be '0' or '1'
           - name: user4
@@ -1348,7 +1358,7 @@ sources:
                     values: ['0', '1', '2']
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: user5 (Plan of Design) should be '0', '1', or '2'
               - not_null:
@@ -1356,7 +1366,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: user5 (Plan of Design) should not be null
           - name: user6
@@ -1368,7 +1378,7 @@ sources:
                     values: ['1', '2', '3']
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: user6 (Attic Finish) should be '1', '2', or '3'
               - not_null:
@@ -1400,7 +1410,7 @@ sources:
                     values: ['1', '2']
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: user7 (Central Air Conditioning) should be '1' or '2'
               - not_null:
@@ -1408,7 +1418,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: user7 (Central Air Conditioning) should not be null
           - name: user12
@@ -1420,7 +1430,7 @@ sources:
                     values: ['1', '2', '3', '4', '5', '6']
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: user12 (Basement Finished) should be an integer between 1 and 6
               - not_null:
@@ -1452,7 +1462,7 @@ sources:
                     values: ['1', '2', '3', '4', '5', '6']
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: user13 (Roof Construction) should be an integer between 1 and 6
               - not_null:
@@ -1460,7 +1470,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: user13 (Roof Construction) should not be null
           - name: user14
@@ -1504,7 +1514,7 @@ sources:
                     values: ['1', '2']
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: user15 (Use) should be '1' or '2'
               - not_null:
@@ -1512,7 +1522,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: user15 (Use) should not be null
           - name: user16
@@ -1528,7 +1538,7 @@ sources:
                     values: ['0', '1', '2', '3', '4', '5']
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: >
                         user20 (No. of Commercial Units) should be an integer between 0 and 5
@@ -1539,7 +1549,7 @@ sources:
                       - 0
                     additional_select_columns: *select-columns-with-class
                   config:
-                    <<: *unique-conditions-class-212
+                    where: *unique-conditions-class-212
                     meta:
                       description: >
                         user20 (No. of Commercial Units) should not be 0
@@ -1549,7 +1559,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns-with-class
                   config:
-                    <<: *unique-conditions-class-212
+                    where: *unique-conditions-class-212
                     meta:
                       description: >
                         user20 (No. of Commercial Units) should not be null
@@ -1583,7 +1593,7 @@ sources:
                     values: ['0', '1', '2']
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: user30 (Porch) should be '0', '1', or '2'
           - name: user31
@@ -1595,21 +1605,15 @@ sources:
                     values: ['1', '2']
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: user31 (Garage Attached) should be '1' or '2' 
               - not_null:
                   name: iasworld_dweldat_char_gar_att_not_null
                   arguments:
-                    additional_select_columns: &select-columns-with-garage-size
-                      - taxyr
-                      - parid
-                      - card
-                      - who
-                      - wen
-                      - user33
+                    additional_select_columns: *select-columns-with-garage-size
                   config:
-                    <<: *unique-conditions-with-garage-size
+                    where: *unique-conditions-with-garage-size
                     meta:
                       description: >
                         user31 (Garage Attached) should not be null
@@ -1623,7 +1627,7 @@ sources:
                     values: ['1', '2']
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: user32 (Garage in Area) should be '1' or '2'
               - not_null:
@@ -1631,7 +1635,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns-with-garage-size
                   config:
-                    <<: *unique-conditions-with-garage-size
+                    where: *unique-conditions-with-garage-size
                     meta:
                       description: >
                         user32 (Garage in Area) should not be null
@@ -1645,7 +1649,7 @@ sources:
                     values: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: >
                         user33 (Garage Size) should be an integer between 1 and 10
@@ -1654,7 +1658,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: user33 (Garage Size) should not be null
           - name: user34
@@ -1666,7 +1670,7 @@ sources:
                     values: ['1', '2', '3', '4']
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: >
                         user34 (Garage Construction) should be
@@ -1679,7 +1683,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns-with-garage-size
                   config:
-                    <<: *unique-conditions-with-garage-size
+                    where: *unique-conditions-with-garage-size
                     meta:
                       description: >
                         user34 (Garage Construction) should not be null
@@ -1720,7 +1724,7 @@ sources:
                     max_value: 6
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: wbfp_o (Number of Fireplaces) should be between 0 and 6
           - name: wbfp_pf
@@ -1846,7 +1850,7 @@ sources:
                     max_value: cast(year(current_date) as decimal)
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: yrblt should be between 1850 and now
               - not_null:
@@ -1854,7 +1858,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: yrblt should not be null
           - name: yrremod
@@ -1898,7 +1902,7 @@ sources:
                   - wen
                   - user24
               config:
-                <<: *unique-conditions
+                where: *unique-conditions
                 meta:
                   description: user24 (Proration %) should be between 0 and 100
           - unique_combination_of_columns:
@@ -1916,6 +1920,6 @@ sources:
                     alias: wen
                     agg_func: array_agg
               config:
-                <<: *unique-conditions
+                where: *unique-conditions
                 meta:
                   description: dweldat should be unique by parid, card, and taxyr

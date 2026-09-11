@@ -1,9 +1,17 @@
 anchors:
-  - &unique-conditions
-    where: |
+  - &unique-conditions |
       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
       AND cur = 'Y'
       AND deactivat IS NULL
+  - &select-columns
+    - taxyr
+    - parid
+    - who
+    - wen
+  - &select-columns-no-parid
+    - taxyr
+    - who
+    - wen
 
 sources:
   - name: iasworld
@@ -37,13 +45,9 @@ sources:
                   arguments:
                     min_value: 0
                     max_value: 1000000000
-                    additional_select_columns: &select-columns
-                      - taxyr
-                      - parid
-                      - who
-                      - wen
+                    additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: aprbldg should be between 0 and 1,000,000,000
           - name: aprdate
@@ -58,7 +62,7 @@ sources:
                     max_value: 1000000000
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: aprland should be between 0 and 1,000,000,000
           - name: aprtot
@@ -71,7 +75,7 @@ sources:
                     max_value: 2000000000
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: aprtot should be between 0 and 2,000,000,000
           - name: areasum
@@ -90,7 +94,7 @@ sources:
                     max_value: 1000000000
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: bldgval should be between 0 and 1,000,000,000
           - name: comincval
@@ -188,7 +192,7 @@ sources:
                     max_value: 1000000000
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: landval should be between 0 and 1,000,000,000
           - name: lastupd
@@ -227,12 +231,9 @@ sources:
                   arguments:
                     to: source('iasworld', 'pardat')
                     field: parid
-                    additional_select_columns: &select-columns-no-parid
-                      - taxyr
-                      - who
-                      - wen
+                    additional_select_columns: *select-columns-no-parid
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       category: parid
                       description: parid should be in pardat
@@ -241,7 +242,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns-no-parid
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: parid should not be null
           - name: posttype
@@ -297,7 +298,7 @@ sources:
                       - who
                       - wen
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: seq should be sequential
           - name: spcflg
@@ -321,7 +322,7 @@ sources:
                       - who
                       - wen
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: taxyr should not be null
           - name: tiebackbldg
@@ -362,6 +363,6 @@ sources:
                     alias: wen
                     agg_func: array_agg
               config:
-                <<: *unique-conditions
+                where: *unique-conditions
                 meta:
                   description: aprval should be unique by parid and taxyr
