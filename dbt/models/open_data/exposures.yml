@@ -7,13 +7,6 @@ exposures:
       - ref('open_data.vw_appeal')
     owner:
       name: Data Department
-    description: |
-      Land, building, and total assessed values, pre and post-appeal with the Cook County Assessor’s office, for all Cook County parcels, from 1999 to present.
-
-      Notes: Refreshed monthly, data is updated as towns are mailed/certified by Valuations.
-
-      Use cases: Alone, can be used to investigate appeal trends. Can be combined with geographies to see how AV shifts around the county between mailing and assessor certified stages.
-
     config:
       tags:
         - semimonthly
@@ -27,6 +20,13 @@ exposures:
           - pin
           - year
         years_active: 1
+    description: |
+      Land, building, and total assessed values, pre and post-appeal with the Cook County Assessor’s office, for all Cook County parcels, from 1999 to present.
+
+      Notes: Refreshed monthly, data is updated as towns are mailed/certified by Valuations.
+
+      Use cases: Alone, can be used to investigate appeal trends. Can be combined with geographies to see how AV shifts around the county between mailing and assessor certified stages.
+
   - name: assessed_values
     label: Assessed Values
     type: dashboard
@@ -35,14 +35,6 @@ exposures:
       - ref('open_data.vw_assessed_value')
     owner:
       name: Data Department
-    description: |
-      Land, building, and total assessed values for all Cook County parcels, from 1999 to present.
-
-      Notes: Refreshed monthly, data is updated as towns are mailed/certified by Valuations and the Board of Review.
-
-      Use cases: Alone, can characterize assessments in a given area. Can be combined with characteristic data to make more nuanced generalizations about assessments. Can be combined with sales data to conduct ratio studies.
-
-
     config:
       tags:
         - semimonthly
@@ -53,6 +45,13 @@ exposures:
           - pin
           - year
         years_active: 2
+    description: |
+      Land, building, and total assessed values for all Cook County parcels, from 1999 to present.
+
+      Notes: Refreshed monthly, data is updated as towns are mailed/certified by Valuations and the Board of Review.
+
+      Use cases: Alone, can characterize assessments in a given area. Can be combined with characteristic data to make more nuanced generalizations about assessments. Can be combined with sales data to conduct ratio studies.
+
   - name: parcel_addresses
     label: Parcel Addresses
     type: dashboard
@@ -61,13 +60,6 @@ exposures:
       - ref('open_data.vw_parcel_address')
     owner:
       name: Data Department
-    description: |
-      Situs and mailing addresses of Cook County parcels.
-
-      Notes: Refreshed monthly, data is updated as towns are mailed/certified by Valuations.
-
-      Use cases: Can be used for geocoding or joining address-level data to other datasets.
-
     config:
       tags:
         - semimonthly
@@ -78,6 +70,13 @@ exposures:
           - pin
           - year
         years_active: 1
+    description: |
+      Situs and mailing addresses of Cook County parcels.
+
+      Notes: Refreshed monthly, data is updated as towns are mailed/certified by Valuations.
+
+      Use cases: Can be used for geocoding or joining address-level data to other datasets.
+
   - name: parcel_proximity
     label: Parcel Proximity
     type: dashboard
@@ -86,18 +85,11 @@ exposures:
       - ref('open_data.vw_parcel_proximity')
     owner:
       name: Data Department
-    description: |
-      Cook County 10-digit parcels with attached distances to various spatial features.
-
-      Notes: Refreshed monthly, data is updated yearly as spatial files are made available.
-
-      Use cases: Can be used to isolate parcels by distance to specific spatial features.
-
     config:
       tags:
-      # This asset is technically active, but it only needs to be updated
-      # annually. We use the socrata agent since the entire dataset is refreshed
-      # at once.
+        # This asset is technically active, but it only needs to be updated
+        # annually. We use the socrata agent since the entire dataset is refreshed
+        # at once.
         - inactive
       meta:
         test_row_count: true
@@ -106,6 +98,13 @@ exposures:
           - pin10
           - year
         years_active: 1
+    description: |
+      Cook County 10-digit parcels with attached distances to various spatial features.
+
+      Notes: Refreshed monthly, data is updated yearly as spatial files are made available.
+
+      Use cases: Can be used to isolate parcels by distance to specific spatial features.
+
   - name: parcel_sales
     label: Parcel Sales
     type: dashboard
@@ -114,13 +113,6 @@ exposures:
       - ref('open_data.vw_parcel_sale')
     owner:
       name: Data Department
-    description: |
-      Parcel sales for real property in Cook County, from 1999 to present.
-
-      Notes: Refreshed monthly, though data may only change roughly quarterly depending on how often new sales are added to iasWorld.
-
-      Use cases: Alone, sales data can be used to characterize real estate markets. Sales paired with characteristics can be used to find comparable properties or as an input to an automated modeling application. Sales paired with assessments can be used to calculate sales ratio statistics. Outliers can be easily removed using filters constructed from class, township, and year variables.
-
     config:
       tags:
         - semimonthly
@@ -130,6 +122,13 @@ exposures:
         primary_key:
           - sale_key
         years_active: 1
+    description: |
+      Parcel sales for real property in Cook County, from 1999 to present.
+
+      Notes: Refreshed monthly, though data may only change roughly quarterly depending on how often new sales are added to iasWorld.
+
+      Use cases: Alone, sales data can be used to characterize real estate markets. Sales paired with characteristics can be used to find comparable properties or as an input to an automated modeling application. Sales paired with assessments can be used to calculate sales ratio statistics. Outliers can be easily removed using filters constructed from class, township, and year variables.
+
   - name: parcel_status
     label: Parcel Status
     type: dashboard
@@ -138,11 +137,6 @@ exposures:
       - ref('open_data.vw_parcel_status')
     owner:
       name: Data Department
-    description: |
-      Collection of various different PIN-level physical and assessment-related
-      statuses collected and documented across the CCAO and Data Department.
-      Constructs the Data Department's AHSAP indicator.
-
     config:
       tags:
         - inactive
@@ -153,6 +147,11 @@ exposures:
           - pin
           - year
         years_active: 1
+    description: |
+      Collection of various different PIN-level physical and assessment-related
+      statuses collected and documented across the CCAO and Data Department.
+      Constructs the Data Department's AHSAP indicator.
+
   - name: parcel_universe_current_year
     label: Parcel Universe (Current Year Only)
     type: dashboard
@@ -161,13 +160,6 @@ exposures:
       - ref('open_data.vw_parcel_universe_current')
     owner:
       name: Data Department
-    description: |
-      Most recent year universe of Cook County parcels with attached geographic, governmental, and spatial data.
-
-      Notes: Contains a cornucopia of locational and spatial data for all parcels in Cook County.
-
-      Use cases: Joining parcel-level data to this dataset allows analysis and reporting across a number of different political, tax, Census, and other boundaries.
-
     config:
       tags:
         - semimonthly
@@ -178,6 +170,13 @@ exposures:
           - pin
           - year
         years_active: 1
+    description: |
+      Most recent year universe of Cook County parcels with attached geographic, governmental, and spatial data.
+
+      Notes: Contains a cornucopia of locational and spatial data for all parcels in Cook County.
+
+      Use cases: Joining parcel-level data to this dataset allows analysis and reporting across a number of different political, tax, Census, and other boundaries.
+
   - name: parcel_universe_historical
     label: Parcel Universe (Historic)
     type: dashboard
@@ -186,13 +185,6 @@ exposures:
       - ref('open_data.vw_parcel_universe_historical')
     owner:
       name: Data Department
-    description: |
-      A complete, historic universe of Cook County parcels with attached geographic, governmental, and spatial data.
-
-      Notes: Contains a cornucopia of locational and spatial data for all parcels in Cook County.
-
-      Use cases: Joining parcel-level data to this dataset allows analysis and reporting across a number of different political, tax, Census, and other boundaries.
-
     config:
       tags:
         - semimonthly
@@ -203,6 +195,13 @@ exposures:
           - pin
           - year
         years_active: 1
+    description: |
+      A complete, historic universe of Cook County parcels with attached geographic, governmental, and spatial data.
+
+      Notes: Contains a cornucopia of locational and spatial data for all parcels in Cook County.
+
+      Use cases: Joining parcel-level data to this dataset allows analysis and reporting across a number of different political, tax, Census, and other boundaries.
+
   - name: permits
     label: Permits
     type: dashboard
@@ -211,10 +210,6 @@ exposures:
       - ref('open_data.vw_permit')
     owner:
       name: Data Department
-    description: |
-      Building permits organized by PIN, with extra metadata recorded by CCAO
-      permit specialists during the permit processing workflow.
-
     config:
       tags:
         - semimonthly
@@ -227,6 +222,10 @@ exposures:
           - permit_number
           - date_issued
         years_active: 5
+    description: |
+      Building permits organized by PIN, with extra metadata recorded by CCAO
+      permit specialists during the permit processing workflow.
+
   - name: property_tax_exempt_parcels
     label: Property Tax-Exempt Parcels
     type: dashboard
@@ -235,14 +234,6 @@ exposures:
       - ref('open_data.vw_property_tax_exempt_parcel')
     owner:
       name: Data Department
-    description: |
-      Parcels with property tax-exempt status across all of Cook County per tax year, from Tax Year 2022 on, with geographic coordinates and addresses.
-
-      Notes: Refreshed monthly, data is updated when necessary as PINs are re-classified.
-
-      Use cases: Can be used to study parcels that are exempted from paying property taxes.
-
-
     config:
       tags:
         - semimonthly
@@ -253,6 +244,13 @@ exposures:
           - pin
           - year
         years_active: 1
+    description: |
+      Parcels with property tax-exempt status across all of Cook County per tax year, from Tax Year 2022 on, with geographic coordinates and addresses.
+
+      Notes: Refreshed monthly, data is updated when necessary as PINs are re-classified.
+
+      Use cases: Can be used to study parcels that are exempted from paying property taxes.
+
   - name: residential_condominium_unit_characteristics
     label: Residential Condominium Unit Characteristics
     type: dashboard
@@ -261,15 +259,6 @@ exposures:
       - ref('open_data.vw_res_condo_unit_char')
     owner:
       name: Data Department
-    description: |
-      Residential condominium unit characteristics collected and maintained by the Assessor's office for all of Cook County, from 1999 to present.
-
-      Use cases: This data describes the location and physical characteristics of all condominium units in the county. Condominium units are associated with substantially less characteristic data than single and multi-family improvements. It can be:
-
-        * Used on its own to characterize the housing stock in a specific location
-        * Joined to assessments for analysis of assessments across geographies and housing types
-        * Joined to sales for the construction of hedonic home value estimates
-
     config:
       tags:
         - type_condo
@@ -281,6 +270,15 @@ exposures:
           - pin
           - year
         years_active: 1
+    description: |
+      Residential condominium unit characteristics collected and maintained by the Assessor's office for all of Cook County, from 1999 to present.
+
+      Use cases: This data describes the location and physical characteristics of all condominium units in the county. Condominium units are associated with substantially less characteristic data than single and multi-family improvements. It can be:
+
+        * Used on its own to characterize the housing stock in a specific location
+        * Joined to assessments for analysis of assessments across geographies and housing types
+        * Joined to sales for the construction of hedonic home value estimates
+
   - name: single_and_multi_family_improvement_characteristics
     label: Single and Multi-Family Improvement Characteristics
     type: dashboard
@@ -289,16 +287,6 @@ exposures:
       - ref('open_data.vw_sf_mf_improvement_char')
     owner:
       name: Data Department
-    description: |
-      Single and multi-family (less than 7 units) property characteristics collected and maintained by the Assessor's Office for all of Cook County, from 1999 to present.
-
-      Notes: Residential PINs with multiple improvements (living structures) will have one card for each improvement.
-
-      Use cases: This data describes the location and physical characteristics of all single and multi-family improvements in the county. It can be:
-
-        * Used on its own to characterize the housing stock in a specific location
-        * Joined to assessments for analysis of assessments across geographies and housing types
-        * Joined to sales for the construction of hedonic home value estimates
     config:
       tags:
         - type_res
@@ -311,3 +299,13 @@ exposures:
           - card
           - year
         years_active: 1
+    description: |
+      Single and multi-family (less than 7 units) property characteristics collected and maintained by the Assessor's Office for all of Cook County, from 1999 to present.
+
+      Notes: Residential PINs with multiple improvements (living structures) will have one card for each improvement.
+
+      Use cases: This data describes the location and physical characteristics of all single and multi-family improvements in the county. It can be:
+
+        * Used on its own to characterize the housing stock in a specific location
+        * Joined to assessments for analysis of assessments across geographies and housing types
+        * Joined to sales for the construction of hedonic home value estimates

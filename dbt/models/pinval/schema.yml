@@ -55,20 +55,20 @@ models:
         data_tests:
           - count_is_consistent:
               name: pinval_assessment_card_is_frankencard_contains_both_values_when_small_multicard
-              config:
-                where: is_parcel_small_multicard
               arguments:
                 group_column: run_id, meta_pin
                 min_value: 2
                 max_value: 2
+              config:
+                where: is_parcel_small_multicard
           - accepted_values:
               name: pinval_assessment_card_is_frankencard_false_when_not_small_multicard
-              config:
-                where: not is_parcel_small_multicard
               arguments:
                 values:
                   - false
                 quote: false
+              config:
+                where: not is_parcel_small_multicard
       - name: is_report_eligible
         description: '{{ doc("column_pinval_is_report_eligible") }}'
         data_tests:
@@ -135,11 +135,11 @@ models:
                 # should not have
           - not_accepted_values:
               name: pinval_assessment_card_reason_report_ineligible_not_non_tri_for_tri
-              config:
-                where: LOWER(meta_triad_name) = LOWER(assessment_triad_name)
               arguments:
                 values:
                   - non_tri
+              config:
+                where: LOWER(meta_triad_name) = LOWER(assessment_triad_name)
           - not_accepted_values:
               name: pinval_assessment_card_reason_report_ineligible_not_unknown
               arguments:
@@ -190,8 +190,6 @@ models:
           # `ref()` to extract the database and table name, but since this
           # expression gets evaluated at compile time, it does not point to
           # the correct model if we try to reference `model`
-          config:
-            where: model_predictor_all_name IS NOT NULL
           arguments:
             expression: |
               CARDINALITY(
@@ -205,6 +203,8 @@ models:
                   )
                 )
               ) = 0
+          config:
+            where: model_predictor_all_name IS NOT NULL
       - expression_is_true:
           name: pinval_assessment_card_predictors_match_pinval_vars_dict
           # Test that every `model_predictor_all_name` array for every row is a

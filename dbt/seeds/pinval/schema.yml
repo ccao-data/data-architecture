@@ -19,25 +19,25 @@ seeds:
           # downstream models that depend on this seed
           - relationships:
               name: pinval_model_run_card_run_id_in_pinval_assessment_card
-              config:
-                where: type = 'card'
               arguments:
                 to: ref('pinval.assessment_card')
                 field: run_id
+              config:
+                where: type = 'card'
           - relationships:
               name: pinval_model_run_comp_run_id_in_pinval_comp
-              config:
-                where: type = 'comp'
               arguments:
                 to: ref('pinval.comp')
                 field: run_id
+              config:
+                where: type = 'comp'
           - relationships:
               name: pinval_model_run_shap_run_id_in_pinval_assessment_card
-              config:
-                where: type = 'shap'
               arguments:
                 to: ref('pinval.assessment_card')
                 field: shap_run_id
+              config:
+                where: type = 'shap'
       - name: type
         description: Model run type, must be one of 'card', 'comp' or 'shap'
         data_tests:
