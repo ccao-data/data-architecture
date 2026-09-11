@@ -44,6 +44,6 @@ if (!aws.s3::object_exists(remote_file_golf_course_warehouse)) {
     ) %>%
     select(-touches) %>%
     geoparquet_to_s3(
-      s3_uri = remote_file_golf_course_warehouse, destination = "s3_warehouse"
+      s3_uri = remote_file_golf_course_warehouse
     )
 }

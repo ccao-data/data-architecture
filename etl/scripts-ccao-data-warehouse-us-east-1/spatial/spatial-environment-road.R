@@ -305,8 +305,7 @@ walk2(parquet_files$Key, parquet_files$output_path, \(file_key, output_path) {
     )
     geoparquet_to_s3(
       spatial_df = shapefile_data,
-      s3_uri = output_path,
-      destination = "s3_warehouse"
+      s3_uri = output_path
     )
 
     print(paste(file_key, "cleaned and uploaded."))

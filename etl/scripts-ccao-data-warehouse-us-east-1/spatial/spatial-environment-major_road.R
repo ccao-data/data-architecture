@@ -74,7 +74,6 @@ for (year in years) {
 
   geoparquet_to_s3(
     spatial_df = data_to_write,
-    s3_uri = output_file,
-    destination = "s3_warehouse"
+    s3_uri = output_file
   )
 }

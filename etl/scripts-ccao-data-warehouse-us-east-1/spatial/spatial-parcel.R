@@ -407,8 +407,7 @@ process_parcel_file <- function(s3_bucket_uri,
       # Write local backup copy
       geoparquet_to_s3(
         spatial_df = spatial_df_final,
-        s3_uri = local_backup_file,
-        destination = "local"
+        s3_uri = local_backup_file
       )
       tictoc::toc()
     } else {

@@ -34,6 +34,6 @@ if (!aws.s3::object_exists(remote_file_county_warehouse)) {
     ) %>%
     select(geometry, geometry_3435) %>%
     geoparquet_to_s3(
-      s3_uri = remote_file_county_warehouse, destination = "s3_warehouse"
+      s3_uri = remote_file_county_warehouse
     )
 }

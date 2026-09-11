@@ -42,7 +42,7 @@ if (!aws.s3::object_exists(remote_file_bike_warehouse)) {
       trail_surface = trailsurfa
     ) %>%
     geoparquet_to_s3(
-      s3_uri = remote_file_bike_warehouse, destination = "s3_warehouse"
+      s3_uri = remote_file_bike_warehouse
     )
 }
 
@@ -70,7 +70,7 @@ if (!aws.s3::object_exists(remote_file_ceme_warehouse)) {
       geometry, geometry_3435
     ) %>%
     geoparquet_to_s3(
-      s3_uri = remote_file_ceme_warehouse, destination = "s3_warehouse"
+      s3_uri = remote_file_ceme_warehouse
     )
 }
 
@@ -98,7 +98,7 @@ if (!aws.s3::object_exists(remote_file_hosp_warehouse)) {
       geometry, geometry_3435
     ) %>%
     geoparquet_to_s3(
-      s3_uri = remote_file_hosp_warehouse, destination = "s3_warehouse"
+      s3_uri = remote_file_hosp_warehouse
     )
 }
 
@@ -146,8 +146,7 @@ walk(remote_files_park_warehouse, function(x) {
 
     geoparquet_to_s3(
       spatial_df = parks_df,
-      s3_uri = x,
-      destination = "s3_warehouse"
+      s3_uri = x
     )
   }
 })
@@ -177,7 +176,7 @@ if (!aws.s3::object_exists(remote_file_indc_warehouse)) {
       geometry, geometry_3435
     ) %>%
     geoparquet_to_s3(
-      s3_uri = remote_file_indc_warehouse, destination = "s3_warehouse"
+      s3_uri = remote_file_indc_warehouse
     )
 }
 
@@ -209,6 +208,6 @@ if (!aws.s3::object_exists(remote_file_walk_warehouse)) {
     standardize_expand_geo() %>%
     select(-contains("shape")) %>%
     geoparquet_to_s3(
-      s3_uri = remote_file_walk_warehouse, destination = "s3_warehouse"
+      s3_uri = remote_file_walk_warehouse
     )
 }

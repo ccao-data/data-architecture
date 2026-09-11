@@ -57,8 +57,7 @@ if (!aws.s3::object_exists(esri_chicago_remote)) {
     )
   geoparquet_to_s3(
     spatial_df = esri_chicago_df_clean,
-    s3_uri = esri_chicago_remote,
-    destination = "s3_warehouse"
+    s3_uri = esri_chicago_remote
   )
 }
 
@@ -95,8 +94,7 @@ if (!aws.s3::object_exists(esri_sub_remote)) {
     )
   geoparquet_to_s3(
     spatial_df = esri_sub_df_clean,
-    s3_uri = esri_sub_remote,
-    destination = "s3_warehouse"
+    s3_uri = esri_sub_remote
   )
 }
 
@@ -131,8 +129,7 @@ if (!aws.s3::object_exists(osm_remote)) {
     )
   geoparquet_to_s3(
     spatial_df = osm_df_clean,
-    s3_uri = osm_remote,
-    destination = "s3_warehouse"
+    s3_uri = osm_remote
   )
 }
 
@@ -190,7 +187,6 @@ if (!aws.s3::object_exists(ms_remote)) {
     )
   geoparquet_to_s3(
     spatial_df = ms_df_clean_cook_only,
-    s3_uri = ms_remote,
-    destination = "s3_warehouse"
+    s3_uri = ms_remote
   )
 }

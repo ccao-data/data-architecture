@@ -70,7 +70,7 @@ process_gtfs_feed <- function(s3_bucket_uri, date, year, agency, feed_url) {
           any_of(c("feed_pull_date", "geometry", "geometry_3435"))
         ) %>%
         geoparquet_to_s3(
-          s3_uri = remote_file_stop, destination = "s3_warehouse"
+          s3_uri = remote_file_stop
         )
     }
 
@@ -103,7 +103,7 @@ process_gtfs_feed <- function(s3_bucket_uri, date, year, agency, feed_url) {
             feed_pull_date, geometry, geometry_3435
           ) %>%
           geoparquet_to_s3(
-            s3_uri = remote_file_route, destination = "s3_warehouse"
+            s3_uri = remote_file_route
           )
       }
     }

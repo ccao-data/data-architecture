@@ -140,8 +140,7 @@ remote_file <- file.path(
 )
 geoparquet_to_s3(
   spatial_df = noise_addresses_clean,
-  s3_uri = remote_file,
-  destination = "s3_warehouse"
+  s3_uri = remote_file
 )
 file.remove(tmp_file)
 
@@ -169,4 +168,4 @@ st_read(tmp_file) %>%
     geometry_3435 = st_transform(geometry, 3435)
   ) %>%
   select(airport, decibels, geometry, geometry_3435) %>%
-  geoparquet_to_s3(s3_uri = remote_file, destination = "s3_warehouse")
+  geoparquet_to_s3(s3_uri = remote_file)

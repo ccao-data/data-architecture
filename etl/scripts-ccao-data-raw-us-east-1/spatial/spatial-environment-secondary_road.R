@@ -45,8 +45,7 @@ for (year in years) {
 
     geoparquet_to_s3(
       spatial_df = osm_roads,
-      s3_uri = remote_file,
-      destination = "s3_raw"
+      s3_uri = remote_file
     )
   }
 }

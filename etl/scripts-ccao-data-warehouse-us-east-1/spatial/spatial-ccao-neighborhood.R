@@ -199,7 +199,6 @@ for (year in 2010:2021) {
     ) %>%
     geoparquet_to_s3(
       s3_uri =
-        file.path(output_bucket, paste0("year=", year), "part-0.parquet"),
-      destination = "s3_warehouse"
+        file.path(output_bucket, paste0("year=", year), "part-0.parquet")
     )
 }

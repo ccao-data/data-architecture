@@ -56,7 +56,7 @@ walk(coastline_years, function(x) {
       ) %>%
       rename_with(tolower) %>%
       geoparquet_to_s3(
-        s3_uri = remote_file_coastline_warehouse, destination = "s3_warehouse"
+        s3_uri = remote_file_coastline_warehouse
       )
   }
 })
@@ -97,7 +97,7 @@ for (year in fema_years) {
         geometry, geometry_3435
       ) %>%
       geoparquet_to_s3(
-        s3_uri = flood_fema_warehouse, destination = "s3_warehouse"
+        s3_uri = flood_fema_warehouse
       )
     file.remove(tmp_file)
   }
@@ -126,7 +126,7 @@ if (!aws.s3::object_exists(remote_file_rail_warehouse)) {
       geometry_3435 = st_transform(geometry, 3435)
     ) %>%
     geoparquet_to_s3(
-      s3_uri = remote_file_rail_warehouse, destination = "s3_warehouse"
+      s3_uri = remote_file_rail_warehouse
     )
 }
 
@@ -182,7 +182,7 @@ walk(dest_files_hydro_years, function(year) {
     ) %>%
       mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
       geoparquet_to_s3(
-        s3_uri = remote_file_hydro_warehouse, destination = "s3_warehouse"
+        s3_uri = remote_file_hydro_warehouse
       )
 
     file.remove(tmp_file)
