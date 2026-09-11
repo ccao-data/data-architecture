@@ -232,6 +232,16 @@ based on unique PIN, year, and failing test combinations.
 
 {% enddocs %}
 
+# vw_report_iasworld_test_sales
+
+{% docs view_vw_report_iasworld_test_sales %}
+Aggregates test failures, stemming from iasworld sales. Each observation is a failure
+based on unique PIN, year, and failing test combinations.
+
+**Primary Key**: `parid`, `taxyr`, `test_name`
+
+{% enddocs %}
+
 # vw_report_res_land
 
 {% docs view_vw_report_res_land %}
