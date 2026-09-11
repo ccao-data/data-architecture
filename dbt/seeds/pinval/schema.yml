@@ -4,8 +4,9 @@ seeds:
     data_tests:
       - unique_combination_of_columns:
           name: pinval_vars_dict_unique_by_code
-          combination_of_columns:
-            - code
+          arguments:
+            combination_of_columns:
+              - code
   - name: pinval.model_run
     description: '{{ doc("seed_model_run") }}'
     columns:
@@ -18,22 +19,25 @@ seeds:
           # downstream models that depend on this seed
           - relationships:
               name: pinval_model_run_card_run_id_in_pinval_assessment_card
-              to: ref('pinval.assessment_card')
-              field: run_id
               config:
                 where: type = 'card'
+              arguments:
+                to: ref('pinval.assessment_card')
+                field: run_id
           - relationships:
               name: pinval_model_run_comp_run_id_in_pinval_comp
-              to: ref('pinval.comp')
-              field: run_id
               config:
                 where: type = 'comp'
+              arguments:
+                to: ref('pinval.comp')
+                field: run_id
           - relationships:
               name: pinval_model_run_shap_run_id_in_pinval_assessment_card
-              to: ref('pinval.assessment_card')
-              field: shap_run_id
               config:
                 where: type = 'shap'
+              arguments:
+                to: ref('pinval.assessment_card')
+                field: shap_run_id
       - name: type
         description: Model run type, must be one of 'card', 'comp' or 'shap'
         data_tests:
@@ -42,22 +46,25 @@ seeds:
           # and we limit the type column to accept only those three values
           - count_is_consistent:
               name: pinval_model_run_has_all_required_types_per_year
-              group_column: assessment_year
-              min_value: 3
-              max_value: 3
+              arguments:
+                group_column: assessment_year
+                min_value: 3
+                max_value: 3
           - accepted_values:
               name: pinval_model_run_type_accepted_values
-              values:
-                - card
-                - shap
-                - comp
+              arguments:
+                values:
+                  - card
+                  - shap
+                  - comp
     data_tests:
       - unique_combination_of_columns:
           name: pinval_model_run_unique_by_assessment_year_type_and_run_id
-          combination_of_columns:
-            - assessment_year
-            - type
-            - run_id
+          arguments:
+            combination_of_columns:
+              - assessment_year
+              - type
+              - run_id
     config:
       column_types:
         assessment_year: varchar

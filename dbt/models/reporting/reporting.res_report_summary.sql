@@ -21,9 +21,11 @@ Intended to be materialized daily through a GitHub action.
         materialized='table',
         table_type='hive',
         format='parquet',
-        write_compression='zstd',
-        bucketed_by=['year'],
-        bucket_count=1
+        meta={
+            'write_compression': 'zstd',
+            'bucketed_by': ['year'],
+            'bucket_count': 1
+        }
     )
 }}
 
