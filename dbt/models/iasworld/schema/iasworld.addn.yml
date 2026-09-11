@@ -1,9 +1,24 @@
 anchors:
-  - &unique-conditions
-    where: |
+  - &unique-conditions |
       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
       AND cur = 'Y'
       AND deactivat IS NULL
+  - &select-columns
+    - taxyr
+    - parid
+    - card
+    - who
+    - wen
+  - &select-columns-no-card
+    - taxyr
+    - parid
+    - who
+    - wen
+  - &select-columns-no-parid
+    - taxyr
+    - card
+    - who
+    - wen
 
 sources:
   - name: iasworld
@@ -32,14 +47,9 @@ sources:
                   arguments:
                     min_value: 0
                     max_value: 1500000
-                    additional_select_columns: &select-columns
-                      - taxyr
-                      - parid
-                      - card
-                      - who
-                      - wen
+                    additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: area should be between 0 and 1.5M
           - name: areaid
@@ -55,13 +65,9 @@ sources:
                   name: iasworld_addn_card_gte_1
                   arguments:
                     min_value: 1
-                    additional_select_columns: &select-columns-no-card
-                      - taxyr
-                      - parid
-                      - who
-                      - wen
+                    additional_select_columns: *select-columns-no-card
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: card should be >= 1
               - not_null:
@@ -69,7 +75,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns-no-card
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: card should not be null
           - name: cdu
@@ -121,7 +127,7 @@ sources:
                     max_value: 100
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: depr should be between 0 and 100
           - name: effageovr
@@ -160,7 +166,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: lline should not be null
           - name: loaded_at
@@ -189,13 +195,9 @@ sources:
                   arguments:
                     to: source('iasworld', 'pardat')
                     field: parid
-                    additional_select_columns: &select-columns-no-parid
-                      - taxyr
-                      - card
-                      - who
-                      - wen
+                    additional_select_columns: *select-columns-no-parid
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       category: parid
                       description: parid should be in pardat
@@ -204,7 +206,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns-no-parid
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: parid should not be null
           - name: pctcomp
@@ -264,7 +266,7 @@ sources:
                       - who
                       - wen
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: seq should be sequential
           - name: status
@@ -281,7 +283,7 @@ sources:
                       - who
                       - wen
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: taxyr should not be null
           - name: third
@@ -324,6 +326,6 @@ sources:
                     alias: wen
                     agg_func: array_agg
               config:
-                <<: *unique-conditions
+                where: *unique-conditions
                 meta:
                   description: addn should be unique by parid, taxyr, card, and lline
