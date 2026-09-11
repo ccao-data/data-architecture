@@ -4,13 +4,13 @@ seeds:
     data_tests:
       - unique_combination_of_columns:
           name: ccao_adjective_unique_by_adjective
+          arguments:
+            combination_of_columns:
+              - adjective
           config:
             meta:
               description: adjective is unique by adjective
 
-          arguments:
-            combination_of_columns:
-              - adjective
   - name: ccao.aprval_reascd
     description: '{{ doc("seed_aprval_reascd") }}'
     config:
@@ -23,12 +23,12 @@ seeds:
     data_tests:
       - unique_combination_of_columns:
           name: ccao_cdu_unique_by_cdu_code
-          config:
-            meta:
-              description: cdu is unique by cdu_code
           arguments:
             combination_of_columns:
               - cdu_code
+          config:
+            meta:
+              description: cdu is unique by cdu_code
     config:
       column_types:
         cdu_code: string
@@ -39,12 +39,12 @@ seeds:
     data_tests:
       - unique_combination_of_columns:
           name: ccao_class_dict_unique_by_class_code
-          config:
-            meta:
-              description: class_dict is unique by class_code
           arguments:
             combination_of_columns:
               - class_code
+          config:
+            meta:
+              description: class_dict is unique by class_code
     config:
       column_types:
         min_age: double
@@ -94,12 +94,12 @@ seeds:
     data_tests:
       - unique_combination_of_columns:
           name: ccao_commercial_major_subclass_unique_by_code
-          config:
-            meta:
-              description: commercial_major_subclass is unique by code
           arguments:
             combination_of_columns:
               - code
+          config:
+            meta:
+              description: commercial_major_subclass is unique by code
     config:
       column_types:
         code: string
@@ -110,12 +110,12 @@ seeds:
     data_tests:
       - unique_combination_of_columns:
           name: ccao_commercial_minor_subclass_unique_by_code
-          config:
-            meta:
-              description: commercial_minor_subclass is unique by code
           arguments:
             combination_of_columns:
               - code
+          config:
+            meta:
+              description: commercial_minor_subclass is unique by code
     config:
       column_types:
         code: string
@@ -126,12 +126,12 @@ seeds:
     data_tests:
       - unique_combination_of_columns:
           name: ccao_infl_reascd_unique_by_reascd
-          config:
-            meta:
-              description: infl_reascd is unique by reascd
           arguments:
             combination_of_columns:
               - reascd
+          config:
+            meta:
+              description: infl_reascd is unique by reascd
     config:
       column_types:
         reascd: string
@@ -142,13 +142,13 @@ seeds:
     data_tests:
       - unique_combination_of_columns:
           name: ccao_loa_unique_by_year_class_code
-          config:
-            meta:
-              description: loa is unique by year and class_code
           arguments:
             combination_of_columns:
               - year
               - class_code
+          config:
+            meta:
+              description: loa is unique by year and class_code
     config:
       column_types:
         year: string
@@ -165,11 +165,11 @@ seeds:
         data_tests:
           - accepted_range:
               name: loa_less_than_38
+              arguments:
+                max_value: .38
               config:
                 meta:
                   description: loa should be less than .38
-              arguments:
-                max_value: .38
       - name: year
         description: '{{ doc("shared_column_year") }}'
 
@@ -178,14 +178,14 @@ seeds:
     data_tests:
       - unique_combination_of_columns:
           name: ccao_person_unique_by_person
-          config:
-            meta:
-              description: person is unique by person and type
-
           arguments:
             combination_of_columns:
               - person
               - type
+          config:
+            meta:
+              description: person is unique by person and type
+
     columns:
       - name: person
         description: Name of a former CCAO intern, fellow, or employee
@@ -198,13 +198,13 @@ seeds:
     data_tests:
       - unique_combination_of_columns:
           name: ccao_pin_test_unique_by_year_pin
-          config:
-            meta:
-              description: pin_test is unique by year and pin
           arguments:
             combination_of_columns:
               - year
               - pin
+          config:
+            meta:
+              description: pin_test is unique by year and pin
     config:
       column_types:
         class: string
@@ -251,12 +251,12 @@ seeds:
     data_tests:
       - unique_combination_of_columns:
           name: ccao_htpar_reascd_unique_by_reascd
-          config:
-            meta:
-              description: htpar_reascd is unique by reascd
           arguments:
             combination_of_columns:
               - reascd
+          config:
+            meta:
+              description: htpar_reascd is unique by reascd
     config:
       column_types:
         description: string

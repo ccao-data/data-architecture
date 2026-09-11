@@ -1,8 +1,19 @@
 sources:
   - name: iasworld
+    config:
+      loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
+      tags:
+        - load_auto
+        - data_test_iasworld
+
     tables:
       - name: htagnt
         description: '{{ doc("table_htagnt") }}'
+        config:
+          freshness:
+            warn_after: {count: 192, period: hour} # 8 days
+            error_after: {count: 360, period: hour} # 15 days
+
         columns:
           - name: addr1
             description: '{{ doc("column_addr1") }}'
@@ -116,9 +127,6 @@ sources:
         data_tests:
           - unique_combination_of_columns:
               name: iasworld_htagnt_unique_by_agent
-              config:
-                meta:
-                  description: htagnt should be unique by agent
               arguments:
                 combination_of_columns:
                   - agent
@@ -129,13 +137,6 @@ sources:
                   - column: wen
                     alias: wen
                     agg_func: array_agg
-        config:
-          freshness:
-            warn_after: {count: 192, period: hour} # 8 days
-            error_after: {count: 360, period: hour} # 15 days
-
-    config:
-      loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
-      tags:
-        - load_auto
-        - data_test_iasworld
+              config:
+                meta:
+                  description: htagnt should be unique by agent

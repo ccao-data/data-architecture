@@ -1,19 +1,41 @@
 anchors:
-  - &unique-conditions
-    where: |
+  - &unique-conditions |
       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
       AND rolltype != 'RR'
       AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
       AND deactivat IS NULL
       AND valclass IS NULL
-  - &unique-conditions-no-ex-rr
-    where: |
+  - &unique-conditions-no-ex-rr |
       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
       AND rolltype != 'RR'
       AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
       AND deactivat IS NULL
       AND valclass IS NULL
       AND class NOT IN ('EX', 'RR')
+  - &select-columns
+    - taxyr
+    - parid
+    - who
+    - wen
+  - &select-columns-with-class
+    - taxyr
+    - parid
+    - class
+    - who
+    - wen
+  - &select-columns-no-parid
+    - taxyr
+    - who
+    - wen
+  - &select-columns-aggregated
+    - column: taxyr
+      agg_func: max
+    - column: parid
+      agg_func: max
+    - column: who
+      agg_func: max
+    - column: wen
+      agg_func: max
 
 sources:
   - name: iasworld
@@ -40,18 +62,10 @@ sources:
                   name: iasworld_asmt_all_class_ex_matches_pardat_class_ex
                   arguments:
                     join_type: inner
-                    additional_select_columns: &select-columns-aggregated
-                      - column: taxyr
-                        agg_func: max
-                      - column: parid
-                        agg_func: max
-                      - column: who
-                        agg_func: max
-                      - column: wen
-                        agg_func: max
+                    additional_select_columns: *select-columns-aggregated
                     additional_pardat_filter: AND class = 'EX'
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: class should be EX if pardat class is EX
               - relationships:
@@ -59,11 +73,7 @@ sources:
                   arguments:
                     to: ref('ccao.class_dict')
                     field: class_code
-                    additional_select_columns: &select-columns
-                      - taxyr
-                      - parid
-                      - who
-                      - wen
+                    additional_select_columns: *select-columns
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
@@ -80,7 +90,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns-aggregated
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: at least one class should match pardat class
           - name: cur
@@ -122,12 +132,9 @@ sources:
                   arguments:
                     to: source('iasworld', 'pardat')
                     field: parid
-                    additional_select_columns: &select-columns-no-parid
-                      - taxyr
-                      - who
-                      - wen
+                    additional_select_columns: *select-columns-no-parid
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       category: parid
                       description: parid should be in pardat
@@ -136,7 +143,7 @@ sources:
                   arguments:
                     additional_select_columns: *select-columns-no-parid
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: parid should not be null
           - name: procdate
@@ -174,7 +181,7 @@ sources:
                       - who
                       - wen
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: seq should be sequential
           - name: splitno
@@ -194,7 +201,7 @@ sources:
                       - who
                       - wen
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: taxyr should not be null
           - name: tot13
@@ -206,14 +213,9 @@ sources:
                   name: iasworld_asmt_all_tot30_lte_7500
                   arguments:
                     max_value: 7500
-                    additional_select_columns: &select-columns-with-class
-                      - taxyr
-                      - parid
-                      - class
-                      - who
-                      - wen
+                    additional_select_columns: *select-columns-with-class
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: tot30 (HIE TOT) should be <7500
           - name: tot32
@@ -224,7 +226,7 @@ sources:
                   arguments:
                     expression: = tot29 - tot30 - tot31 OR tot32 < 1
                   config:
-                    <<: *unique-conditions
+                    where: *unique-conditions
                     meta:
                       description: TOT32 (Value After HIE) should be TOT29 - TOT30 - TOT31
           - name: tot51
@@ -251,7 +253,7 @@ sources:
                     inclusive: false
                     additional_select_columns: *select-columns-with-class
                   config:
-                    <<: *unique-conditions-no-ex-rr
+                    where: *unique-conditions-no-ex-rr
                     meta:
                       table_name: asmt
                       description: >
@@ -317,7 +319,7 @@ sources:
                     inclusive: false
                     additional_select_columns: *select-columns-with-class
                   config:
-                    <<: *unique-conditions-no-ex-rr
+                    where: *unique-conditions-no-ex-rr
                     meta:
                       table_name: asmt
                       description: >
