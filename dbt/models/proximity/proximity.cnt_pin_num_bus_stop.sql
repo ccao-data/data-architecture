@@ -3,11 +3,9 @@
 {{
     config(
         materialized='table',
-        meta={
-            'partitioned_by': ['year'],
-            'bucketed_by': ['pin10'],
-            'bucket_count': 1
-        }
+        partitioned_by=['year'],
+        bucketed_by=['pin10'],
+        bucket_count=1
     )
 }}
 

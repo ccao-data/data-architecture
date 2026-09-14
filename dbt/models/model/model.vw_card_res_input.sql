@@ -17,11 +17,9 @@ is triggered by sqoop-bot (runs after Sqoop grabs iasWorld data)
 {{
     config(
         materialized='table',
-        meta={
-            'partitioned_by': ['year'],
-            'bucketed_by': ['meta_pin'],
-            'bucket_count': 1
-        }
+        partitioned_by=['year'],
+        bucketed_by=['meta_pin'],
+        bucket_count=1
     )
 }}
 

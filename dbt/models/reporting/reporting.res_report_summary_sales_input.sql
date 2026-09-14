@@ -13,9 +13,7 @@ Intended to be materialized daily through a GitHub action.
 {{
     config(
         materialized='table',
-        meta={
-            'partitioned_by': ['sale_year']
-        }
+        partitioned_by=['sale_year']
     )
 }}
 

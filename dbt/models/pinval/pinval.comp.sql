@@ -13,11 +13,9 @@
 {{
     config(
         materialized='table',
-        meta={
-            'partitioned_by': ['assessment_year'],
-            'bucketed_by': ['pin'],
-            'bucket_count': 1
-        }
+        partitioned_by=['assessment_year'],
+        bucketed_by=['pin'],
+        bucket_count=1
     )
 }}
 
