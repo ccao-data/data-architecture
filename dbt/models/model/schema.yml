@@ -4,8 +4,6 @@ sources:
     tables:
       - name: assessment_card
         description: '{{ doc("table_assessment_card") }}'
-        tags:
-          - load_auto
         columns:
           - name: meta_card_num
             data_tests:
@@ -18,194 +16,224 @@ sources:
         data_tests:
           - unique_combination_of_columns:
               name: model_assessment_card_unique_pin_card_year_run
-              combination_of_columns:
-                - meta_pin
-                - meta_card_num
-                - meta_year
-                - run_id
               config:
                 # We add fixed error thresholds here since duplicated data
                 # exists from before these tests were implemented. If duplicated
                 # data is added after 12/27/2024, warnings should be errors.
                 error_if: ">5748"
 
+              arguments:
+                combination_of_columns:
+                  - meta_pin
+                  - meta_card_num
+                  - meta_year
+                  - run_id
+        config:
+          tags:
+            - load_auto
       - name: assessment_pin
         description: '{{ doc("table_assessment_pin") }}'
-        tags:
-          - load_auto
         data_tests:
           - unique_combination_of_columns:
               name: model_assessment_pin_unique_pin_year_run
-              combination_of_columns:
-                - meta_pin
-                - meta_year
-                - run_id
               config:
                 error_if: ">2016"
 
+              arguments:
+                combination_of_columns:
+                  - meta_pin
+                  - meta_year
+                  - run_id
+        config:
+          tags:
+            - load_auto
       - name: feature_importance
         description: '{{ doc("table_feature_importance") }}'
-        tags:
-          - load_auto
         data_tests:
           - unique_combination_of_columns:
               name: model_feature_importance_unique_year_run_feature
-              combination_of_columns:
-                - year
-                - run_id
-                - model_predictor_all_name
+              arguments:
+                combination_of_columns:
+                  - year
+                  - run_id
+                  - model_predictor_all_name
 
+        config:
+          tags:
+            - load_auto
       - name: metadata
         description: '{{ doc("table_metadata") }}'
-        tags:
-          - load_auto
         data_tests:
           - unique_combination_of_columns:
               name: model_metadata_unique_run_id
-              combination_of_columns:
-                - run_id
+              arguments:
+                combination_of_columns:
+                  - run_id
 
+        config:
+          tags:
+            - load_auto
       - name: comp
         description: '{{ doc("table_comp") }}'
-        tags:
-          - load_auto
         data_tests:
           - unique_combination_of_columns:
               name: model_comp_unique_pin_card_run_id
-              combination_of_columns:
-                - pin
-                - card
-                - run_id
+              arguments:
+                combination_of_columns:
+                  - pin
+                  - card
+                  - run_id
 
+        config:
+          tags:
+            - load_auto
       - name: parameter_final
         description: '{{ doc("table_parameter_final") }}'
-        tags:
-          - load_auto
         data_tests:
           - unique_combination_of_columns:
               name: model_parameter_final_unique_year_run
-              combination_of_columns:
-                - year
-                - run_id
+              arguments:
+                combination_of_columns:
+                  - year
+                  - run_id
 
+        config:
+          tags:
+            - load_auto
       - name: parameter_range
         description: '{{ doc("table_parameter_range") }}'
-        tags:
-          - load_auto
         data_tests:
           - unique_combination_of_columns:
               name: model_parameter_range_unique_year_run_param
-              combination_of_columns:
-                - year
-                - run_id
-                - parameter_name
+              arguments:
+                combination_of_columns:
+                  - year
+                  - run_id
+                  - parameter_name
 
+        config:
+          tags:
+            - load_auto
       - name: parameter_search
         description: '{{ doc("table_parameter_search") }}'
-        tags:
-          - load_auto
         data_tests:
           - unique_combination_of_columns:
               name: model_parameter_search_unique_by_keys
-              combination_of_columns:
-                - year
-                - run_id
-                - iteration
-                - configuration
-                - fold_id
               config:
                 error_if: ">400"
 
+              arguments:
+                combination_of_columns:
+                  - year
+                  - run_id
+                  - iteration
+                  - configuration
+                  - fold_id
+        config:
+          tags:
+            - load_auto
       - name: performance
         description: '{{ doc("table_performance") }}'
-        tags:
-          - load_auto
         data_tests:
           - unique_combination_of_columns:
               name: model_performance_unique_by_keys
-              combination_of_columns:
-                - year
-                - run_id
-                - stage
-                - triad_code
-                - geography_type
-                - geography_id
-                - class
+              arguments:
+                combination_of_columns:
+                  - year
+                  - run_id
+                  - stage
+                  - triad_code
+                  - geography_type
+                  - geography_id
+                  - class
 
+        config:
+          tags:
+            - load_auto
       - name: performance_quantile
         description: '{{ doc("table_performance_quantile") }}'
-        tags:
-          - load_auto
         data_tests:
           - unique_combination_of_columns:
               name: model_performance_quantile_unique_by_keys
-              combination_of_columns:
-                - year
-                - run_id
-                - triad_code
-                - stage
-                - geography_type
-                - geography_id
-                - class
-                - num_quantile
-                - quantile
+              arguments:
+                combination_of_columns:
+                  - year
+                  - run_id
+                  - triad_code
+                  - stage
+                  - geography_type
+                  - geography_id
+                  - class
+                  - num_quantile
+                  - quantile
 
+        config:
+          tags:
+            - load_auto
       - name: shap
         description: '{{ doc("table_shap") }}'
-        tags:
-          - load_auto
         data_tests:
           - unique_combination_of_columns:
               name: model_shap_unique_pin_card_year_run
-              combination_of_columns:
-                - year
-                - run_id
-                - meta_pin
-                - meta_card_num
               config:
                 error_if: ">524"
 
+              arguments:
+                combination_of_columns:
+                  - year
+                  - run_id
+                  - meta_pin
+                  - meta_card_num
+        config:
+          tags:
+            - load_auto
       - name: test_card
         description: '{{ doc("table_test_card") }}'
-        tags:
-          - load_auto
         data_tests:
           - unique_combination_of_columns:
               name: model_test_card_unique_pin_card_year_run_id_doc
-              combination_of_columns:
-                - year
-                - run_id
-                - meta_pin
-                - meta_card_num
-                - meta_sale_document_num
               config:
                 error_if: ">102422"
 
+              arguments:
+                combination_of_columns:
+                  - year
+                  - run_id
+                  - meta_pin
+                  - meta_card_num
+                  - meta_sale_document_num
+        config:
+          tags:
+            - load_auto
       - name: train_card
         description: '{{ doc("table_train_card") }}'
-        tags:
-          - load_auto
         data_tests:
           - unique_combination_of_columns:
               name: model_train_card_unique_pin_card_year_run_id_doc_no
-              combination_of_columns:
-                - year
-                - run_id
-                - meta_pin
-                - meta_card_num
-                - meta_sale_document_num
+              arguments:
+                combination_of_columns:
+                  - year
+                  - run_id
+                  - meta_pin
+                  - meta_card_num
+                  - meta_sale_document_num
 
+        config:
+          tags:
+            - load_auto
       - name: timing
         description: '{{ doc("table_timing") }}'
-        tags:
-          - load_auto
         data_tests:
           - unique_combination_of_columns:
               name: model_timing_unique_year_run
-              combination_of_columns:
-                - year
-                - run_id
+              arguments:
+                combination_of_columns:
+                  - year
+                  - run_id
 
+        config:
+          tags:
+            - load_auto
 models:
   - name: model.final_model
     description: '{{ doc("table_final_model") }}'
@@ -272,10 +300,11 @@ models:
     tests:
       - unique_combination_of_columns:
           name: model_training_data_unique_card_doc_number_run_id
-          combination_of_columns:
-            - run_id
-            - meta_sale_document_num
-            - meta_card_num
+          arguments:
+            combination_of_columns:
+              - run_id
+              - meta_sale_document_num
+              - meta_card_num
 
   - name: model.vw_assessment_card_final
     description: '{{ doc("view_vw_assessment_card_final") }}'
@@ -283,15 +312,17 @@ models:
       - count_is_consistent:
           name: model_vw_assessment_card_final_single_triad_code_per_year
           column_name: meta_triad_code
-          group_column: meta_year
-          min_value: 1
-          max_value: 1
+          arguments:
+            group_column: meta_year
+            min_value: 1
+            max_value: 1
       - unique_combination_of_columns:
           name: model_vw_assessment_card_final_unique_pin_card_year
-          combination_of_columns:
-            - meta_pin
-            - meta_card_num
-            - meta_year
+          arguments:
+            combination_of_columns:
+              - meta_pin
+              - meta_card_num
+              - meta_year
 
   - name: model.vw_assessment_pin_final
     description: '{{ doc("view_vw_assessment_pin_final") }}'
@@ -299,14 +330,16 @@ models:
       - count_is_consistent:
           name: model_vw_assessment_pin_final_single_triad_code_per_year
           column_name: meta_triad_code
-          group_column: meta_year
-          min_value: 1
-          max_value: 1
+          arguments:
+            group_column: meta_year
+            min_value: 1
+            max_value: 1
       - unique_combination_of_columns:
           name: model_vw_assessment_pin_final_unique_pin_year
-          combination_of_columns:
-            - meta_pin
-            - meta_year
+          arguments:
+            combination_of_columns:
+              - meta_pin
+              - meta_year
 
   - name: model.vw_pin_shared_input
     description: '{{ doc("view_vw_pin_shared_input") }}'
@@ -544,7 +577,6 @@ models:
         data_tests:
           - expression_is_true:
               name: model_vw_pin_shared_input_meta_township_code_matches_meta_nbhd_code
-              expression: = SUBSTR(meta_nbhd_code, 1, 2)
               config:
                 # Exclude dummy neighborhood codes, non-res classes, and old
                 # records that we can't update
@@ -552,9 +584,12 @@ models:
                   meta_nbhd_code != '99999'
                   AND SUBSTR(meta_class, 1, 1) = '2'
                   AND meta_year >= '{{ var("data_test_model_current_assessment_year") }}'
+              arguments:
+                expression: = SUBSTR(meta_nbhd_code, 1, 2)
           - expression_is_true:
               name: model_vw_pin_shared_input_meta_township_code_matches_meta_tax_code
-              expression: = SUBSTR(meta_tax_code, 1, 2)
+              arguments:
+                expression: = SUBSTR(meta_tax_code, 1, 2)
       - &meta_township_name
         name: meta_township_name
         description: '{{ doc("shared_column_township_name") }}'
@@ -747,9 +782,10 @@ models:
     data_tests:
       - unique_combination_of_columns:
           name: model_vw_pin_shared_input_unique_pin_year
-          combination_of_columns:
-            - meta_pin
-            - meta_year
+          arguments:
+            combination_of_columns:
+              - meta_pin
+              - meta_year
 
   - name: model.vw_card_res_input
     description: '{{ doc("view_vw_card_res_input") }}'
@@ -1016,10 +1052,11 @@ models:
     data_tests:
       - unique_combination_of_columns:
           name: model_vw_card_res_input_unique_pin_card_year
-          combination_of_columns:
-            - meta_pin
-            - meta_year
-            - meta_card_num
+          arguments:
+            combination_of_columns:
+              - meta_pin
+              - meta_year
+              - meta_card_num
 
   - name: model.vw_pin_condo_input
     description: '{{ doc("view_vw_pin_condo_input") }}'
@@ -1168,8 +1205,6 @@ models:
       - *shp_parcel_mrr_area_ratio
       - *shp_parcel_mrr_side_ratio
       - *shp_parcel_num_vertices
-
-      # Columns inherited from vw_card_res_input
       - *char_land_sf_95_percentile
       - *ind_land_gte_95_percentile
       - *ind_pin_is_multiland
@@ -1215,6 +1250,7 @@ models:
     data_tests:
       - unique_combination_of_columns:
           name: model_vw_pin_condo_input_unique_pin_year
-          combination_of_columns:
-            - meta_pin
-            - meta_year
+          arguments:
+            combination_of_columns:
+              - meta_pin
+              - meta_year

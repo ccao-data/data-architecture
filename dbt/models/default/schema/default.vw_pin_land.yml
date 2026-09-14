@@ -7,28 +7,32 @@ models:
     data_tests:
       - row_count:
           name: default_vw_pin_land_matches_iasworld_land
-          equals: >
-            (
-              SELECT COUNT(DISTINCT(land.parid, land.taxyr))
-              FROM {{ source('iasworld', 'land') }} AS land
-              -- Join to pardat to ensure only truly active PINs are pulled
-              INNER JOIN {{ source('iasworld', 'pardat') }} AS par
-                  ON land.parid = par.parid
-                  AND land.taxyr = par.taxyr
-                  AND par.cur = 'Y'
-                  AND par.deactivat IS NULL
-              WHERE land.cur = 'Y'
-                AND land.deactivat IS NULL
-            )
-          meta:
-            description: vw_pin_land row count should equal pin year combos in iasworld land
+          arguments:
+            equals: >
+              (
+                SELECT COUNT(DISTINCT(land.parid, land.taxyr))
+                FROM {{ source('iasworld', 'land') }} AS land
+                -- Join to pardat to ensure only truly active PINs are pulled
+                INNER JOIN {{ source('iasworld', 'pardat') }} AS par
+                    ON land.parid = par.parid
+                    AND land.taxyr = par.taxyr
+                    AND par.cur = 'Y'
+                    AND par.deactivat IS NULL
+                WHERE land.cur = 'Y'
+                  AND land.deactivat IS NULL
+              )
+          config:
+            meta:
+              description: vw_pin_land row count should equal pin year combos in iasworld land
       - unique_combination_of_columns:
           name: default_vw_pin_land_unique_by_pin_year
-          combination_of_columns:
-            - pin
-            - year
-          meta:
-            description: vw_pin_land should be unique by pin and year
+          arguments:
+            combination_of_columns:
+              - pin
+              - year
+          config:
+            meta:
+              description: vw_pin_land should be unique by pin and year
     columns:
       - name: num_landlines
         description: '{{ doc("shared_column_pin_num_landlines") }}'
