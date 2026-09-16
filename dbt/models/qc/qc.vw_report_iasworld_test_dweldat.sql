@@ -648,7 +648,7 @@
         -- Identifying columns
         dweldat.parid,
         dweldat.taxyr,
-        ARRAY[dweldat.card] AS card,
+        dweldat.card,
         CAST(NULL AS INTEGER) AS lline,
         legdat.user1 AS township_code,
         dweldat.class,
