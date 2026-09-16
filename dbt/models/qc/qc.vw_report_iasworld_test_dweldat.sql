@@ -68,14 +68,14 @@
         "name": "iasworld_dweldat_class_matches_pardat_class",
         "description": "at least one class should match pardat class",
         "category": "class_mismatch_or_issue",
-        "condition": "comdat_parid IS NOT NULL OR pardat_class IS NULL OR class = pardat_class",
+        "condition": "comdat_parid IS NOT NULL OR class = pardat_class",
         "additional_select_columns": ["pardat_class"]
     },
     {
         "name": "iasworld_dweldat_exempt_classes_match_pardat_class",
         "description": "at least one class should be exempt or omitted if pardat is exempt",
         "category": "class_mismatch_or_issue",
-        "condition": "class LIKE 'OA%' OR pardat_class IS NULL OR pardat_class != 'EX' OR class = 'EX'",
+        "condition": "class LIKE 'OA%' OR pardat_class != 'EX' OR class = 'EX'",
         "additional_select_columns": ["pardat_class"]
     },
     {
@@ -192,12 +192,6 @@
         "description": "parid should not be null",
         "category": "missing_values",
         "condition": "parid IS NOT NULL"
-    },
-    {
-        "name": "iasworld_dweldat_parid_in_pardat_parid",
-        "description": "parid should be in pardat",
-        "category": "relationships",
-        "condition": "pardat_parid IS NOT NULL"
     },
     {
         "name": "iasworld_dweldat_rmbed_lte_rmtot",
@@ -692,7 +686,6 @@
         dweldat.wbfp_o,
         dweldat.yrblt,
         -- Computed columns for tests
-        pardat.parid AS pardat_parid,
         pardat.class AS pardat_class,
         comdat.parid AS comdat_parid,
         class_dict.class_code AS class_dict_class,
@@ -710,7 +703,7 @@
         AND dweldat.taxyr = legdat.taxyr
         AND legdat.cur = 'Y'
         AND legdat.deactivat IS NULL
-    LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
+    INNER JOIN {{ source('iasworld', 'pardat') }} AS pardat
         ON dweldat.parid = pardat.parid
         AND dweldat.taxyr = pardat.taxyr
         AND pardat.cur = 'Y'
