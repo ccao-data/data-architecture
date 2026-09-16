@@ -212,6 +212,16 @@ based on unique PIN, year, and failing test combinations.
 
 {% enddocs %}
 
+# vw_report_iasworld_test_dweldat
+
+{% docs view_vw_report_iasworld_test_dweldat %}
+Aggregates test failures, stemming from iasworld dweldat. Each observation is a failure
+based on unique PIN, year, card, and failing test combinations.
+
+**Primary Key**: `parid`, `taxyr`, `card`, `test_name`
+
+{% enddocs %}
+
 # vw_report_iasworld_test_owndat
 
 {% docs view_vw_report_iasworld_test_owndat %}
