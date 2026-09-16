@@ -639,9 +639,7 @@
 
 {#-
     Most tests should exclude non-regression classes. A handful of tests 
-    intentionally test all classes (including non-regression ones), either because their
-    native test's `where` filter is narrower/absent, or because they're
-    already scoped to a single, unrelated class. Those are listed here so
+    intentionally test all classes. Those are listed here so
     they're skipped when the exclusion is applied below.
 -#}
 {%- set non_regression_classes = [
