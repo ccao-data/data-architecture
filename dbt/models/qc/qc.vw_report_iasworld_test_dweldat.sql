@@ -637,6 +637,33 @@
     }
 ] -%}
 
+{#-
+    Most tests should exclude non-regression classes. A handful of tests 
+    intentionally test all classes (including non-regression ones), either because their
+    native test's `where` filter is narrower/absent, or because they're
+    already scoped to a single, unrelated class. Those are listed here so
+    they're skipped when the exclusion is applied below.
+-#}
+{%- set non_regression_classes = [
+    '201', '213', '218', '219', '220', '221', '224', '225',
+    '236', '240', '241', '290', '294', '297'
+] -%}
+{%- set tests_without_class_exclusion = [
+    'iasworld_dweldat_class_in_ccao_class_dict',
+    'iasworld_dweldat_rmtot_sf_between_1_and_40',
+    'iasworld_dweldat_exempt_classes_match_pardat_class',
+    'iasworld_dweldat_cur_in_accepted_values',
+    'iasworld_dweldat_external_occpct_not_null_when_mktrsn_eq_5_or_5b_and_mktadj_is_null',
+    'iasworld_dweldat_mktadj_not_null_when_mktrsn_eq_5_or_5b_and_external_occpct_is_null',
+    'iasworld_dweldat_mktrsn_eq_5_or_5b_when_external_occpct_or_mktadj_not_null'
+] -%}
+{%- set class_exclusion_escape = "class IN ('" ~ non_regression_classes | join("', '") ~ "') OR " -%}
+{%- for test in tests if test.name not in tests_without_class_exclusion %}
+    {%- do test.update(
+        {"condition": class_exclusion_escape ~ "(" ~ test.condition ~ ")"}
+    ) %}
+{%- endfor %}
+
 {%- set base_query %}
     SELECT
         -- Identifying columns
@@ -720,10 +747,6 @@
         ON dweldat.class = class_dict.class_code
     WHERE dweldat.cur = 'Y'
         AND dweldat.deactivat IS NULL
-        AND dweldat.class NOT IN (
-            '201', '213', '218', '219', '220', '221', '224', '225',
-            '236', '240', '241', '290', '294', '297'
-        )
 {% endset %}
 
 {{ generate_iasworld_qc_test_view(base_query, tests) }}
