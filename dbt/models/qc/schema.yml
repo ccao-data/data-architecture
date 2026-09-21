@@ -5,6 +5,9 @@ models:
   - name: qc.vw_report_iasworld_test_dweldat
     description: '{{ doc("view_vw_report_iasworld_test_dweldat") }}'
 
+  - name: qc.vw_report_iasworld_test_dweldat_agg
+    description: '{{ doc("view_vw_report_iasworld_test_dweldat_agg") }}'
+
   - name: qc.vw_report_iasworld_test_owndat
     description: '{{ doc("view_vw_report_iasworld_test_owndat") }}'
 

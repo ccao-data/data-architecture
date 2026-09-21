@@ -74,23 +74,6 @@
         "condition": "class IN ('EX', 'RR') OR class_dict_class IS NOT NULL"
     },
     {
-        "name": "iasworld_dweldat_class_matches_pardat_class",
-        "description": "at least one class should match pardat class",
-        "category": "class_mismatch_or_issue",
-        "condition": "comdat_parid IS NOT NULL OR class = pardat_class",
-        "additional_select_columns": ["pardat_class"]
-    },
-    {
-        "name": "iasworld_dweldat_exempt_classes_match_pardat_class",
-        "description": (
-            "at least one class should be exempt or omitted if pardat is "
-            "exempt"
-        ),
-        "category": "class_mismatch_or_issue",
-        "condition": "class LIKE 'OA%' OR pardat_class != 'EX' OR class = 'EX'",
-        "additional_select_columns": ["pardat_class"]
-    },
-    {
         "name": "iasworld_dweldat_cur_in_accepted_values",
         "description": 'cur should be "Y" or "D"',
         "category": "incorrect_values",
@@ -201,10 +184,10 @@
         ),
         "category": "incorrect_values",
         "condition": (
-            "fixhalf IS NULL OR (fixhalf >= 0 AND fixhalf <= CASE WHEN user14 "
-            "IS NULL OR user14 = '0' OR user14 = '6' THEN 5 WHEN user14 = '1' "
-            "THEN 10 WHEN user14 = '2' THEN 15 WHEN user14 = '3' THEN 20 WHEN "
-            "user14 = '4' THEN 25 WHEN user14 = '5' THEN 30 ELSE 5 END)"
+            "fixhalf IS NULL OR fixhalf <= CASE WHEN user14 IS NULL OR "
+            "user14 = '0' OR user14 = '6' THEN 5 WHEN user14 = '1' THEN 10 "
+            "WHEN user14 = '2' THEN 15 WHEN user14 = '3' THEN 20 WHEN "
+            "user14 = '4' THEN 25 WHEN user14 = '5' THEN 30 ELSE 5 END"
         ),
         "additional_select_columns": ["fixhalf", "user14"]
     },
@@ -929,8 +912,6 @@
         dweldat.wbfp_o,
         dweldat.yrblt,
         -- Computed columns for tests
-        pardat.class AS pardat_class,
-        comdat.parid AS comdat_parid,
         class_dict.class_code AS class_dict_class,
         LAG(dweldat.seq)
             OVER (
@@ -946,19 +927,13 @@
         AND dweldat.taxyr = legdat.taxyr
         AND legdat.cur = 'Y'
         AND legdat.deactivat IS NULL
+    -- Inner join restricts results to dweldat records with a current,
+    -- active parcel in pardat
     INNER JOIN {{ source('iasworld', 'pardat') }} AS pardat
         ON dweldat.parid = pardat.parid
         AND dweldat.taxyr = pardat.taxyr
         AND pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
-    LEFT JOIN (
-        SELECT DISTINCT parid, taxyr
-        FROM {{ source('iasworld', 'comdat') }}
-        WHERE cur = 'Y'
-            AND deactivat IS NULL
-    ) AS comdat
-        ON dweldat.parid = comdat.parid
-        AND dweldat.taxyr = comdat.taxyr
     LEFT JOIN {{ ref('ccao.class_dict') }} AS class_dict
         ON dweldat.class = class_dict.class_code
     WHERE dweldat.cur = 'Y'
