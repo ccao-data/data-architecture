@@ -68,12 +68,6 @@
         "additional_select_columns": ["user24"]
     },
     {
-        "name": "iasworld_dweldat_class_in_ccao_class_dict",
-        "description": "class code must be valid",
-        "category": "class_mismatch_or_issue",
-        "condition": "class IN ('EX', 'RR') OR class_dict_class IS NOT NULL"
-    },
-    {
         "name": "iasworld_dweldat_cur_in_accepted_values",
         "description": 'cur should be "Y" or "D"',
         "category": "incorrect_values",
@@ -912,7 +906,6 @@
         dweldat.wbfp_o,
         dweldat.yrblt,
         -- Computed columns for tests
-        class_dict.class_code AS class_dict_class,
         LAG(dweldat.seq)
             OVER (
                 PARTITION BY dweldat.parid, dweldat.taxyr, dweldat.card
@@ -934,8 +927,6 @@
         AND dweldat.taxyr = pardat.taxyr
         AND pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
-    LEFT JOIN {{ ref('ccao.class_dict') }} AS class_dict
-        ON dweldat.class = class_dict.class_code
     WHERE dweldat.cur = 'Y'
         AND dweldat.deactivat IS NULL
         AND dweldat.class NOT IN (

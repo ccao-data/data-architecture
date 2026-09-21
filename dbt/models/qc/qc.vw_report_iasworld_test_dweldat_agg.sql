@@ -15,6 +15,13 @@
         "category": "class_mismatch_or_issue",
         "condition": "pardat_class != 'EX' OR any_class_is_exempt_or_omitted",
         "additional_select_columns": ["pardat_class", "classes"]
+    },
+    {
+        "name": "iasworld_dweldat_class_in_ccao_class_dict",
+        "description": "class code must be valid for every card",
+        "category": "class_mismatch_or_issue",
+        "condition": "NOT any_class_invalid",
+        "additional_select_columns": ["classes"]
     }
 ] -%}
 
@@ -35,7 +42,10 @@
         BOOL_OR(dweldat.class = pardat.class) AS any_class_matches_pardat_class,
         BOOL_OR(
             dweldat.class LIKE 'OA%' OR dweldat.class = 'EX'
-        ) AS any_class_is_exempt_or_omitted
+        ) AS any_class_is_exempt_or_omitted,
+        BOOL_OR(
+            dweldat.class NOT IN ('EX', 'RR') AND class_dict.class_code IS NULL
+        ) AS any_class_invalid
     FROM {{ source('iasworld', 'dweldat') }} AS dweldat
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
         ON dweldat.parid = legdat.parid
@@ -47,6 +57,8 @@
         AND dweldat.taxyr = pardat.taxyr
         AND pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
+    LEFT JOIN {{ ref('ccao.class_dict') }} AS class_dict
+        ON dweldat.class = class_dict.class_code
     -- Excludes mixed-use/commercial parcels, which are not subject to these
     -- residential class checks
     LEFT JOIN (
