@@ -43,7 +43,7 @@
         "name": "iasworld_dweldat_card_gte_1",
         "description": "card should be >= 1",
         "category": "incorrect_values",
-        "condition": "card IS NULL OR card >= 1"
+        "condition": "card >= 1"
     },
     {
         "name": "iasworld_dweldat_card_not_null",
@@ -137,7 +137,17 @@
         "name": "iasworld_dweldat_fixbath_matches_number_of_units",
         "description": "fixbath (Number of Full Baths) should be <= 7 times the number of units (user14)",
         "category": "incorrect_values",
-        "condition": "fixbath IS NULL OR (fixbath >= 1 AND fixbath <= CASE WHEN user14 IS NULL OR user14 = '0' OR user14 = '6' THEN 7 WHEN user14 = '1' THEN 14 WHEN user14 = '2' THEN 21 WHEN user14 = '3' THEN 28 WHEN user14 = '4' THEN 35 WHEN user14 = '5' THEN 42 ELSE 7 END)",
+        "condition": (
+            "fixbath BETWEEN 1 AND CASE "
+                "WHEN user14 IS NULL OR user14 = '0' OR user14 = '6' THEN 7 "
+                "WHEN user14 = '1' THEN 14 "
+                "WHEN user14 = '2' THEN 21 "
+                "WHEN user14 = '3' THEN 28 "
+                "WHEN user14 = '4'THEN 35 "
+                "WHEN user14 = '5' THEN 42 "
+                "ELSE 7 "
+            "END"
+        ),
         "additional_select_columns": ["fixbath", "user14"]
     },
     {
@@ -184,7 +194,7 @@
         "name": "iasworld_dweldat_mktrsn_eq_5_or_5b_when_external_occpct_or_mktadj_not_null",
         "description": "mktrsn (Reason for Override) should be 5 or 5B if external_occpct or mktadj is not null",
         "category": "incorrect_values",
-        "condition": "(external_occpct IS NULL AND mktadj IS NULL) OR mktrsn IN ('5', '5B')",
+        "condition": "(external_occpct IS NULL AND mktadj IS NULL) OR (mktrsn IS NOT NULL AND mktrsn IN ('5', '5B'))",
         "additional_select_columns": ["mktrsn", "external_occpct", "mktadj"]
     },
     {
@@ -228,7 +238,7 @@
     },
     {
         "name": "iasworld_dweldat_rmtot_sf_between_1_and_50",
-        "description": "rmtot (Number of Rooms) should be between 1 and 50",
+        "description": "rmtot (Number of Rooms) should be between 1 and 50 when class is 211 or 212",
         "category": "incorrect_values",
         "condition": "class NOT IN ('211', '212') OR rmtot IS NULL OR (rmtot >= 1 AND rmtot <= 50)",
         "additional_select_columns": ["rmtot"]
