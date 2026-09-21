@@ -5,7 +5,7 @@
             "attic (Attic Type) should be an integer between 1 and 5"
         ),
         "category": "incorrect_values",
-        "condition": "attic IN ('1', '2', '3', '4', '5')",
+        "condition": "attic IS NULL OR attic IN ('1', '2', '3', '4', '5')",
         "additional_select_columns": ["attic"]
     },
     {
@@ -20,7 +20,7 @@
             "bsmt (Basement Type) should be an integer between 1 and 7"
         ),
         "category": "incorrect_values",
-        "condition": "bsmt IN ('1', '2', '3', '4', '5', '6', '7')",
+        "condition": "bsmt IS NULL OR bsmt IN ('1', '2', '3', '4', '5', '6', '7')",
         "additional_select_columns": ["bsmt"]
     },
     {
@@ -50,7 +50,7 @@
         "name": "iasworld_dweldat_card_gte_1",
         "description": "card should be >= 1",
         "category": "incorrect_values",
-        "condition": "card >= 1"
+        "condition": "card IS NULL OR card >= 1"
     },
     {
         "name": "iasworld_dweldat_card_not_null",
@@ -148,7 +148,10 @@
             "9"
         ),
         "category": "incorrect_values",
-        "condition": "extwall IN ('1', '2', '3', '4', '6', '7', '8', '9')",
+        "condition": (
+            "extwall IS NULL OR extwall IN "
+            "('1', '2', '3', '4', '6', '7', '8', '9')"
+        ),
         "additional_select_columns": ["extwall"]
     },
     {
@@ -165,7 +168,7 @@
         ),
         "category": "incorrect_values",
         "condition": (
-            "fixbath BETWEEN 1 AND CASE "
+            "fixbath IS NULL OR fixbath BETWEEN 1 AND CASE "
                 "WHEN user14 IS NULL OR user14 = '0' OR user14 = '6' THEN 7 "
                 "WHEN user14 = '1' THEN 14 "
                 "WHEN user14 = '2' THEN 21 "
@@ -209,7 +212,7 @@
         "name": "iasworld_dweldat_heat_in_accepted_values",
         "description": "heat (Heating) should be an integer between 1 and 4",
         "category": "incorrect_values",
-        "condition": "heat IN ('1', '2', '3', '4')",
+        "condition": "heat IS NULL OR heat IN ('1', '2', '3', '4')",
         "additional_select_columns": ["heat"]
     },
     {
@@ -506,8 +509,8 @@
         ),
         "category": "incorrect_values",
         "condition": (
-            "stories IN (1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, "
-            "9.90)"
+            "stories IS NULL OR stories IN (1.00, 2.00, 3.00, 4.00, 5.00, "
+            "6.00, 7.00, 8.00, 9.00, 9.90)"
         ),
         "additional_select_columns": ["stories"]
     },
@@ -534,7 +537,7 @@
         "name": "iasworld_dweldat_char_tp_plan_in_accepted_values",
         "description": 'user5 (Plan of Design) should be "0", "1", or "2"',
         "category": "incorrect_values",
-        "condition": "user5 IN ('0', '1', '2')",
+        "condition": "user5 IS NULL OR user5 IN ('0', '1', '2')",
         "additional_select_columns": ["user5"]
     },
     {
@@ -547,7 +550,7 @@
         "name": "iasworld_dweldat_char_attic_fnsh_in_accepted_values",
         "description": 'user6 (Attic Finish) should be "1", "2", or "3"',
         "category": "incorrect_values",
-        "condition": "user6 IN ('1', '2', '3')",
+        "condition": "user6 IS NULL OR user6 IN ('1', '2', '3')",
         "additional_select_columns": ["user6"]
     },
     {
@@ -563,7 +566,7 @@
         "name": "iasworld_dweldat_char_air_accepted_values",
         "description": 'user7 (Central Air Conditioning) should be "1" or "2"',
         "category": "incorrect_values",
-        "condition": "user7 IN ('1', '2')",
+        "condition": "user7 IS NULL OR user7 IN ('1', '2')",
         "additional_select_columns": ["user7"]
     },
     {
@@ -578,7 +581,7 @@
             "user12 (Basement Finished) should be an integer between 1 and 6"
         ),
         "category": "incorrect_values",
-        "condition": "user12 IN ('1', '2', '3', '4', '5', '6')",
+        "condition": "user12 IS NULL OR user12 IN ('1', '2', '3', '4', '5', '6')",
         "additional_select_columns": ["user12"]
     },
     {
@@ -597,7 +600,7 @@
             "user13 (Roof Construction) should be an integer between 1 and 6"
         ),
         "category": "incorrect_values",
-        "condition": "user13 IN ('1', '2', '3', '4', '5', '6')",
+        "condition": "user13 IS NULL OR user13 IN ('1', '2', '3', '4', '5', '6')",
         "additional_select_columns": ["user13"]
     },
     {
@@ -614,8 +617,8 @@
         ),
         "category": "incorrect_values",
         "condition": (
-            "class NOT IN ('211', '212') OR user14 IN ('1', '2', '3', '4', "
-            "'5', '6')"
+            "class NOT IN ('211', '212') OR user14 IS NULL OR user14 IN "
+            "('1', '2', '3', '4', '5', '6')"
         ),
         "additional_select_columns": ["user14"]
     },
@@ -632,7 +635,7 @@
         "name": "iasworld_dweldat_char_use_accepted_values",
         "description": 'user15 (Use) should be "1" or "2"',
         "category": "incorrect_values",
-        "condition": "user15 IN ('1', '2')",
+        "condition": "user15 IS NULL OR user15 IN ('1', '2')",
         "additional_select_columns": ["user15"]
     },
     {
@@ -648,7 +651,7 @@
             "and 5"
         ),
         "category": "incorrect_values",
-        "condition": "user20 IN ('0', '1', '2', '3', '4', '5')",
+        "condition": "user20 IS NULL OR user20 IN ('0', '1', '2', '3', '4', '5')",
         "additional_select_columns": ["user20"]
     },
     {
@@ -658,7 +661,7 @@
             "212"
         ),
         "category": "incorrect_values",
-        "condition": "class != '212' OR user20 != '0'",
+        "condition": "class != '212' OR user20 IS NULL OR user20 != '0'",
         "additional_select_columns": ["user20"]
     },
     {
@@ -697,7 +700,7 @@
         "name": "iasworld_dweldat_char_gar_att_accepted_values",
         "description": 'user31 (Garage Attached) should be "1" or "2"',
         "category": "incorrect_values",
-        "condition": "user31 IN ('1', '2')",
+        "condition": "user31 IS NULL OR user31 IN ('1', '2')",
         "additional_select_columns": ["user31"]
     },
     {
@@ -714,7 +717,7 @@
         "name": "iasworld_dweldat_char_gar_area_accepted_values",
         "description": 'user32 (Garage in Area) should be "1" or "2"',
         "category": "incorrect_values",
-        "condition": "user32 IN ('1', '2')",
+        "condition": "user32 IS NULL OR user32 IN ('1', '2')",
         "additional_select_columns": ["user32"]
     },
     {
@@ -734,7 +737,8 @@
         ),
         "category": "incorrect_values",
         "condition": (
-            "user33 IN ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10')"
+            "user33 IS NULL OR user33 IN "
+            "('1', '2', '3', '4', '5', '6', '7', '8', '9', '10')"
         ),
         "additional_select_columns": ["user33"]
     },
@@ -750,7 +754,7 @@
             "user34 (Garage Construction) should be an integer between 1 and 4"
         ),
         "category": "incorrect_values",
-        "condition": "user34 IN ('1', '2', '3', '4')",
+        "condition": "user34 IS NULL OR user34 IN ('1', '2', '3', '4')",
         "additional_select_columns": ["user34"]
     },
     {
