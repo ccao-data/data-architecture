@@ -31,7 +31,7 @@
         MAX(dweldat.wen) AS wen,
         -- Computed columns for tests
         MAX(pardat.class) AS pardat_class,
-        ARRAY_AGG(dweldat.class) AS classes,
+        ARRAY_JOIN(ARRAY_AGG(dweldat.class), ', ') AS classes,
         BOOL_OR(dweldat.class = pardat.class) AS any_class_matches_pardat_class,
         BOOL_OR(
             dweldat.class LIKE 'OA%' OR dweldat.class = 'EX'
