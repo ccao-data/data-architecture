@@ -262,7 +262,12 @@ sources:
                       - chgrsn
                       - mktadj
                   config:
-                    where: CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }} AND cur = 'Y' AND deactivat IS NULL AND chgrsn IN ('5', '5B') AND mktadj IS NULL
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND chgrsn IN ('5', '5B')
+                      AND mktadj IS NULL
                     meta:
                       description: >
                         external_occpct (Occupancy % [current]) should not be null if
@@ -364,7 +369,12 @@ sources:
                       - chgrsn
                       - external_occpct
                   config:
-                    where: CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }} AND cur = 'Y' AND deactivat IS NULL AND chgrsn IN ('5', '5B') AND external_occpct IS NULL
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND chgrsn IN ('5', '5B')
+                      AND external_occpct IS NULL
                     meta:
                       description: >
                         mktadj (Occupancy % [deprecated]) should not be null if

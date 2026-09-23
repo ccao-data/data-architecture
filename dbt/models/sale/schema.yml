@@ -6,6 +6,7 @@ sources:
         config:
           tags:
             - load_auto
+
         columns:
           - name: group
             description: '{{ doc("column_group_id") }}'
@@ -40,6 +41,7 @@ sources:
             description: '{{ doc("shared_column_sv_outlier_reason") }}'
           - name: version
             description: '{{ doc("shared_column_sv_version") }}'
+
         data_tests:
           - unique_combination_of_columns:
               name: sale_flag_unique_by_doc_num_version
@@ -50,7 +52,6 @@ sources:
               config:
                 meta:
                   description: flag is unique by meta_sale_document_num and version
-
 
       - name: flag_review
         description: '{{ doc("flag_review") }}'
@@ -187,6 +188,7 @@ sources:
         config:
           tags:
             - load_auto
+
         columns:
           - name: long_commit_sha
             description: Full commit SHA of the code used for the model run
@@ -202,6 +204,7 @@ sources:
               or `manual_update`
           - name: short_commit_sha
             description: Short commit SHA of the code used for the model run
+
         data_tests:
           - unique:
               name: sale_metadata_singular_initial_run
