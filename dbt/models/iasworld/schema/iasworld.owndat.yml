@@ -299,9 +299,9 @@ sources:
                     whitespace: own1, own2, addr1, addr2, addr3, addr4, addr5,
                     adrpre, adrdir, adrstr, adrsuf, unitdesc, unitno, cityname,
                     statecode, zip1, zip2, user27
-                  tags:
-                    # Currently too many failures for this signal to be useful
-                    - data_test_iasworld_exclude_from_workbookc
+                tags:
+                  # Currently too many failures for this signal to be useful
+                  - data_test_iasworld_exclude_from_workbook
           - unique_combination_of_columns:
               name: iasworld_owndat_unique_by_parid_taxyr
               arguments:

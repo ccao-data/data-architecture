@@ -328,9 +328,9 @@ sources:
                     where: *unique-conditions
                     meta:
                       description: zip1 should not be 00000
-                      # Currently too many failures for this signal to be useful
-                      tags:
-                        - data_test_iasworld_exclude_from_workbook
+                    # Currently too many failures for this signal to be useful
+                    tags:
+                      - data_test_iasworld_exclude_from_workbook
           - name: zip2
             description: '{{ doc("shared_column_prop_address_zipcode_2") }}'
             data_tests:
@@ -343,9 +343,9 @@ sources:
                     where: *unique-conditions
                     meta:
                       description: zip2 should not be 0000
-                      # Currently too many failures for this signal to be useful
-                      tags:
-                        - data_test_iasworld_exclude_from_workbook
+                    # Currently too many failures for this signal to be useful
+                    tags:
+                      - data_test_iasworld_exclude_from_workbook
 
         data_tests:
           - no_extra_whitespace:
@@ -373,9 +373,9 @@ sources:
                     The following columns should have no leading or trailing
                     whitespace: adrpre, adrdir, adrstr, adrsuf, adrsuf2, unitdesc,
                     unitno, cityname, statecode, zip1, zip2
-                  tags:
-                    # Currently too many failures for this signal to be useful
-                    - data_test_iasworld_exclude_from_workbook
+                tags:
+                  # Currently too many failures for this signal to be useful
+                  - data_test_iasworld_exclude_from_workbook
           # Not using column_length here because adrno needs to be cast first
           - expression_is_true:
               name: iasworld_legdat_adrno_length_lte_5
