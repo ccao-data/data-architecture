@@ -1,10 +1,16 @@
 sources:
   - name: iasworld
+    # Source tags defined under the `config` block don't propagate to data tests
+    # due to a dbt bug. This is important for the `data_test_iasworld` tag,
+    # since we use that tag to filter tests, so we must define the tag under the
+    # top-level `tags` key. See this dbt bug report for more details:
+    # https://github.com/dbt-labs/dbt/issues/16347
+    tags:
+      - data_test_iasworld
     config:
       loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
       tags:
         - load_auto
-        - data_test_iasworld
 
     tables:
       - name: htval
