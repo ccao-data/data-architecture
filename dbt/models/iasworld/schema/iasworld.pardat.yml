@@ -195,7 +195,12 @@ sources:
                       - model.parid
                       - model.who
                       - model.wen
-                    join_condition: ON  substr(model.nbhd, 1, 2) != external_model.user1 AND model.parid = external_model.parid AND model.taxyr = external_model.taxyr AND external_model.cur = 'Y' AND external_model.deactivat IS NULL
+                    join_condition: |
+                      ON  substr(model.nbhd, 1, 2) != external_model.user1
+                      AND model.parid = external_model.parid
+                      AND model.taxyr = external_model.taxyr
+                      AND external_model.cur = 'Y'
+                      AND external_model.deactivat IS NULL
                   config:
                     where: *unique-conditions
                     meta:

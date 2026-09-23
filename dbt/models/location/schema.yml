@@ -613,23 +613,23 @@ unit_tests:
           - pin10: "0123456789"
             year: "2019"
             chicago_community_area_data_year: "2019"
-            chicago_industrial_corridor_data_year:
-            chicago_police_district_data_year:
+            chicago_industrial_corridor_data_year: null
+            chicago_police_district_data_year: null
           - pin10: "1234567890"
             year: "2019"
-            chicago_community_area_data_year:
-            chicago_industrial_corridor_data_year:
-            chicago_police_district_data_year:
+            chicago_community_area_data_year: null
+            chicago_industrial_corridor_data_year: null
+            chicago_police_district_data_year: null
           - pin10: "0123456789"
             year: "2020"
             chicago_community_area_data_year: "2019"
             chicago_industrial_corridor_data_year: "2020"
-            chicago_police_district_data_year:
+            chicago_police_district_data_year: null
           - pin10: "1234567890"
             year: "2020"
-            chicago_community_area_data_year:
-            chicago_industrial_corridor_data_year:
-            chicago_police_district_data_year:
+            chicago_community_area_data_year: null
+            chicago_industrial_corridor_data_year: null
+            chicago_police_district_data_year: null
           - pin10: "0123456789"
             year: "2021"
             chicago_community_area_data_year: "2019"
@@ -637,9 +637,9 @@ unit_tests:
             chicago_police_district_data_year: "2021"
           - pin10: "1234567890"
             year: "2021"
-            chicago_community_area_data_year:
-            chicago_industrial_corridor_data_year:
-            chicago_police_district_data_year:
+            chicago_community_area_data_year: null
+            chicago_industrial_corridor_data_year: null
+            chicago_police_district_data_year: null
       # All of the input tables from here on down are just boilerplate to get
       # the joins to work in the model. The values for these input tables don't
       # really matter because we don't need any of the data in the tables

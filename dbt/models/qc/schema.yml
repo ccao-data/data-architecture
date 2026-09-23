@@ -295,7 +295,7 @@ models:
     config:
       tags: *qc_report_ic_reference_tags
       meta:
-        export_name: AllTowns_OBYDetails.Query
+        export_name: AllNonRes_LandDetails.Query
         export_template: *qc_report_ic_reference_export_template
         export_format:
           columns:
@@ -1151,7 +1151,7 @@ models:
                 where: *test-not-null-unique-conditions
                 meta:
                   table_name: asmt
-                  description: valasm3 (ASMT TOTAL) should not be null
+                  description: valapr1 (MKT LAND) should not be null
       - name: valapr2
         data_tests:
           - accepted_range:
@@ -1582,7 +1582,7 @@ unit_tests:
             township_code: 99
           - pin10: "0000000002"
             year: "2025"
-            char_building_sf:
+            char_building_sf: null
             township_code: 99
           - pin10: "0000000003"
             year: "2025"
