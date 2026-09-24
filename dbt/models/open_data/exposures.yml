@@ -141,6 +141,7 @@ exposures:
       tags:
         - inactive
       meta:
+        # Disabled until the asset is public
         test_row_count: false
         asset_id: uuu4-fqy8
         primary_key:
