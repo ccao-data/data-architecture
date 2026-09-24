@@ -65,7 +65,7 @@ models:
               name: pinval_assessment_card_is_frankencard_false_when_not_small_multicard
               arguments:
                 values:
-                  - false
+                  - FALSE
                 quote: false
               config:
                 where: not is_parcel_small_multicard

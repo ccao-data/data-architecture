@@ -129,7 +129,8 @@ sources:
                     additional_select_columns:
                       - year
                   config:
-                    where: CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                    where: |
+                      CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                     meta:
                       category: class_mismatch_or_issue
                       description: class code must be valid
@@ -142,7 +143,8 @@ sources:
                       - agg_func: max
                         column: year
                   config:
-                    where: CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                    where: |
+                      CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                     meta:
                       description: at least one class should match pardat class
 
@@ -165,7 +167,8 @@ sources:
                       AND external_model.cur = 'Y'
                       AND external_model.deactivat IS NULL
                   config:
-                    where: CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                    where: |
+                      CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                     severity: warn
                     meta:
                       description: tax_code_num should match legdat.taxdist

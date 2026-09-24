@@ -309,6 +309,7 @@ sources:
                   config:
                     where: *unique-conditions
                     meta:
+                      category: incorrect_values
                       description: tieback should not contain hyphens
                     tags:
                       # Valuations can't act on these failures since hyphens are
@@ -375,6 +376,7 @@ sources:
               config:
                 where: *unique-conditions
                 meta:
+                  category: column_length
                   description: adrno should be <= 5 characters long
           - column_is_subset_of_external_column:
               name: iasworld_pardat_nbhd_matches_spatial_town_nbhd

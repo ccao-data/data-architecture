@@ -15,6 +15,9 @@ anchors:
     - class
     - who
     - wen
+  - &sales-null-values-arguments
+    max_value: 0.1
+    additional_select_columns: ["taxyr"]
   - &test-non-negative-arguments
     min_value: 0
     additional_select_columns: *select-columns-neg-asmt-value
@@ -170,9 +173,7 @@ models:
         data_tests:
           - accepted_range:
               name: qc_vw_iasworld_sales_null_values_buyer_null_proportion
-              arguments:
-                max_value: 0.1
-                additional_select_columns: ["taxyr"]
+              arguments: *sales-null-values-arguments
               config:
                 meta:
                   table_name: sales
@@ -183,9 +184,7 @@ models:
         data_tests:
           - accepted_range:
               name: qc_vw_iasworld_sales_null_values_deed_type_null_proportion
-              arguments:
-                max_value: 0.1
-                additional_select_columns: ["taxyr"]
+              arguments: *sales-null-values-arguments
               config:
                 meta:
                   table_name: sales
@@ -196,9 +195,7 @@ models:
         data_tests:
           - accepted_range:
               name: qc_vw_iasworld_sales_null_values_price_null_proportion
-              arguments:
-                max_value: 0.1
-                additional_select_columns: ["taxyr"]
+              arguments: *sales-null-values-arguments
               config:
                 meta:
                   table_name: sales
@@ -209,9 +206,7 @@ models:
         data_tests:
           - accepted_range:
               name: qc_vw_iasworld_sales_null_values_seller_null_proportion
-              arguments:
-                max_value: 0.1
-                additional_select_columns: ["taxyr"]
+              arguments: *sales-null-values-arguments
               config:
                 meta:
                   table_name: sales
