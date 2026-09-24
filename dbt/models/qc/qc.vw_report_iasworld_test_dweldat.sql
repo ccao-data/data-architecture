@@ -5,7 +5,7 @@
             "attic (Attic Type) should be an integer between 1 and 5"
         ),
         "category": "incorrect_values",
-        "condition": "attic IS NULL OR attic IN ('1', '2', '3', '4', '5')",
+        "condition": "attic IN ('1', '2', '3', '4', '5')",
         "additional_select_columns": ["attic"]
     },
     {
@@ -20,7 +20,7 @@
             "bsmt (Basement Type) should be an integer between 1 and 7"
         ),
         "category": "incorrect_values",
-        "condition": "bsmt IS NULL OR bsmt IN ('1', '2', '3', '4', '5', '6', '7')",
+        "condition": "bsmt IN ('1', '2', '3', '4', '5', '6', '7')",
         "additional_select_columns": ["bsmt"]
     },
     {
@@ -43,14 +43,14 @@
         "name": "iasworld_dweldat_calc_meth_accepted_values",
         "description": 'calc_meth (Calculation Method) should be null or "E"',
         "category": "incorrect_values",
-        "condition": "calc_meth IS NULL OR calc_meth = 'E'",
+        "condition": "calc_meth = 'E'",
         "additional_select_columns": ["calc_meth"]
     },
     {
         "name": "iasworld_dweldat_card_gte_1",
         "description": "card should be >= 1",
         "category": "incorrect_values",
-        "condition": "card IS NULL OR card >= 1"
+        "condition": "card >= 1"
     },
     {
         "name": "iasworld_dweldat_card_not_null",
@@ -62,9 +62,7 @@
         "name": "iasworld_dweldat_card_proration_rate_between_0_and_100",
         "description": "user24 (Proration %) should be between 0 and 100",
         "category": "incorrect_values",
-        "condition": (
-            "user24 IS NULL OR CAST(user24 AS decimal) BETWEEN 0.00 AND 100.00"
-        ),
+        "condition": "CAST(user24 AS decimal) BETWEEN 0.00 AND 100.00",
         "additional_select_columns": ["user24"]
     },
     {
@@ -78,14 +76,14 @@
         "name": "iasworld_dweldat_external_calc_rcnld_not_0",
         "description": "external_calc_rcnld (Net Market Value) should not be 0",
         "category": "incorrect_values",
-        "condition": "external_calc_rcnld IS NULL OR external_calc_rcnld != 0",
+        "condition": "external_calc_rcnld != 0",
         "additional_select_columns": ["external_calc_rcnld"]
     },
     {
         "name": "iasworld_dweldat_external_occpct_not_0",
         "description": "external_occpct (Occupancy %) should not be 0",
         "category": "incorrect_values",
-        "condition": "external_occpct IS NULL OR external_occpct != 0",
+        "condition": "external_occpct != 0",
         "additional_select_columns": ["external_occpct"]
     },
     {
@@ -108,14 +106,14 @@
         "name": "iasworld_dweldat_external_propct_not_0",
         "description": "external_propct (Proration %) should not be 0",
         "category": "incorrect_values",
-        "condition": "external_propct IS NULL OR external_propct != 0",
+        "condition": "external_propct != 0",
         "additional_select_columns": ["external_propct"]
     },
     {
         "name": "iasworld_dweldat_external_rcnld_not_0",
         "description": "external_rcnld (Full Market Value) should not be 0",
         "category": "incorrect_values",
-        "condition": "external_rcnld IS NULL OR external_rcnld != 0",
+        "condition": "external_rcnld != 0",
         "additional_select_columns": ["external_rcnld"]
     },
     {
@@ -126,8 +124,7 @@
         ),
         "category": "incorrect_values",
         "condition": (
-            "extwall IS NULL OR extwall IN "
-            "('1', '2', '3', '4', '6', '7', '8', '9')"
+            "extwall IN ('1', '2', '3', '4', '6', '7', '8', '9')"
         ),
         "additional_select_columns": ["extwall"]
     },
@@ -145,7 +142,7 @@
         ),
         "category": "incorrect_values",
         "condition": (
-            "fixbath IS NULL OR fixbath BETWEEN 1 AND CASE "
+            "fixbath BETWEEN 1 AND CASE "
                 "WHEN user14 IS NULL OR user14 = '0' OR user14 = '6' THEN 7 "
                 "WHEN user14 = '1' THEN 14 "
                 "WHEN user14 = '2' THEN 21 "
@@ -167,7 +164,7 @@
         "name": "iasworld_dweldat_fixhalf_gte_0",
         "description": "fixhalf (Number of Half Baths) should be >= 0",
         "category": "incorrect_values",
-        "condition": "fixhalf IS NULL OR fixhalf >= 0",
+        "condition": "fixhalf >= 0",
         "additional_select_columns": ["fixhalf"]
     },
     {
@@ -178,7 +175,7 @@
         ),
         "category": "incorrect_values",
         "condition": (
-            "fixhalf IS NULL OR fixhalf <= CASE WHEN user14 IS NULL OR "
+            "fixhalf <= CASE WHEN user14 IS NULL OR "
             "user14 = '0' OR user14 = '6' THEN 5 WHEN user14 = '1' THEN 10 "
             "WHEN user14 = '2' THEN 15 WHEN user14 = '3' THEN 20 WHEN "
             "user14 = '4' THEN 25 WHEN user14 = '5' THEN 30 ELSE 5 END"
@@ -189,7 +186,7 @@
         "name": "iasworld_dweldat_heat_in_accepted_values",
         "description": "heat (Heating) should be an integer between 1 and 4",
         "category": "incorrect_values",
-        "condition": "heat IS NULL OR heat IN ('1', '2', '3', '4')",
+        "condition": "heat IN ('1', '2', '3', '4')",
         "additional_select_columns": ["heat"]
     },
     {
@@ -253,7 +250,7 @@
         ),
         "category": "incorrect_values",
         "condition": (
-            "rmbed IS NULL OR (rmbed >= 1 AND rmbed <= CASE WHEN user14 IS "
+            "(rmbed >= 1 AND rmbed <= CASE WHEN user14 IS "
             "NULL OR user14 = '0' OR user14 = '6' THEN 8 WHEN user14 = '1' "
             "THEN 16 WHEN user14 = '2' THEN 24 WHEN user14 = '3' THEN 32 WHEN "
             "user14 = '4' THEN 40 WHEN user14 = '5' THEN 48 ELSE 8 END)"
@@ -277,8 +274,7 @@
         "description": "rmtot (Number of Rooms) should be between 1 and 40",
         "category": "incorrect_values",
         "condition": (
-            "class IN ('211', '212') OR rmtot IS NULL OR (rmtot >= 1 AND rmtot "
-            "<= 40)"
+            "class IN ('211', '212') OR (rmtot >= 1 AND rmtot <= 40)"
         ),
         "additional_select_columns": ["rmtot"]
     },
@@ -290,8 +286,7 @@
         ),
         "category": "incorrect_values",
         "condition": (
-            "class NOT IN ('211', '212') OR rmtot IS NULL OR (rmtot >= 1 AND "
-            "rmtot <= 50)"
+            "class NOT IN ('211', '212') OR (rmtot >= 1 AND rmtot <= 50)"
         ),
         "additional_select_columns": ["rmtot"]
     },
@@ -299,7 +294,7 @@
         "name": "iasworld_dweldat_seq_all_sequential_exist",
         "description": "seq should be sequential",
         "category": "incorrect_values",
-        "condition": "prev_seq IS NULL OR seq = prev_seq + 1",
+        "condition": "seq = prev_seq + 1",
         "additional_select_columns": ["seq", "prev_seq"]
     },
     {
@@ -309,9 +304,7 @@
             "class 202 cards"
         ),
         "category": "incorrect_values",
-        "condition": (
-            "class != '202' OR sfla IS NULL OR (sfla >= 1 AND sfla <= 999)"
-        ),
+        "condition": "class != '202' OR (sfla >= 1 AND sfla <= 999)",
         "additional_select_columns": ["sfla"]
     },
     {
@@ -321,9 +314,7 @@
             "class 207 cards"
         ),
         "category": "incorrect_values",
-        "condition": (
-            "class != '207' OR sfla IS NULL OR (sfla >= 1 AND sfla <= 2000)"
-        ),
+        "condition": "class != '207' OR (sfla >= 1 AND sfla <= 2000)",
         "additional_select_columns": ["sfla"]
     },
     {
@@ -333,9 +324,7 @@
             "class 205 cards"
         ),
         "category": "incorrect_values",
-        "condition": (
-            "class != '205' OR sfla IS NULL OR (sfla >= 1 AND sfla <= 2200)"
-        ),
+        "condition": "class != '205' OR (sfla >= 1 AND sfla <= 2200)",
         "additional_select_columns": ["sfla"]
     },
     {
@@ -345,9 +334,7 @@
             "class 210 cards"
         ),
         "category": "incorrect_values",
-        "condition": (
-            "class != '210' OR sfla IS NULL OR (sfla >= 1 AND sfla <= 10000)"
-        ),
+        "condition": "class != '210' OR (sfla >= 1 AND sfla <= 10000)",
         "additional_select_columns": ["sfla"]
     },
     {
@@ -357,9 +344,7 @@
             "class 234 cards"
         ),
         "category": "incorrect_values",
-        "condition": (
-            "class != '234' OR sfla IS NULL OR (sfla >= 1 AND sfla <= 10000)"
-        ),
+        "condition": "class != '234' OR (sfla >= 1 AND sfla <= 10000)",
         "additional_select_columns": ["sfla"]
     },
     {
@@ -369,9 +354,7 @@
             "class 212 cards"
         ),
         "category": "incorrect_values",
-        "condition": (
-            "class != '212' OR sfla IS NULL OR (sfla >= 1 AND sfla <= 20000)"
-        ),
+        "condition": "class != '212' OR (sfla >= 1 AND sfla <= 20000)",
         "additional_select_columns": ["sfla"]
     },
     {
@@ -381,9 +364,7 @@
             "class 295 cards"
         ),
         "category": "incorrect_values",
-        "condition": (
-            "class != '295' OR sfla IS NULL OR (sfla >= 1 AND sfla <= 20000)"
-        ),
+        "condition": "class != '295' OR (sfla >= 1 AND sfla <= 20000)",
         "additional_select_columns": ["sfla"]
     },
     {
@@ -393,9 +374,7 @@
             "class 211 cards"
         ),
         "category": "incorrect_values",
-        "condition": (
-            "class != '211' OR sfla IS NULL OR (sfla >= 1 AND sfla <= 40000)"
-        ),
+        "condition": "class != '211' OR (sfla >= 1 AND sfla <= 40000)",
         "additional_select_columns": ["sfla"]
     },
     {
@@ -405,9 +384,7 @@
             "for class 203 cards"
         ),
         "category": "incorrect_values",
-        "condition": (
-            "class != '203' OR sfla IS NULL OR (sfla >= 1000 AND sfla <= 1800)"
-        ),
+        "condition": "class != '203' OR (sfla >= 1000 AND sfla <= 1800)",
         "additional_select_columns": ["sfla"]
     },
     {
@@ -417,10 +394,7 @@
             "for class 204 cards"
         ),
         "category": "incorrect_values",
-        "condition": (
-            "class != '204' OR sfla IS NULL OR (sfla >= 1801 AND sfla <= "
-            "25000)"
-        ),
+        "condition": "class != '204' OR (sfla >= 1801 AND sfla <= 25000)",
         "additional_select_columns": ["sfla"]
     },
     {
@@ -430,9 +404,7 @@
             "for class 278 cards"
         ),
         "category": "incorrect_values",
-        "condition": (
-            "class != '278' OR sfla IS NULL OR (sfla >= 2001 AND sfla <= 3800)"
-        ),
+        "condition": "class != '278' OR (sfla >= 2001 AND sfla <= 3800)",
         "additional_select_columns": ["sfla"]
     },
     {
@@ -442,9 +414,7 @@
             "for class 206 cards"
         ),
         "category": "incorrect_values",
-        "condition": (
-            "class != '206' OR sfla IS NULL OR (sfla >= 2201 AND sfla <= 4999)"
-        ),
+        "condition": "class != '206' OR (sfla >= 2201 AND sfla <= 4999)",
         "additional_select_columns": ["sfla"]
     },
     {
@@ -454,9 +424,7 @@
             "for class 208 cards"
         ),
         "category": "incorrect_values",
-        "condition": (
-            "class != '208' OR sfla IS NULL OR (sfla >= 3801 AND sfla <= 4999)"
-        ),
+        "condition": "class != '208' OR (sfla >= 3801 AND sfla <= 4999)",
         "additional_select_columns": ["sfla"]
     },
     {
@@ -466,10 +434,7 @@
             "for class 209 cards"
         ),
         "category": "incorrect_values",
-        "condition": (
-            "class != '209' OR sfla IS NULL OR (sfla >= 5000 AND sfla <= "
-            "50000)"
-        ),
+        "condition": "class != '209' OR (sfla >= 5000 AND sfla <= 50000)",
         "additional_select_columns": ["sfla"]
     },
     {
@@ -486,7 +451,7 @@
         ),
         "category": "incorrect_values",
         "condition": (
-            "stories IS NULL OR stories IN (1.00, 2.00, 3.00, 4.00, 5.00, "
+            "stories IN (1.00, 2.00, 3.00, 4.00, 5.00, "
             "6.00, 7.00, 8.00, 9.00, 9.90)"
         ),
         "additional_select_columns": ["stories"]
@@ -514,7 +479,7 @@
         "name": "iasworld_dweldat_char_tp_plan_in_accepted_values",
         "description": 'user5 (Plan of Design) should be "0", "1", or "2"',
         "category": "incorrect_values",
-        "condition": "user5 IS NULL OR user5 IN ('0', '1', '2')",
+        "condition": "user5 IN ('0', '1', '2')",
         "additional_select_columns": ["user5"]
     },
     {
@@ -527,7 +492,7 @@
         "name": "iasworld_dweldat_char_attic_fnsh_in_accepted_values",
         "description": 'user6 (Attic Finish) should be "1", "2", or "3"',
         "category": "incorrect_values",
-        "condition": "user6 IS NULL OR user6 IN ('1', '2', '3')",
+        "condition": "user6 IN ('1', '2', '3')",
         "additional_select_columns": ["user6"]
     },
     {
@@ -543,7 +508,7 @@
         "name": "iasworld_dweldat_char_air_accepted_values",
         "description": 'user7 (Central Air Conditioning) should be "1" or "2"',
         "category": "incorrect_values",
-        "condition": "user7 IS NULL OR user7 IN ('1', '2')",
+        "condition": "user7 IN ('1', '2')",
         "additional_select_columns": ["user7"]
     },
     {
@@ -558,7 +523,7 @@
             "user12 (Basement Finished) should be an integer between 1 and 6"
         ),
         "category": "incorrect_values",
-        "condition": "user12 IS NULL OR user12 IN ('1', '2', '3', '4', '5', '6')",
+        "condition": "user12 IN ('1', '2', '3', '4', '5', '6')",
         "additional_select_columns": ["user12"]
     },
     {
@@ -577,7 +542,7 @@
             "user13 (Roof Construction) should be an integer between 1 and 6"
         ),
         "category": "incorrect_values",
-        "condition": "user13 IS NULL OR user13 IN ('1', '2', '3', '4', '5', '6')",
+        "condition": "user13 IN ('1', '2', '3', '4', '5', '6')",
         "additional_select_columns": ["user13"]
     },
     {
@@ -594,7 +559,7 @@
         ),
         "category": "incorrect_values",
         "condition": (
-            "class NOT IN ('211', '212') OR user14 IS NULL OR user14 IN "
+            "class NOT IN ('211', '212') OR user14 IN "
             "('1', '2', '3', '4', '5', '6')"
         ),
         "additional_select_columns": ["user14"]
@@ -612,7 +577,7 @@
         "name": "iasworld_dweldat_char_use_accepted_values",
         "description": 'user15 (Use) should be "1" or "2"',
         "category": "incorrect_values",
-        "condition": "user15 IS NULL OR user15 IN ('1', '2')",
+        "condition": "user15 IN ('1', '2')",
         "additional_select_columns": ["user15"]
     },
     {
@@ -628,7 +593,7 @@
             "and 5"
         ),
         "category": "incorrect_values",
-        "condition": "user20 IS NULL OR user20 IN ('0', '1', '2', '3', '4', '5')",
+        "condition": "user20 IN ('0', '1', '2', '3', '4', '5')",
         "additional_select_columns": ["user20"]
     },
     {
@@ -638,7 +603,7 @@
             "212"
         ),
         "category": "incorrect_values",
-        "condition": "class != '212' OR user20 IS NULL OR user20 != '0'",
+        "condition": "class != '212' OR user20 != '0'",
         "additional_select_columns": ["user20"]
     },
     {
@@ -661,8 +626,7 @@
         ),
         "category": "incorrect_values",
         "condition": (
-            "class IN ('EX', 'RR') OR class = '212' OR user20 = '0' OR user20 "
-            "IS NULL"
+            "class IN ('EX', 'RR') OR class = '212' OR user20 = '0'"
         ),
         "additional_select_columns": ["user20"]
     },
@@ -677,7 +641,7 @@
         "name": "iasworld_dweldat_char_gar_att_accepted_values",
         "description": 'user31 (Garage Attached) should be "1" or "2"',
         "category": "incorrect_values",
-        "condition": "user31 IS NULL OR user31 IN ('1', '2')",
+        "condition": "user31 IN ('1', '2')",
         "additional_select_columns": ["user31"]
     },
     {
@@ -694,7 +658,7 @@
         "name": "iasworld_dweldat_char_gar_area_accepted_values",
         "description": 'user32 (Garage in Area) should be "1" or "2"',
         "category": "incorrect_values",
-        "condition": "user32 IS NULL OR user32 IN ('1', '2')",
+        "condition": "user32 IN ('1', '2')",
         "additional_select_columns": ["user32"]
     },
     {
@@ -714,8 +678,7 @@
         ),
         "category": "incorrect_values",
         "condition": (
-            "user33 IS NULL OR user33 IN "
-            "('1', '2', '3', '4', '5', '6', '7', '8', '9', '10')"
+            "user33 IN ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10')"
         ),
         "additional_select_columns": ["user33"]
     },
@@ -731,7 +694,7 @@
             "user34 (Garage Construction) should be an integer between 1 and 4"
         ),
         "category": "incorrect_values",
-        "condition": "user34 IS NULL OR user34 IN ('1', '2', '3', '4')",
+        "condition": "user34 IN ('1', '2', '3', '4')",
         "additional_select_columns": ["user34"]
     },
     {
@@ -751,7 +714,7 @@
             "(Garage Size) is 7 (NONE)"
         ),
         "category": "incorrect_values",
-        "condition": "user33 != '7' OR user34 IS NULL OR user34 = '0'",
+        "condition": "user33 != '7' OR user34 = '0'",
         "additional_select_columns": ["user34", "user33"]
     },
     {
@@ -760,7 +723,7 @@
             "wbfp_o (Number of Fireplaces) should be between 0 and 6"
         ),
         "category": "incorrect_values",
-        "condition": "wbfp_o IS NULL OR (wbfp_o >= 0 AND wbfp_o <= 6)",
+        "condition": "(wbfp_o >= 0 AND wbfp_o <= 6)",
         "additional_select_columns": ["wbfp_o"]
     },
     {
@@ -768,8 +731,7 @@
         "description": "yrblt should be > 62 years old when class is 205",
         "category": "incorrect_values",
         "condition": (
-            "class != '205' OR yrblt IS NULL OR yrblt <= year(current_date) - "
-            "63"
+            "class != '205' OR yrblt <= year(current_date) - 63"
         ),
         "additional_select_columns": ["yrblt"]
     },
@@ -778,8 +740,7 @@
         "description": "yrblt should be > 62 years old when class is 206",
         "category": "incorrect_values",
         "condition": (
-            "class != '206' OR yrblt IS NULL OR yrblt <= year(current_date) - "
-            "63"
+            "class != '206' OR yrblt <= year(current_date) - 63"
         ),
         "additional_select_columns": ["yrblt"]
     },
@@ -788,8 +749,7 @@
         "description": "yrblt should be <= 62 years old when class is 207",
         "category": "incorrect_values",
         "condition": (
-            "class != '207' OR yrblt IS NULL OR yrblt >= year(current_date) - "
-            "62"
+            "class != '207' OR yrblt >= year(current_date) - 62"
         ),
         "additional_select_columns": ["yrblt"]
     },
@@ -798,8 +758,7 @@
         "description": "yrblt should be <= 62 years old when class is 208",
         "category": "incorrect_values",
         "condition": (
-            "class != '208' OR yrblt IS NULL OR yrblt >= year(current_date) - "
-            "62"
+            "class != '208' OR yrblt >= year(current_date) - 62"
         ),
         "additional_select_columns": ["yrblt"]
     },
@@ -808,8 +767,7 @@
         "description": "yrblt should be > 62 years old when class is 210",
         "category": "incorrect_values",
         "condition": (
-            "class != '210' OR yrblt IS NULL OR yrblt <= year(current_date) - "
-            "63"
+            "class != '210' OR yrblt <= year(current_date) - 63"
         ),
         "additional_select_columns": ["yrblt"]
     },
@@ -818,8 +776,7 @@
         "description": "yrblt should be <= 62 years old when class is 278",
         "category": "incorrect_values",
         "condition": (
-            "class != '278' OR yrblt IS NULL OR yrblt >= year(current_date) - "
-            "62"
+            "class != '278' OR yrblt >= year(current_date) - 62"
         ),
         "additional_select_columns": ["yrblt"]
     },
@@ -828,8 +785,7 @@
         "description": "yrblt should be <= 62 years old when class is 295",
         "category": "incorrect_values",
         "condition": (
-            "class != '295' OR yrblt IS NULL OR yrblt >= year(current_date) - "
-            "62"
+            "class != '295' OR yrblt >= year(current_date) - 62"
         ),
         "additional_select_columns": ["yrblt"]
     },
@@ -837,9 +793,7 @@
         "name": "iasworld_dweldat_yrblt_between_1850_and_now",
         "description": "yrblt should be between 1850 and now",
         "category": "incorrect_values",
-        "condition": (
-            "yrblt IS NULL OR (yrblt >= 1850 AND yrblt <= year(current_date))"
-        ),
+        "condition": "(yrblt >= 1850 AND yrblt <= year(current_date))",
         "additional_select_columns": ["yrblt"]
     },
     {
