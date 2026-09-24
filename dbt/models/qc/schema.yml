@@ -2,10 +2,9 @@ anchors:
   - &qc_report_ic_reference_tags
     - qc_report_ic_reference
   - &qc_report_ic_reference_export_template
-    export_template:
-      start_row: 3
-      add_table: false
-      sheet_name: Query Results
+    start_row: 3
+    add_table: false
+    sheet_name: Query Results
   - &qc_report_ic_reference_export_format
     format_blanks_as_empty_string: true
   - &select-columns-neg-asmt-value
@@ -294,52 +293,51 @@ models:
         export_template: *qc_report_ic_reference_export_template
         export_format:
           columns:
-            columns:
-              - name: ACRES
-                index: J
-                data_type: float
-              - name: ALLOCPCT
-                index: T
-                data_type: float
-              - name: BRATE
-                index: M
-                data_type: float
-              - name: Exemption
-                index: AA
-                data_type: float
-              - name: INFLU
-                index: Q
-                data_type: int
-              - name: INFLU2
-                index: U
-                data_type: int
-              - name: LLINE
-                index: I
-                data_type: int
-              - name: ORATE
-                index: K
-                data_type: float
-              - name: OSIZE
-                index: AB
-                data_type: float
-              - name: Override Decr
-                index: Z
-                data_type: float
-              - name: Override Incr
-                index: Y
-                data_type: float
-              - name: OVRPRICE
-                index: O
-                data_type: int
-              - name: PRICE
-                index: N
-                data_type: int
-              - name: SF
-                index: L
-                data_type: int
-              - name: TAXYR
-                index: B
-                data_type: int
+            - name: ACRES
+              index: J
+              data_type: float
+            - name: ALLOCPCT
+              index: T
+              data_type: float
+            - name: BRATE
+              index: M
+              data_type: float
+            - name: Exemption
+              index: AA
+              data_type: float
+            - name: INFLU
+              index: Q
+              data_type: int
+            - name: INFLU2
+              index: U
+              data_type: int
+            - name: LLINE
+              index: I
+              data_type: int
+            - name: ORATE
+              index: K
+              data_type: float
+            - name: OSIZE
+              index: AB
+              data_type: float
+            - name: Override Decr
+              index: Z
+              data_type: float
+            - name: Override Incr
+              index: Y
+              data_type: float
+            - name: OVRPRICE
+              index: O
+              data_type: int
+            - name: PRICE
+              index: N
+              data_type: int
+            - name: SF
+              index: L
+              data_type: int
+            - name: TAXYR
+              index: B
+              data_type: int
           <<: *qc_report_ic_reference_export_format
 
   - name: qc.vw_ic_reference_all_non_res_pin_level_data
