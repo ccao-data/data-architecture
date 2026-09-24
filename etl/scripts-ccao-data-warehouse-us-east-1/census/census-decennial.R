@@ -114,7 +114,7 @@ pull_and_write_dec <- function(s3_bucket_uri, survey, folder, geography, year) {
       mutate(loaded_at = as.character(Sys.time()))
 
     # Write to S3
-    arrow::write_parquet(df, remote_file)
+    write_parquet(df, remote_file)
   }
 }
 

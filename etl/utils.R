@@ -2,8 +2,10 @@ library(arrow)
 library(aws.s3)
 library(dplyr)
 library(purrr)
-library(geoarrow)
+library(sf)
+library(stringr)
 library(tools)
+library(wk)
 
 
 save_s3_to_local <- function(s3_uri, path, overwrite = FALSE) {
@@ -57,6 +59,49 @@ open_data_to_s3 <- function(s3_bucket_uri,
 }
 
 
+geoparquet_to_s3 <- function(spatial_df, s3_uri) {
+  # Detect any geometry columns in the spatial data frame.
+  geometry_columns <- spatial_df %>%
+    select(where(~ inherits(.x, "sfc"))) %>%
+    names()
+
+  # Record names and CRS of all geometry columns in the spatial data frame for
+  # later use in `geometry_info` column. This is how we make sure we assign the
+  # correct CRS to each geometry column when reading the parquet file back in.
+  spatial_df$geometry_info <- map(geometry_columns, \(x) {
+    # Unfortunately, arrow will not preserve names for this vector, so there's
+    # no point in using a named vector.
+    c(x, st_crs(spatial_df[[x]])$epsg)
+  }) %>%
+    list()
+
+  # For some reason we run into an error here trying to convert multiple columns
+  # to WKB at once if one is named "geometry", so we create new columns with a
+  # "temp_" prefix instead and then rename them back to their original names
+  # after dropping the original geometry columns. We convert to WKB because
+  # arrow does not support the `sfc` class directly, but it does support WKB.
+  spatial_df <- spatial_df %>%
+    mutate(across(geometry_columns, as_wkb, .names = "temp_{.col}")) %>%
+    st_drop_geometry() %>%
+    select(-any_of(geometry_columns)) %>%
+    rename_with(~ str_replace_all(., "temp_", "")) %>%
+    mutate(loaded_at = as.character(Sys.time()))
+
+  spatial_df[] <- lapply(spatial_df, function(col) {
+    if (inherits(col, "wk_wkb")) {
+      # Keep only the raw list elements, wipe metadata attributes or we won't be
+      # able to read the data frame back in using arrow.
+      attributes(col) <- NULL
+    }
+    col
+  })
+
+  spatial_df %>%
+    as.data.frame() %>%
+    write_parquet(., s3_uri, compression = "snappy")
+}
+
+
 write_partitions_to_s3 <- function(df,
                                    s3_output_path,
                                    is_spatial = TRUE,
@@ -78,15 +123,19 @@ write_partitions_to_s3 <- function(df,
     remote_path <- file.path(
       s3_output_path, partition_path, "part-0.parquet"
     )
-    if (!object_exists(remote_path) || overwrite) {
+    if (!aws.s3::object_exists(remote_path) || overwrite) {
       message("Now uploading: ", partition_path)
       tmp_file <- tempfile(fileext = ".parquet")
       if (is_spatial) {
-        geoarrow::write_geoparquet(.x, tmp_file, compression = "snappy")
+        geoparquet_to_s3(.x, s3_uri = tmp_file)
       } else {
-        arrow::write_parquet(.x, tmp_file, compression = "snappy")
+        write_parquet(.x, tmp_file, compression = "snappy")
       }
-      aws.s3::put_object(tmp_file, remote_path, multipart = TRUE)
+      aws.s3::put_object(
+        file = tmp_file,
+        object = remote_path,
+        multipart = TRUE
+      )
     }
   })
 }
@@ -120,6 +169,7 @@ standardize_expand_geo <- function(
       }
   )
 }
+
 
 county_gdb_to_s3 <- function(
   s3_bucket_uri,
@@ -156,8 +206,55 @@ county_gdb_to_s3 <- function(
   }
 }
 
-geoparquet_to_s3 <- function(spatial_df, s3_uri) {
+parquet_to_sf <- function(spatial_df) {
+  # This function reads in a parquet file and assigns it the correct CRS for
+  # each geometry column based on the `geometry_info` column that was created
+  # when the parquet file was written. The `geometry_info` column is a list
+  # column that contains a list of vectors, where each vector contains the name
+  # of the geometry column and its corresponding CRS. Since this function is
+  # used only in the context of reading in parquet files that were written using
+  # the `geoparquet_to_s3` function, we can assume that the `geometry_info`
+  # column is present and contains the correct information.
+  geometry_cols <- spatial_df$geometry_info[[1]]
+
+  # Use first geometry column as the default geometry column for the dataset.
+  geometry_col <- geometry_cols[[1]]
+
+  message(paste0(
+    "Setting geometry column to '", geometry_col[1],
+    "' with CRS EPSG:", geometry_col[2]
+  ))
+  spatial_df <- st_as_sf(
+    x = spatial_df,
+    sf_column_name = geometry_col[1],
+    crs = as.integer(geometry_col[2])
+  )
+
+  # Set CRS for any other geometry columns in the dataset. Will not trigger if
+  # there is only one geometry column.
+  for (col in geometry_cols[-1]) {
+    message(paste0(
+      "Setting additional geometry column '", col[1],
+      "' to CRS EPSG:", col[2]
+    ))
+    spatial_df <- spatial_df %>%
+      mutate(!!col[1] := st_set_crs(.data[[col[1]]], as.integer(col[2])))
+  }
+
   spatial_df %>%
-    mutate(loaded_at = as.character(Sys.time())) %>%
-    geoarrow::write_geoparquet(s3_uri, compression = "snappy")
+    select(-geometry_info)
+}
+
+read_s3_geoparquet <- function(s3_uri) {
+  read_parquet(s3_uri) %>%
+    parquet_to_sf()
+}
+
+
+collect_s3_geodataset <- function(spatial_dataset) {
+  # Spatial dataset must have a geometry column named "geometry" and a CRS
+  # column named "crs" for this function to work properly.
+  spatial_dataset %>%
+    collect() %>%
+    parquet_to_sf()
 }
