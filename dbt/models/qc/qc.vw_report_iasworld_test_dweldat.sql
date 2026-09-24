@@ -271,7 +271,10 @@
     },
     {
         "name": "iasworld_dweldat_rmtot_sf_between_1_and_40",
-        "description": "rmtot (Number of Rooms) should be between 1 and 40",
+        "description": (
+            "rmtot (Number of Rooms) should be between 1 and 40, except for "
+            "class 211 or 212"
+        ),
         "category": "incorrect_values",
         "condition": (
             "class IN ('211', '212') OR (rmtot >= 1 AND rmtot <= 40)"
