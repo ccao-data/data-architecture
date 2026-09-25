@@ -3,7 +3,10 @@
         "name": "iasworld_dweldat_class_matches_pardat_class",
         "description": "at least one class should match pardat class",
         "category": "class_mismatch_or_issue",
-        "condition": "any_class_matches_pardat_class",
+        "condition": (
+            "NOT any_class_is_regression_class "
+            "OR any_class_matches_pardat_class"
+        ),
         "additional_select_columns": ["pardat_class", "classes"]
     },
     {
@@ -39,7 +42,21 @@
         -- Computed columns for tests
         MAX(pardat.class) AS pardat_class,
         ARRAY_JOIN(ARRAY_AGG(dweldat.class), ', ') AS classes,
-        BOOL_OR(dweldat.class = pardat.class) AS any_class_matches_pardat_class,
+        -- Only regression classes are subject to the pardat class match
+        -- test. Excludes non-regression classes.
+        BOOL_OR(
+            dweldat.class NOT IN (
+                '201', '213', '218', '219', '220', '221', '224', '225',
+                '236', '240', '241', '290', '294', '297'
+            )
+        ) AS any_class_is_regression_class,
+        BOOL_OR(
+            dweldat.class NOT IN (
+                '201', '213', '218', '219', '220', '221', '224', '225',
+                '236', '240', '241', '290', '294', '297'
+            )
+            AND SUBSTR(dweldat.class, 1, 3) = SUBSTR(pardat.class, 1, 3)
+        ) AS any_class_matches_pardat_class,
         BOOL_OR(
             dweldat.class LIKE 'OA%' OR dweldat.class = 'EX'
         ) AS any_class_is_exempt_or_omitted,
