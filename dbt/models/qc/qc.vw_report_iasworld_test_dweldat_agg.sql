@@ -71,10 +71,6 @@
         AND dweldat.taxyr = comdat.taxyr
     WHERE dweldat.cur = 'Y'
         AND dweldat.deactivat IS NULL
-        AND dweldat.class NOT IN (
-            '201', '213', '218', '219', '220', '221', '224', '225',
-            '236', '240', '241', '290', '294', '297'
-        )
         AND comdat.parid IS NULL
     GROUP BY dweldat.parid, dweldat.taxyr
 {% endset %}
