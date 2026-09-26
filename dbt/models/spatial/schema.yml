@@ -1,7 +1,8 @@
 sources:
   - name: spatial
-    tags:
-      - load_manual
+    config:
+      tags:
+        - load_manual
     tables:
       - name: bike_trail
         description: '{{ doc("table_bike_trail") }}'
@@ -44,11 +45,13 @@ sources:
         data_tests:
           - unique_combination_of_columns:
               name: spatial_corner_unique_by_pin10_year
-              combination_of_columns:
-                - pin10
-                - year
-              meta:
-                description: corner unique by pin10 and year
+              arguments:
+                combination_of_columns:
+                  - pin10
+                  - year
+              config:
+                meta:
+                  description: corner unique by pin10 and year
         columns:
           - name: geometry
             description: |

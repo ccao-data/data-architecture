@@ -654,7 +654,7 @@ the tag `data_test_iasworld`
     that restricts tests to unique rows and to rows matching a date range
     set by the `data_test_iasworld_year_start` and `data_test_iasworld_year_end`
     [project variables](https://docs.getdbt.com/docs/build/project-variables)
-  * `meta` should be set with a few specific string attributes:
+  * `config.meta` should be set with a few specific string attributes:
     * `description` (required): A short human-readable description of the test
     * `category` (optional): A workbook category for the test, required if
       a category is not defined for the test's generic in the `TEST_CATEGORIES`
@@ -1046,7 +1046,7 @@ model during export:
   option, you should define your model such that it selects any fields that you want to use
   for filtering in the `SELECT` clause. It's common to filter reports by `taxyr` and
   one of either `township_name` or `township_code`.
-* **Formatting**: You can set a few different optional configs on the `meta` attribute of
+* **Formatting**: You can set a few different optional configs on the `config.meta` attribute of
   your model's schema definition in order to control the format of the output workbook:
     * **`meta.export_name`**: The base name that the script will use for the output file, not
       including the file extension. The script will output the file to
@@ -1088,15 +1088,15 @@ models:
     config:
       tags:
         - qc_report_new
-    meta:
-      export_name: QC Report (New)
-      export_template: qc_report_new.xslx
-      export_format:
-        columns:
-          - index: B
-            name: Percent Change
-            horizontal_align: right
-            number_format: "0.00%"
+      meta:
+        export_name: QC Report (New)
+        export_template: qc_report_new.xslx
+        export_format:
+          columns:
+            - index: B
+              name: Percent Change
+              horizontal_align: right
+              number_format: "0.00%"
 ```
 
 In the case of this model, the `export_models` script:

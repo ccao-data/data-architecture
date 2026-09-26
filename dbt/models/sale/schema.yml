@@ -3,8 +3,9 @@ sources:
     tables:
       - name: flag
         description: '{{ doc("flag") }}'
-        tags:
-          - load_auto
+        config:
+          tags:
+            - load_auto
 
         columns:
           - name: group
@@ -32,8 +33,8 @@ sources:
                   name: sale_flag_sv_outlier_reason1_not_null_when_sv_is_outlier
                   config:
                     where: sv_is_outlier
-                  meta:
-                    description: sv_outlier_reason1 is not null when sv_is_outlier
+                    meta:
+                      description: sv_outlier_reason1 is not null when sv_is_outlier
           - name: sv_outlier_reason2
             description: '{{ doc("shared_column_sv_outlier_reason") }}'
           - name: sv_outlier_reason3
@@ -44,11 +45,13 @@ sources:
         data_tests:
           - unique_combination_of_columns:
               name: sale_flag_unique_by_doc_num_version
-              combination_of_columns:
-                - meta_sale_document_num
-                - version
-              meta:
-                description: flag is unique by meta_sale_document_num and version
+              arguments:
+                combination_of_columns:
+                  - meta_sale_document_num
+                  - version
+              config:
+                meta:
+                  description: flag is unique by meta_sale_document_num and version
 
       - name: flag_review
         description: '{{ doc("flag_review") }}'
@@ -71,45 +74,51 @@ sources:
             description: Name of the excel file the data was ingested from.
           - name: work_drawer
             description: |
-                Whether an analyst marked a given sale for 'work drawer'.
-                
-                A true value for this field indicates that the analyst suspects
-                a planned change to the home sometime soon in the future.
+              Whether an analyst marked a given sale for 'work drawer'.
+
+              A true value for this field indicates that the analyst suspects
+              a planned change to the home sometime soon in the future.
         data_tests:
           - unique_combination_of_columns:
               name: sale_flag_review_unique_by_doc_no
-              combination_of_columns:
-                - doc_no
+              arguments:
+                combination_of_columns:
+                  - doc_no
 
       - name: foreclosure
         description: '{{ doc("foreclosure") }}'
-        tags:
-          - load_manual
+        config:
+          tags:
+            - load_manual
         data_tests:
           - unique_combination_of_columns:
               name: sale_foreclosure_unique
-              combination_of_columns:
-                - case_number
-                - pin
-                - sale_results
-                - date_of_sale
-              meta:
-                description: foreclosure is unique by case_number, pin, sale_results and date_of_sale
+              arguments:
+                combination_of_columns:
+                  - case_number
+                  - pin
+                  - sale_results
+                  - date_of_sale
               config:
                 error_if: ">1"
+                meta:
+                  description: foreclosure is unique by case_number, pin, sale_results and date_of_sale
 
       - name: group_mean
         description: '{{ doc("group_mean") }}'
-        tags:
-          - load_auto
+        config:
+          tags:
+            - load_auto
         data_tests:
           - unique_combination_of_columns:
               name: sale_group_mean_unique_by_group_run_id
-              combination_of_columns:
-                - '"group"'
-                - run_id
-              meta:
-                description: group_mean is unique by group and run_id
+              arguments:
+                combination_of_columns:
+                  - '"group"'
+                  - run_id
+              config:
+                meta:
+                  description: group_mean is unique by group and run_id
 
         columns:
           - name: group
@@ -129,15 +138,18 @@ sources:
 
       - name: parameter
         description: '{{ doc("parameter") }}'
-        tags:
-          - load_auto
+        config:
+          tags:
+            - load_auto
         data_tests:
           - unique_combination_of_columns:
               name: sale_parameter_unique_by_run_id
-              combination_of_columns:
-                - run_id
-              meta:
-                description: parameter is unique by run_id
+              arguments:
+                combination_of_columns:
+                  - run_id
+              config:
+                meta:
+                  description: parameter is unique by run_id
 
         columns:
           - name: earliest_data_ingest
@@ -171,18 +183,11 @@ sources:
           - name: time_frame
             description: '{{ doc("column_time_frame") }}'
 
-
       - name: metadata
         description: '{{ doc("metadata") }}'
-        tags:
-          - load_auto
-        data_tests:
-          - unique_combination_of_columns:
-              name: sale_metadata_unique_by_run_id
-              combination_of_columns:
-                - run_id
-              meta:
-                description: metadata is unique by run_id
+        config:
+          tags:
+            - load_auto
 
         columns:
           - name: long_commit_sha
@@ -206,32 +211,43 @@ sources:
               column_name: run_id
               config:
                 where: run_id = 'initial_flagging'
+          - unique_combination_of_columns:
+              name: sale_metadata_unique_by_run_id
+              arguments:
+                combination_of_columns:
+                  - run_id
+              config:
+                meta:
+                  description: metadata is unique by run_id
 
       - name: mydec
         description: '{{ doc("mydec") }}'
-        tags:
-          - load_manual
+        config:
+          tags:
+            - load_manual
         data_tests:
           - unique_combination_of_columns:
               name: sale_mydec_multisales_unique_by_document_number_and_pin
-              combination_of_columns:
-                - document_number
-                - line_1_primary_pin
+              arguments:
+                combination_of_columns:
+                  - document_number
+                  - line_1_primary_pin
               config:
                 where: is_multisale
-              meta:
-                description: |
-                  mydec is unique by document_number and line_1_primary_pin
-                  for multi-sales
+                meta:
+                  description: |
+                    mydec is unique by document_number and line_1_primary_pin
+                    for multi-sales
           - unique_combination_of_columns:
               name: sale_mydec_unique_by_document_number
-              combination_of_columns:
-                - document_number
+              arguments:
+                combination_of_columns:
+                  - document_number
               config:
                 where: not is_multisale
-              meta:
-                description: |
-                  mydec is unique by document_number for non multi-sales
+                meta:
+                  description: |
+                    mydec is unique by document_number for non multi-sales
 
 models:
   - name: sale.vw_flag
@@ -260,26 +276,30 @@ models:
     data_tests:
       - row_count:
           name: sale_vw_flag_row_count_matches_sale_flag
-          equals: >
-            (
-              SELECT COUNT(DISTINCT(meta_sale_document_num))
-              FROM {{ source('sale', 'flag') }}
-            )
+          arguments:
+            equals: >
+              (
+                SELECT COUNT(DISTINCT(meta_sale_document_num))
+                FROM {{ source('sale', 'flag') }}
+              )
       - unique_combination_of_columns:
           name: sale_vw_flag_unique_by_doc_no
-          combination_of_columns:
-            - doc_no
+          arguments:
+            combination_of_columns:
+              - doc_no
 
   - name: sale.vw_ias_salesval_upload
     description: '{{ doc("vw_ias_salesval_upload") }}'
     data_tests:
       - unique_combination_of_columns:
           name: sale_vw_ias_salesval_upload_unique_by_salekey_run_id
-          combination_of_columns:
-            - salekey
-            - run_id
-          meta:
-            description: vw_ias_salesval_upload is unique by salekey and run_id
+          arguments:
+            combination_of_columns:
+              - salekey
+              - run_id
+          config:
+            meta:
+              description: vw_ias_salesval_upload is unique by salekey and run_id
 
     columns:
       - name: run_id
@@ -342,9 +362,10 @@ models:
     data_tests:
       - unique_combination_of_columns:
           name: sale_vw_flag_group_unique_by_run_id_and_doc_no
-          combination_of_columns:
-            - run_id
-            - doc_no
+          arguments:
+            combination_of_columns:
+              - run_id
+              - doc_no
           config:
             # There are two doc numbers that are incorrectly assigned to at
             # least one sale, causing test failures if we include them.
@@ -384,7 +405,8 @@ models:
         data_tests:
           - expression_is_true:
               name: sale_vw_outlier_is_outlier_is_false_when_outlier_reason_is_null
-              expression: = FALSE
+              arguments:
+                expression: = FALSE
               config:
                 where: outlier_reason IS NULL
           - not_null:
@@ -414,21 +436,23 @@ models:
     data_tests:
       - row_count:
           name: sale_vw_outlier_row_count_matches_sale_flag_and_sale_review
-          equals: >
-            (
-              SELECT COUNT(*)
-              FROM (
-                SELECT DISTINCT(meta_sale_document_num) AS doc_no
-                FROM {{ source('sale', 'flag') }}
-                UNION
-                SELECT DISTINCT(doc_no) AS doc_no
-                FROM {{ source('sale', 'flag_review') }}
+          arguments:
+            equals: >
+              (
+                SELECT COUNT(*)
+                FROM (
+                  SELECT DISTINCT(meta_sale_document_num) AS doc_no
+                  FROM {{ source('sale', 'flag') }}
+                  UNION
+                  SELECT DISTINCT(doc_no) AS doc_no
+                  FROM {{ source('sale', 'flag_review') }}
+                )
               )
-            )
       - unique_combination_of_columns:
           name: sale_vw_outlier_unique_by_doc_no
-          combination_of_columns:
-            - doc_no
+          arguments:
+            combination_of_columns:
+              - doc_no
 
 unit_tests:
   - name: sale_vw_outlier_produces_correct_outliers_and_reasons
