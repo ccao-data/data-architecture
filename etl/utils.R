@@ -81,7 +81,7 @@ geoparquet_to_s3 <- function(spatial_df, s3_uri) {
   # after dropping the original geometry columns. We convert to WKB because
   # arrow does not support the `sfc` class directly, but it does support WKB.
   spatial_df <- spatial_df %>%
-    mutate(across(geometry_columns, as_wkb, .names = "temp_{.col}")) %>%
+    mutate(across(all_of(geometry_columns), as_wkb, .names = "temp_{.col}")) %>%
     st_drop_geometry() %>%
     select(-any_of(geometry_columns)) %>%
     rename_with(~ str_replace_all(., "temp_", "")) %>%

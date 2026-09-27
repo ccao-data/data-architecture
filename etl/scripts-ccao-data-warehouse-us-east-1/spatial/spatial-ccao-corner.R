@@ -8,6 +8,7 @@ library(osmdata)
 library(purrr)
 library(sf)
 library(tictoc)
+source("utils.R")
 
 # This script detects corner lots in Cook County parcels and saves a boolean
 # indicator as well as the cross used by the corner detection algorithm

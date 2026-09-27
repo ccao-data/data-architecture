@@ -7,6 +7,7 @@ library(sf)
 library(stringi)
 library(stringr)
 library(rmapshaper)
+source("utils.R")
 
 # This script generates CCAO neighborhood boundaries from raw parcels
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
