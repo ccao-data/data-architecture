@@ -23,12 +23,13 @@ for (year in 2010:2021) {
   parcels <- open_dataset(
     paste0(AWS_S3_WAREHOUSE_BUCKET, "/spatial/parcel/year=", year)
   ) %>%
-    collect_s3_geodataset()
+    select(-geometry_3435) %>%
+    collect_s3_geodataset() %>%
+    st_transform(3435)
 
   # Use a positive then negative buffer trick to get orthogonal polygons for
   # each neighborhood. Taken from: https://github.com/hdus/pgtools
   parcels_ortho <- parcels %>%
-    st_set_geometry(.$geometry_3435) %>%
     filter(!nbhd_code %in% c("000", "999", "599"), !is.na(nbhd_code)) %>%
     mutate(town_nbhd = paste0(town_code, nbhd_code)) %>%
     # Recode some neighborhoods that don't exist/are wrong
@@ -41,7 +42,14 @@ for (year in 2010:2021) {
     group_by(town_nbhd) %>%
     summarize(geometry = st_union(geometry)) %>%
     st_buffer(dist = 200, joinStyle = "MITRE", mitreLimit = 2.5) %>%
-    st_buffer(dist = -200, joinStyle = "MITRE", mitreLimit = 2.5) %>%
+    st_buffer(dist = -200, joinStyle = "MITRE", mitreLimit = 2.5)
+
+  # st_buffer() errors on a negative dist when any geometry is already
+  # empty, since st_dimension() returns NA for empty geometries and trips
+  # up its internal any(dist < 0) && any(st_dimension(x) < 1) check. Buffer
+  # only the non-empty rows and leave empty ones as-is.
+  is_empty <- st_is_empty(parcels_ortho)
+  parcels_ortho[!is_empty, ] <- parcels_ortho[!is_empty, ] %>%
     # Use a negative then positive buffer to remove polygon "spikes"
     st_buffer(dist = -200, joinStyle = "MITRE", mitreLimit = 2.5) %>%
     st_buffer(dist = 250, joinStyle = "MITRE", mitreLimit = 2.5)
@@ -52,7 +60,6 @@ for (year in 2010:2021) {
     parcels_ortho %>% filter(!st_is_empty(geometry)),
     parcels %>%
       filter(!nbhd_code %in% c("000", "999", "599"), !is.na(nbhd_code)) %>%
-      st_set_geometry(.$geometry_3435) %>%
       mutate(town_nbhd = paste0(town_code, nbhd_code)) %>%
       filter(
         town_nbhd %in% (
@@ -96,7 +103,6 @@ for (year in 2010:2021) {
     geojson_json(geometry = "polygon", crs = 4326) %>%
     rmapshaper::apply_mapshaper_commands("-clean", force_FC = TRUE) %>%
     geojson_sf() %>%
-    select(-rmapshaperid) %>%
     st_transform(3435)
 
   # To fill any remaining gaps, especially around the county edges, we can get
@@ -108,6 +114,7 @@ for (year in 2010:2021) {
       AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county/2019.parquet"
     )
   ) %>%
+    select(-geometry_3435) %>%
     st_transform(3435)
 
   cook_diff <- cook_boundary %>%
@@ -181,8 +188,7 @@ for (year in 2010:2021) {
         st_make_valid() %>%
         st_transform(4326) %>%
         st_cast("MULTIPOLYGON")
-    ) %>%
-    select(-rmapshaperid)
+    )
 
   # Add more attribute data, finalize, and write to S3
   parcels_final <- parcels_clean2 %>%

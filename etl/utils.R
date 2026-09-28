@@ -208,17 +208,24 @@ county_gdb_to_s3 <- function(
 
 parquet_to_sf <- function(spatial_df) {
   # This function reads in a parquet file and assigns it the correct CRS for
-  # each geometry column based on the `geometry_info` column that was created
-  # when the parquet file was written. The `geometry_info` column is a list
-  # column that contains a list of vectors, where each vector contains the name
-  # of the geometry column and its corresponding CRS. Since this function is
-  # used only in the context of reading in parquet files that were written using
-  # the `geoparquet_to_s3` function, we can assume that the `geometry_info`
-  # column is present and contains the correct information.
+  # a specific geometry column based on the `geometry_info` column that was
+  # created when the parquet file was written. The `geometry_info` column is a
+  # list column that contains a list of vectors, where each vector contains the
+  # name of the geometry column and its corresponding CRS. Since this function
+  # is used only in the context of reading in parquet files that were written
+  # using the `geoparquet_to_s3` function, we can assume that the
+  # `geometry_info` column is present and contains the correct information. The
+  # function first looks for a column explicitly named "geometry" and uses that
+  # as the geometry column if it exists. If not, it falls back to using the
+  # first geometry column in the list.
   geometry_cols <- spatial_df$geometry_info[[1]]
 
-  # Use first geometry column as the default geometry column for the dataset.
-  geometry_col <- geometry_cols[[1]]
+  # Prefer geometry column explicitly named "geometry"; otherwise fall back to
+  # the first geometry column as the default for the dataset.
+  geometry_col <- detect(geometry_cols, ~ .x[1] == "geometry")
+  if (is.null(geometry_col)) {
+    geometry_col <- geometry_cols[[1]]
+  }
 
   message(paste0(
     "Setting geometry column to '", geometry_col[1],
@@ -229,17 +236,6 @@ parquet_to_sf <- function(spatial_df) {
     sf_column_name = geometry_col[1],
     crs = as.integer(geometry_col[2])
   )
-
-  # Set CRS for any other geometry columns in the dataset. Will not trigger if
-  # there is only one geometry column.
-  for (col in geometry_cols[-1]) {
-    message(paste0(
-      "Setting additional geometry column '", col[1],
-      "' to CRS EPSG:", col[2]
-    ))
-    spatial_df <- spatial_df %>%
-      mutate(!!col[1] := st_set_crs(.data[[col[1]]], as.integer(col[2])))
-  }
 
   spatial_df %>%
     select(-geometry_info)
