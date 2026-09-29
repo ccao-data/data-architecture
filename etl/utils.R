@@ -248,8 +248,6 @@ read_s3_geoparquet <- function(s3_uri) {
 
 
 collect_s3_geodataset <- function(spatial_dataset) {
-  # Spatial dataset must have a geometry column named "geometry" and a CRS
-  # column named "crs" for this function to work properly.
   spatial_dataset %>%
     collect() %>%
     parquet_to_sf()
