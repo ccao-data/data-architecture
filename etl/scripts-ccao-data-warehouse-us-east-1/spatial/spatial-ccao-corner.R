@@ -26,6 +26,19 @@ parcel_years <- open_dataset(parcel_path) %>%
 # Drop years before 2014, since OSM data for roads is spotty prior to that
 parcel_years <- parcel_years[parcel_years >= 2014]
 
+# Grab the bounding box for Cook County, which is used to query OSM for streets
+cook_boundary <- read_s3_geoparquet(
+  file.path(
+    AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county/2019.parquet"
+  )
+) %>%
+  select(-geometry_3435) %>%
+  st_transform(3435) %>%
+  st_as_sfc() %>%
+  st_buffer(3000, endCapStyle = "FLAT", joinStyle = "MITRE") %>%
+  st_transform(4326) %>%
+  st_bbox()
+
 # Iterate over the years and townships, saving the results to a Parquet file
 # on S3 after each iteration
 for (iter_year in parcel_years) {
@@ -35,6 +48,36 @@ for (iter_year in parcel_years) {
   parcels <- open_dataset(parcel_path) %>%
     filter(year == iter_year) %>%
     collect_s3_geodataset()
+
+  # Fetch the OSM street network for the county, removing any OSM way types
+  # that are not main roads
+  if (!file.exists(file.path("street-tmp", paste0(iter_year, ".geojson")))) {
+    print(paste("Fetching OSM streets for year:", iter_year))
+    osm_streets <- opq(
+      bbox = cook_boundary,
+      datetime = glue("{iter_year}-01-01T00:00:00Z"),
+      timeout = 900
+    ) %>%
+      add_osm_feature(key = "highway") %>%
+      osmdata_sf() %>%
+      .$osm_lines %>%
+      filter(
+        !highway %in% c(
+          "bridleway", "construction", "corridor", "cycleway", "elevator",
+          "service", "services", "steps", "platform", "motorway",
+          "motorway_link", "pedestrian", "track", "path", "footway", "alley"
+        )
+      ) %>%
+      st_transform(3435)
+
+    osm_streets %>%
+      st_write(file.path("street-tmp", paste0(iter_year, ".geojson")))
+  } else {
+    print(paste("Reading OSM streets from file for year:", iter_year))
+    osm_streets <- st_read(
+      file.path("street-tmp", paste0(iter_year, ".geojson"))
+    )
+  }
 
   for (iter_town in ccao::town_dict$township_code) {
     print(paste("Now processing township:", iter_town))
@@ -68,25 +111,6 @@ for (iter_year in parcel_years) {
           between(lat, town_bbox$ymin, town_bbox$ymax)
       ) %>%
       st_buffer(dist = units::set_units(2, "m"))
-
-    # Fetch the OSM street network for the township, removing any OSM way types
-    # that are not main roads
-    osm_streets <- opq(
-      bbox = town_bbox,
-      datetime = glue("{iter_year}-01-01T00:00:00Z"),
-      timeout = 900
-    ) %>%
-      add_osm_feature(key = "highway") %>%
-      osmdata_sf() %>%
-      .$osm_lines %>%
-      filter(
-        !highway %in% c(
-          "bridleway", "construction", "corridor", "cycleway", "elevator",
-          "service", "services", "steps", "platform", "motorway",
-          "motorway_link", "pedestrian", "track", "path", "footway", "alley"
-        )
-      ) %>%
-      st_transform(3435)
 
     # Step 1: Find the minimum rectangle that bounds the parcel, then use that
     # rectangle to determine the parcel's orientation and length. These values
