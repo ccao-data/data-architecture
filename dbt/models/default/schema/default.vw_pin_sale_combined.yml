@@ -20,9 +20,9 @@ models:
       - name: mydec_line_8_current_use
         description: |
           Categorical indicator from mydec for the use of a property when it was sold.
-        
+
           Possible values for this variable are:
-  
+
           - `A` = Land/lot only
           - `B` = Residence (single-family, condominium, townhome, or duplex)
           - `C` = Mobile home residence
@@ -107,39 +107,46 @@ models:
       - not_accepted_values:
           name: default_vw_pin_sale_combined_class_no_hyphens
           column_name: class
-          values: "2-99"
+          arguments:
+            values: "2-99"
       - expression_is_true:
           name: default_vw_pin_sale_combined_is_multisale_num_parcels_sale_align
-          expression: (num_parcels_sale > 1 AND is_multisale) OR (num_parcels_sale = 1 AND NOT is_multisale)
-          additional_select_columns:
-            - num_parcels_sale
-            - is_multisale
+          arguments:
+            expression: (num_parcels_sale > 1 AND is_multisale) OR (num_parcels_sale = 1 AND NOT is_multisale)
+            additional_select_columns:
+              - num_parcels_sale
+              - is_multisale
       - not_null:
           name: default_vw_pin_sale_combined_num_parcels_sale_not_null
           column_name: num_parcels_sale
       # Number of sales for a given time period isn't suspicious
       - unique_combination_of_columns:
           name: default_vw_pin_sale_combined_reasonable_number_of_sales_per_year
-          combination_of_columns:
-            - pin
-            - year
-          allowed_duplicates: 5
+          arguments:
+            combination_of_columns:
+              - pin
+              - year
+            allowed_duplicates: 5
           config:
             error_if: ">1500"
       - row_count:
           name: default_vw_pin_sale_combined_row_count
-          above: 2496073 # as of 2024-11-14
+          arguments:
+            above: 2496073 # as of 2024-11-14
       - expression_is_true:
           name: default_vw_pin_sale_combined_sale_filter_deed_type
-          expression: NOT sale_filter_deed_type OR deed_type IN ('03', '04', '06')
+          arguments:
+            expression: NOT sale_filter_deed_type OR deed_type IN ('03', '04', '06')
       - expression_is_true:
           name: default_vw_pin_sale_combined_sale_filter_less_than_10k
-          expression: NOT sale_filter_less_than_10k OR sale_price <= 10000
+          arguments:
+            expression: NOT sale_filter_less_than_10k OR sale_price <= 10000
       - unique_combination_of_columns:
           name: default_vw_pin_sale_combined_unique_price_pin_and_year
-          combination_of_columns:
-            - pin
-            - year
-            - sale_price
+          arguments:
+            combination_of_columns:
+              - pin
+              - year
+              - sale_price
           config:
             where: NOT sale_filter_same_sale_within_365 AND NOT sale_filter_deed_type

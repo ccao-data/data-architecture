@@ -202,6 +202,66 @@ classes.
 This view is not currently in use in any QC workflows.
 {% enddocs %}
 
+# vw_report_iasworld_test_all
+
+{% docs view_vw_report_iasworld_test_all %}
+Combines test failures from all iasworld test views. Each observation is a failure
+based on unique PIN, year, and failing test combinations.
+
+**Primary Key**: `parid`, `taxyr`, `test_name`
+
+{% enddocs %}
+
+# vw_report_iasworld_test_dweldat
+
+{% docs view_vw_report_iasworld_test_dweldat %}
+Aggregates test failures, stemming from iasworld dweldat. Each observation is a failure
+based on unique PIN, year, card, and failing test combinations.
+
+**Primary Key**: `parid`, `taxyr`, `card`, `test_name`
+
+{% enddocs %}
+
+# vw_report_iasworld_test_dweldat_agg
+
+{% docs view_vw_report_iasworld_test_dweldat_agg %}
+Aggregates test failures from iasworld dweldat. This compares across all cards for a PIN and year. Each observation is a failure based on unique PIN,
+year, and failing test combinations.
+
+**Primary Key**: `parid`, `taxyr`, `test_name`
+
+{% enddocs %}
+
+# vw_report_iasworld_test_owndat
+
+{% docs view_vw_report_iasworld_test_owndat %}
+Aggregates test failures, stemming from iasworld owndat. Each observation is a failure
+based on unique PIN, year, and failing test combinations.
+
+**Primary Key**: `parid`, `taxyr`, `test_name`
+
+{% enddocs %}
+
+# vw_report_iasworld_test_pardat
+
+{% docs view_vw_report_iasworld_test_pardat %}
+Aggregates test failures, stemming from iasworld pardat. Each observation is a failure
+based on unique PIN, year, and failing test combinations.
+
+**Primary Key**: `parid`, `taxyr`, `test_name`
+
+{% enddocs %}
+
+# vw_report_iasworld_test_sales
+
+{% docs view_vw_report_iasworld_test_sales %}
+Aggregates test failures, stemming from iasworld sales. Each observation is a failure
+based on unique PIN, year, and failing test combinations.
+
+**Primary Key**: `parid`, `taxyr`, `test_name`
+
+{% enddocs %}
+
 # vw_report_res_land
 
 {% docs view_vw_report_res_land %}
