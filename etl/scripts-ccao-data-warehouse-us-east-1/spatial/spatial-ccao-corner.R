@@ -43,7 +43,7 @@ cook_boundary <- read_s3_geoparquet(
 # Iterate over the years and townships, saving the results to a Parquet file
 # on S3 after each iteration
 for (iter_year in parcel_years) {
-  tictoc::tic(paste("Finished processing corners for:", iter_year))
+  tictoc::tic(paste("Processing corners for:", iter_year))
 
   # Load the full year's parcel file to iterate though by township
   parcels <- open_dataset(parcel_path) %>%
@@ -83,8 +83,6 @@ for (iter_year in parcel_years) {
   }
 
   for (iter_town in ccao::town_dict$township_code) {
-    print(paste("Now processing township:", iter_town))
-
     remote_file <- file.path(
       output_bucket,
       glue("year={iter_year}"),
@@ -93,6 +91,8 @@ for (iter_year in parcel_years) {
     )
 
     if (!aws.s3::object_exists(remote_file)) {
+      print(paste("Now processing township:", iter_town))
+
       town_parcels <- parcels %>%
         filter(town_code == iter_town)
 
