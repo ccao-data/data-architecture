@@ -372,7 +372,20 @@ models:
             # We hope to fix this problem in the source data eventually, but
             # for now we exclude those doc numbers from testing.
             # More details: https://github.com/ccao-data/data-architecture/pull/913#discussion_r2475427865
-            where: doc_no NOT IN ('1536210019', '2530811032')
+            #
+            # A third doc number (2609125012) was erroneously assigned to a
+            # single-PIN sale prior to a flagging run, but then got correctly
+            # reassigned to a multi-PIN sale at a later date. Since the
+            # multi-PIN sale will be excluded from model training regardless of
+            # the presence of a sales val flag, we decided not to edit the flag
+            # data to fix the error, and instead we exclude that sale from
+            # testing for the run that contained the error.
+            where: |
+              doc_no NOT IN ('1536210019', '2530811032')
+              AND NOT (
+                doc_no = '2609125012'
+                AND run_id = '2026-07-23_17:40-calm-julia'
+              )
 
   - name: sale.vw_outlier
     description: '{{ doc("vw_outlier") }}'
