@@ -99,7 +99,7 @@ for (iter_year in parcel_years) {
     # Used to query OSM for streets and to ensure parcels on the "edge" of the
     # township have their correct set of neighbors to check in Step 3 below
     town_bbox <- town_parcels %>%
-      st_set_geometry("geometry_3435") %>%
+      st_transform(3435) %>%
       st_bbox() %>%
       st_as_sfc() %>%
       st_buffer(3000, endCapStyle = "FLAT", joinStyle = "MITRE") %>%
