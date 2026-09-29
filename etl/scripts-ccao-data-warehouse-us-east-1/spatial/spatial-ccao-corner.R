@@ -15,6 +15,7 @@ source("utils.R")
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "ccao", "corner")
+street_tmp_dir <- file.path(here(), "street-tmp")
 
 # Get the parcel file years for which we should make corner lot indicators
 parcel_path <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
@@ -51,7 +52,7 @@ for (iter_year in parcel_years) {
 
   # Fetch the OSM street network for the county, removing any OSM way types
   # that are not main roads
-  if (!file.exists(file.path("street-tmp", paste0(iter_year, ".geojson")))) {
+  if (!file.exists(file.path(street_tmp_dir, paste0(iter_year, ".geojson")))) {
     print(paste("Fetching OSM streets for year:", iter_year))
     osm_streets <- opq(
       bbox = cook_boundary,
@@ -70,12 +71,14 @@ for (iter_year in parcel_years) {
       ) %>%
       st_transform(3435)
 
+    dir.create(street_tmp_dir, showWarnings = FALSE)
+
     osm_streets %>%
-      st_write(file.path("street-tmp", paste0(iter_year, ".geojson")))
+      st_write(file.path(street_tmp_dir, paste0(iter_year, ".geojson")))
   } else {
     print(paste("Reading OSM streets from file for year:", iter_year))
     osm_streets <- st_read(
-      file.path("street-tmp", paste0(iter_year, ".geojson"))
+      file.path(street_tmp_dir, paste0(iter_year, ".geojson"))
     )
   }
 
@@ -266,3 +269,5 @@ for (iter_year in parcel_years) {
   }
   tictoc::toc()
 }
+
+unlink(file.path(street_tmp_dir, "*"))
