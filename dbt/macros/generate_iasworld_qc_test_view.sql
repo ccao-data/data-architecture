@@ -78,7 +78,7 @@
         )
 
     {% for test in tests %}
-        {%- set test_where = test["where"] if "where" in test else default_where %}
+            {%- set test_where = test["where"] if "where" in test else default_where %}
         select
             parid,
             taxyr,
@@ -115,7 +115,7 @@
         where
             {{ test.name }}
             {%- if test_where %} and ({{ test_where }}) {%- endif %}
-        {{ "UNION ALL" if not loop.last }}
+            {{ "UNION ALL" if not loop.last }}
     {% endfor %}
 {% endmacro %}
 
