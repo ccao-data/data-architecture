@@ -115,8 +115,8 @@ for (iter_year in parcel_years) {
           between(lon, town_bbox$xmin, town_bbox$xmax) &
             between(lat, town_bbox$ymin, town_bbox$ymax)
         ) %>%
-        st_buffer(dist = units::set_units(2, "m")) %>%
-        st_transform(3435)
+        st_transform(3435) %>%
+        st_buffer(dist = units::set_units(2, "m"))
 
       # Step 1: Find the minimum rectangle that bounds the parcel, then use that
       # rectangle to determine the parcel's orientation and length. These values
