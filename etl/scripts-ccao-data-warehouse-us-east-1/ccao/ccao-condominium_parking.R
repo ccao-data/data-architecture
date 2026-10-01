@@ -72,7 +72,7 @@ nonlivable %>%
   bind_rows() %>%
   mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
-  arrow::write_dataset(
+  write_dataset(
     path = output_bucket,
     format = "parquet",
     hive_style = TRUE,
