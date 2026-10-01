@@ -15,7 +15,7 @@ AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 input_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "ccao", "corner")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "ccao", "corner")
-street_tmp_dir <- file.path(here(), "street-tmp")
+street_tmp_dir <- here("street-tmp")
 
 # Get the parcel file years for which we should make corner lot indicators
 parcel_path <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
@@ -43,8 +43,6 @@ cook_boundary <- read_s3_geoparquet(
 # Iterate over the years and townships, saving the results to a Parquet file
 # on S3 after each iteration
 for (iter_year in parcel_years) {
-  tictoc::tic(paste("Finished processing corners for:", iter_year))
-
   # Check to see if year has already been process for *all* townships
   year_townships <- aws.s3::get_bucket_df(
     AWS_S3_WAREHOUSE_BUCKET,
@@ -54,7 +52,7 @@ for (iter_year in parcel_years) {
     nrow()
 
   if (year_townships < length(ccao::town_dict$township_code)) {
-    print(paste("Processing corners for:", iter_year))
+    tic(paste("Processed corners for ", iter_year))
     # Load the full year's parcel file to iterate though by township
     parcels <- open_dataset(parcel_path) %>%
       filter(year == iter_year) %>%
@@ -269,8 +267,8 @@ for (iter_year in parcel_years) {
           select(-id) %>%
           geoparquet_to_s3(s3_uri = remote_file)
       }
-      tictoc::toc()
     }
+    toc()
   }
 }
 
