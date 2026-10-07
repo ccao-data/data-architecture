@@ -22,23 +22,9 @@ parcel_path <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
 parcel_years <- open_dataset(parcel_path) %>%
   distinct(year) %>%
   collect() %>%
+  # Drop years before 2014, since OSM data for roads is spotty prior to that
+  filter(year >= 2014) %>%
   pull(year)
-
-# Drop years before 2014, since OSM data for roads is spotty prior to that
-parcel_years <- parcel_years[parcel_years >= 2014]
-
-# Grab the bounding box for Cook County, which is used to query OSM for streets
-cook_boundary <- read_s3_geoparquet(
-  file.path(
-    AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county/2019.parquet"
-  )
-) %>%
-  select(-geometry_3435) %>%
-  st_transform(3435) %>%
-  st_as_sfc() %>%
-  st_buffer(3000, endCapStyle = "FLAT", joinStyle = "MITRE") %>%
-  st_transform(4326) %>%
-  st_bbox()
 
 # Iterate over the years and townships, saving the results to a Parquet file
 # on S3 after each iteration
