@@ -6,6 +6,9 @@ modeling, reporting, and data integrity work.
 
 ## Quick Links
 
+- [:blue_book: How the CCAO Data team manages data
+  infrastructure](https://ccao-data.github.io/blog/posts/data-architecture/) -
+  Blog post with a bird's-eye view of our data architecture
 - [:file_folder: dbt Data Catalog](https://ccao-data.github.io/data-architecture/#!/overview) -
   Documentation for all CCAO data lakehouse tables and views
 - [:nut_and_bolt: dbt README](/dbt/README.md) - How to develop CCAO data
