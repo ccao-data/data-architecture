@@ -239,10 +239,8 @@ for (iter_year in parcel_years) {
             geometry = st_make_valid(st_union(geometry))
           ) %>%
           st_cast("MULTILINESTRING") %>%
-          rename(geometry_3435 = geometry) %>%
-          mutate(
-            geometry = st_make_valid(st_transform(geometry_3435, 4326))
-          ) %>%
+          mutate(geometry_3435 = geometry) %>%
+          st_transform(4326) %>%
           relocate(geometry_3435, .after = geometry)
 
         # Write the final results to a Parquet file on S3
