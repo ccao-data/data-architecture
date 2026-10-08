@@ -42,7 +42,9 @@ for (iter_year in parcel_years) {
     # Load the full year's parcel file to iterate though by township
     parcels <- open_dataset(parcel_path) %>%
       filter(year == iter_year) %>%
-      collect_s3_geodataset()
+      collect_s3_geodataset() %>%
+      select(-geometry_3435) %>%
+      st_transform(3435)
 
     # Fetch the OSM street network for the county, removing any OSM way types
     # that are not main roads
@@ -74,7 +76,6 @@ for (iter_year in parcel_years) {
         # "edge" of the township have their correct set of neighbors to check in
         # Step 3 below
         town_bbox <- town_parcels %>%
-          st_transform(3435) %>%
           st_bbox() %>%
           st_as_sfc() %>%
           st_buffer(3000, endCapStyle = "FLAT", joinStyle = "MITRE") %>%
@@ -88,13 +89,13 @@ for (iter_year in parcel_years) {
             between(lon, town_bbox$xmin, town_bbox$xmax) &
               between(lat, town_bbox$ymin, town_bbox$ymax)
           ) %>%
-          st_transform(3435) %>%
           st_buffer(dist = units::set_units(2, "m"))
 
         # Step 1: Find the minimum rectangle that bounds the parcel, then use
         # that rectangle to determine the parcel's orientation and length. These
         # values are used in the next step to draw a cross on the parcel
         town_mrr <- town_parcels %>%
+          st_transform(4326) %>%
           st_minimum_rotated_rectangle() %>%
           select(lon, lat, geometry) %>%
           mutate(id = row_number()) %>%
