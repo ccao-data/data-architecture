@@ -1,9 +1,9 @@
-library("ccao")
-library("dplyr")
-library("glue")
-library("geoarrow")
-library("sf")
-library("stringr")
+library(arrow)
+library(ccao)
+library(dplyr)
+library(glue)
+library(sf)
+library(stringr)
 source("utils.R")
 
 # This script builds shapefiles that are not pure representations of data in the
@@ -19,17 +19,17 @@ output_path <- file.path(
 )
 
 # Ingest county shapefile to make sure we never wander outside its borders
-county <- read_geoparquet_sf(
-  "s3://ccao-data-warehouse-us-east-1/spatial/ccao/county/2019.parquet"
+county <- read_s3_geoparquet(
+  paste0(AWS_S3_WAREHOUSE_BUCKET, "/spatial/ccao/county/2019.parquet")
 ) %>%
   st_transform(3435) %>%
   select(geometry)
 
 # Ingest City of Chicago community areas
-city <- read_geoparquet_sf(
-  file.path(
+city <- read_s3_geoparquet(
+  paste0(
     AWS_S3_WAREHOUSE_BUCKET,
-    "spatial/other/community_area/year=2018/part-0.parquet"
+    "/spatial/other/community_area/year=2018/part-0.parquet"
   )
 ) %>%
   st_transform(3435) %>%
