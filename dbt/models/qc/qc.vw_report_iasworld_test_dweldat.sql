@@ -73,6 +73,7 @@
         "description": 'cur should be "Y" or "D"',
         "category": "incorrect_values",
         "condition": "cur IN ('Y', 'D')",
+        "where": "",
         "additional_select_columns": ["cur"]
     },
     {
@@ -920,6 +921,17 @@
     }
 ] -%}
 
+{#- Excludes non-regression classes, as defined in Assessor's online PDF of
+    all class definitions -#}
+{%- set default_where = (
+    "cur = 'Y' "
+    "AND deactivat IS NULL "
+    "AND class NOT IN ("
+        "'201', '213', '218', '219', '220', '221', '224', '225', "
+        "'236', '240', '241', '290', '294', '297'"
+    ")"
+) -%}
+
 {%- set base_query %}
     SELECT
         -- Identifying columns
@@ -936,6 +948,7 @@
         dweldat.bsmt,
         dweldat.calc_meth,
         dweldat.cur,
+        dweldat.deactivat,
         dweldat.external_calc_rcnld,
         dweldat.external_occpct,
         dweldat.external_propct,
@@ -969,15 +982,25 @@
         dweldat.wbfp_o,
         dweldat.yrblt,
         -- Computed columns for tests
-        LAG(dweldat.seq)
-            OVER (
-                PARTITION BY dweldat.parid, dweldat.taxyr, dweldat.card
-                ORDER BY dweldat.seq
-            ) AS prev_seq,
-        COUNT(*)
-            OVER (PARTITION BY dweldat.parid, dweldat.taxyr, dweldat.card)
-            AS num_duplicates
-    FROM {{ source('iasworld', 'dweldat') }} AS dweldat
+        dweldat.prev_seq,
+        dweldat.num_duplicates
+    FROM (
+        -- Compute window functions over the source table alone, partitioned
+        -- by default_where so that records that don't pass the default
+        -- filters can't affect the results for records that do
+        SELECT
+            *,
+            LAG(seq)
+                OVER (
+                    PARTITION BY parid, taxyr, card, ({{ default_where }})
+                    ORDER BY seq
+                )
+                AS prev_seq,
+            COUNT(*)
+                OVER (PARTITION BY parid, taxyr, card, ({{ default_where }}))
+                AS num_duplicates
+        FROM {{ source('iasworld', 'dweldat') }}
+    ) AS dweldat
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
         ON dweldat.parid = legdat.parid
         AND dweldat.taxyr = legdat.taxyr
@@ -990,12 +1013,8 @@
         AND dweldat.taxyr = pardat.taxyr
         AND pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
-    WHERE dweldat.cur = 'Y'
-        AND dweldat.deactivat IS NULL
-        AND dweldat.class NOT IN (
-            '201', '213', '218', '219', '220', '221', '224', '225',
-            '236', '240', '241', '290', '294', '297'
-        )
 {% endset %}
 
-{{ generate_iasworld_qc_test_view(base_query, tests) }}
+{{ generate_iasworld_qc_test_view(
+    base_query, tests, default_where=default_where
+) }}
