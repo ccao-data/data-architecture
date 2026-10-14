@@ -26,6 +26,8 @@ flags AS (
         chars.char_building_pins
         - chars.char_building_non_units AS char_building_livable_units,
         chars.char_yrblt,
+        chars.is_parking_space,
+        chars.parking_space_flag_reason,
         COALESCE(chars.char_half_baths > 2, FALSE) AS flag_half_baths,
         COALESCE(chars.char_full_baths > 4, FALSE) AS flag_full_baths,
         COALESCE(chars.char_bedrooms > 4, FALSE) AS flag_bedrooms,
@@ -41,7 +43,14 @@ flags AS (
             FALSE
         ) AS flag_building_sf,
         COALESCE(
-            SUM(chars.char_unit_sf) OVER (PARTITION BY chars.pin10, chars.year)
+            -- Make sure to ignore any values for parking spaces, even though
+            -- they shouldn't be non-NULL
+            SUM(
+                CASE
+                    WHEN chars.is_parking_space = TRUE THEN 0 ELSE
+                        chars.char_unit_sf
+                END
+            ) OVER (PARTITION BY chars.pin10, chars.year)
             > chars.char_building_sf,
             FALSE
         ) AS flag_unit_sf_sum,
@@ -68,7 +77,17 @@ flags AS (
         COALESCE(
             chars.char_yrblt NOT BETWEEN 1880 AND YEAR(CURRENT_DATE), FALSE
         )
-            AS flag_yrblt
+            AS flag_yrblt,
+        COALESCE(
+            chars.is_parking_space
+            AND (
+                chars.char_unit_sf IS NOT NULL
+                OR chars.char_full_baths IS NOT NULL
+                OR chars.char_half_baths IS NOT NULL
+                OR chars.char_bedrooms IS NOT NULL
+            ),
+            FALSE
+        ) AS flag_parking_space_chars
     FROM {{ ref('default.vw_pin_condo_char') }} AS chars
     LEFT JOIN towns
         ON chars.township_code = towns.township_code
@@ -114,6 +133,10 @@ comments AS (
                         'Year Built not between 1880 and ',
                         CAST(YEAR(CURRENT_DATE) AS VARCHAR)
                     )
+            END,
+            CASE
+                WHEN flag_parking_space_chars
+                    THEN 'Parking space has non-null characteristics'
             END
         ), '') AS flag_comments
     FROM flags
