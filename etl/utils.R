@@ -60,6 +60,14 @@ open_data_to_s3 <- function(s3_bucket_uri,
 
 
 geoparquet_to_s3 <- function(spatial_df, s3_uri) {
+  # This function writes a spatial data frame to a parquet file and uploads it
+  # to S3. It first detects any geometry columns in the spatial data frame and
+  # records their names and CRS for later use in the `geometry_info` column. It
+  # then converts the geometry columns to WKB format, drops the original
+  # geometry columns, and renames the new WKB columns back to their original
+  # names. Finally, it writes the modified data frame to a parquet file and
+  # uploads it to S3.
+
   # Detect any geometry columns in the spatial data frame.
   geometry_columns <- spatial_df %>%
     select(where(~ inherits(.x, "sfc"))) %>%
@@ -242,12 +250,17 @@ parquet_to_sf <- function(spatial_df) {
 }
 
 read_s3_geoparquet <- function(s3_uri) {
+  # Wrapper for `parquet_to_sf()` that allows for reading in a single parquet
   read_parquet(s3_uri) %>%
     parquet_to_sf()
 }
 
 
 collect_s3_geodataset <- function(spatial_dataset) {
+  # Wrapper for `parquet_to_sf()` that allows for reading in a dataset from S3
+  # that is partitioned by one or more columns. The `spatial_dataset` argument
+  # should be a `dplyr` dataset object that has been created using the
+  # `arrow::open_dataset()` function.
   spatial_dataset %>%
     collect() %>%
     parquet_to_sf()
