@@ -1,7 +1,7 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
-library(purrr)
+library(stringr)
 library(tidyr)
 source("utils.R")
 
@@ -19,8 +19,8 @@ raw_file <- file.path(
 
 # Just need to properly format PUMA and change data from wide to long
 read_parquet(raw_file) %>%
-  rename(geoid = puma) %>%
-  mutate(geoid = gsub("p", "170", geoid)) %>%
+  mutate(geoid = str_replace(puma, "HP1U_p", "170")) %>%
+  select(-puma) %>%
   pivot_longer(
     cols = !c("geoid"),
     names_to = c("year", "quarter"),

@@ -3,7 +3,6 @@ library(dplyr)
 library(janitor)
 library(openxlsx)
 library(rvest)
-library(stringr)
 library(tibble)
 
 # This script retrieves raw DePaul IHS data for the data lake. It assumes two
@@ -32,5 +31,4 @@ data.frame(t(
   # shift up first row, shift over column names
   row_to_names(1) %>%
   rownames_to_column("puma") %>%
-  mutate(puma = str_replace(puma, "HP1U_", "")) %>%
   write_parquet(remote_file)
