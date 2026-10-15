@@ -4,7 +4,7 @@ library(dplyr)
 library(janitor)
 library(openxlsx)
 library(rvest)
-source("utils.R")
+library(tibble)
 
 # This script retrieves raw DePaul IHS data for the data lake. It assumes two
 # things about the imported .xlsx:
@@ -26,13 +26,11 @@ remote_file <- file.path(output_bucket, paste0("ihs_price_index_data.parquet"))
 
 # Grab the data, clean it just a bit, and write if it doesn't already exist
 data.frame(t(
-  read.xlsx(most_recent_ihs_data_url, sheet = 2) %>%
-    select(-c("X2", "X3", "X4"))
+  read.xlsx(most_recent_ihs_data_url, sheet = 2, cols = 5:41)
 )) %>%
   # Names and columns are kind of a mess after the transpose,
   # shift up first row, shift over column names
   row_to_names(1) %>%
-  mutate(puma = rownames(.)) %>%
-  relocate(puma, .before = "YEARQ") %>%
-  rename(name = "YEARQ") %>%
+  rownames_to_column("puma") %>%
+  mutate(puma = str_replace(puma, "HP1U_", "")) %>%
   write_parquet(remote_file)

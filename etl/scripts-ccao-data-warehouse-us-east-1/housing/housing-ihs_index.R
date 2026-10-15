@@ -22,7 +22,7 @@ read_parquet(raw_file) %>%
   rename(geoid = puma) %>%
   mutate(geoid = gsub("p", "170", geoid)) %>%
   pivot_longer(
-    cols = !c("geoid", "name"),
+    cols = !c("geoid"),
     names_to = c("year", "quarter"),
     names_sep = "Q",
     values_to = "ihs_index"
