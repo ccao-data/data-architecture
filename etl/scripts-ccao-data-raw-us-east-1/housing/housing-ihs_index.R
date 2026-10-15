@@ -1,9 +1,9 @@
 library(arrow)
-library(aws.s3)
 library(dplyr)
 library(janitor)
 library(openxlsx)
 library(rvest)
+library(stringr)
 library(tibble)
 
 # This script retrieves raw DePaul IHS data for the data lake. It assumes two
