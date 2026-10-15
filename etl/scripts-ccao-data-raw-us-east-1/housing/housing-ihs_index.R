@@ -5,10 +5,7 @@ library(openxlsx)
 library(rvest)
 library(tibble)
 
-# This script retrieves raw DePaul IHS data for the data lake. It assumes two
-# things about the imported .xlsx:
-# - Three unnamed columns renamed "X1", "X2", and "X3" by R and
-# - The value of the first row/column being "YEARQ"
+# This script retrieves raw DePaul IHS data for the data lake
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "housing", "ihs_index")
 
@@ -23,7 +20,8 @@ most_recent_ihs_data_url <- rvest::read_html(
 # Get S3 file address
 remote_file <- file.path(output_bucket, paste0("ihs_price_index_data.parquet"))
 
-# Grab the data, clean it just a bit, and write if it doesn't already exist
+# Grab the data, clean it just a bit, and write if it doesn't already exist.
+# Ignore columns before 5 and after 41.
 data.frame(t(
   read.xlsx(most_recent_ihs_data_url, sheet = 2, cols = 5:41)
 )) %>%
