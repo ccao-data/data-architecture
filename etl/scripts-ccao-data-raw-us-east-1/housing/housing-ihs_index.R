@@ -26,7 +26,7 @@ remote_file <- file.path(output_bucket, paste0("ihs_price_index_data.parquet"))
 
 # It's worth noting that the file read into R using the link scraped from the
 # site's html is not the same as the file downloaded manually from the site. The
-# later contains PUMA names and is formatted with frozen panes which I suspect
+# latter contains PUMA names and is formatted with frozen panes which I suspect
 # is causing the difference. I made sure this isn't just an artifact of
 # openxlsx::read.xlsx() by downloading the file from the scraped html and
 # reading it in with readxl::read_excel() (which can handle frozen panes),
