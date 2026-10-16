@@ -234,7 +234,7 @@ bind_rows(
   # But, we prioritize the most recent dataset.
   filter(data_year == max(data_year)) %>%
   select(-data_year) %>%
-  arrow::write_dataset(
+  write_dataset(
     path = remote_file_warehouse_nbhd_rate,
     format = "parquet",
     hive_style = TRUE,
