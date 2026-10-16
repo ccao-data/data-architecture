@@ -21,7 +21,19 @@ most_recent_ihs_data_url <- rvest::read_html(
 remote_file <- file.path(output_bucket, paste0("ihs_price_index_data.parquet"))
 
 # Grab the data, clean it just a bit, and write if it doesn't already exist.
-# Ignore columns before 5 and after 41.
+# Ignore columns before 5 and after 41: columns 1-4 are aggregated values for
+# the city, county, and suburbs, while columns 42+ are racial breakouts.
+
+# It's worth noting that the file read into R using the link scraped from the
+# site's html is not the same as the file downloaded manually from the site. The
+# later contains PUMA names and is formatted with frozen panes which I suspect
+# is causing the difference. I made sure this isn't just an artifact of
+# openxlsx::read.xlsx() by downloading the file from the scraped html and
+# reading it in with readxl::read_excel() (which can handle frozen panes),
+# which produced the same result as reading in the file from the link. Finally,
+# the link scraped from the html is NOT the same as the link the download button
+# on the page points to, though the underlying data are the same: the html
+# points to a self-hosted file while the download button points to AWS S3.
 data.frame(t(
   read.xlsx(most_recent_ihs_data_url, sheet = 2, cols = 5:41)
 )) %>%
