@@ -95,8 +95,8 @@ for (iter_year in parcel_years) {
         # that rectangle to determine the parcel's orientation and length. These
         # values are used in the next step to draw a cross on the parcel
         town_mrr <- town_parcels %>%
-          st_transform(4326) %>%
           st_minimum_rotated_rectangle() %>%
+          st_transform(4326) %>%
           select(lon, lat, geometry) %>%
           mutate(id = row_number()) %>%
           st_cast("POINT") %>%
