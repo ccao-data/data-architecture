@@ -1,5 +1,6 @@
 sources:
   - name: spatial
+    schema: z_dev_wridgeway_spatial
     config:
       tags:
         - load_manual

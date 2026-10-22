@@ -1,7 +1,6 @@
 library(aws.s3)
 library(arrow)
 library(dplyr)
-library(geoarrow)
 library(glue)
 library(noctua)
 library(purrr)
