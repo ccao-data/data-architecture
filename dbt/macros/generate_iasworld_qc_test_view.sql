@@ -37,13 +37,6 @@
             `data_test_iasworld_year_start` dbt variable.
         end_year (optional): The latest taxyr to include. Defaults to the
             `data_test_iasworld_year_end` dbt variable.
-        default_where (optional): A SQL boolean expression, evaluated against
-            `base_query`, that restricts the records that each test applies
-            to. Tests can override it using their `where` key. Since this
-            filter is applied after `base_query`, filters that only some tests
-            need should go here rather than in the WHERE clause of
-            `base_query`.
-
     Returns:
         A query that selects one row per record per failing test.
 -#}
