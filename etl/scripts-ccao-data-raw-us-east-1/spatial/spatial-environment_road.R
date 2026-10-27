@@ -74,7 +74,13 @@ walk(years, \(x) {
         } else {
           INV_CO == "016"
         }) %>%
-        mutate(year = as.character(x))
+        mutate(year = as.character(x)) %>%
+        # The IDOT shapefiles don't have a set CRS. As far as I can tell, the
+        # CRS is EPSG:3436. We will set it to that and then transform to
+        # EPSG:4326.
+        st_set_crs(3436) %>%
+        st_transform(4326) %>%
+        st_make_valid()
 
       # Save the shapefile as a GeoParquet file
       sfarrow::st_write_parquet(shapefile_data, remote_file_path)
