@@ -29,16 +29,19 @@
             - additional_select_columns (optional): A list of column names
                 from `base_query` to include in the output as a map of column
                 name -> stringified value for records that fail the test
+            - where (optional): A SQL boolean expression, evaluated against
+                `base_query`, that restricts the records this test applies to.
+                Overrides `default_where` for this test. Set to an empty
+                string to disable `default_where` for this test
         start_year (optional): The earliest taxyr to include. Defaults to the
             `data_test_iasworld_year_start` dbt variable.
         end_year (optional): The latest taxyr to include. Defaults to the
             `data_test_iasworld_year_end` dbt variable.
-
     Returns:
         A query that selects one row per record per failing test.
 -#}
 {% macro generate_iasworld_qc_test_view(
-    base_query, tests, start_year=none, end_year=none
+    base_query, tests, start_year=none, end_year=none, default_where=none
 ) %}
     {%- set start_year = (
         start_year
@@ -68,6 +71,7 @@
         )
 
     {% for test in tests %}
+            {%- set test_where = test["where"] if "where" in test else default_where %}
         select
             parid,
             taxyr,
@@ -101,7 +105,10 @@
             {%- else -%} cast(null as map(varchar, varchar)) as additional_columns
             {%- endif %}
         from test_result
-        where {{ test.name }} {{ "UNION ALL" if not loop.last }}
+        where
+            {{ test.name }}
+            {%- if test_where %} and ({{ test_where }}) {%- endif %}
+            {{ "UNION ALL" if not loop.last }}
     {% endfor %}
 {% endmacro %}
 

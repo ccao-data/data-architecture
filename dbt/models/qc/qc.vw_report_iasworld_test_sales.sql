@@ -4,6 +4,7 @@
         "description": 'cur should be "Y" or "D"',
         "category": "incorrect_values",
         "condition": "cur IN ('Y', 'D')",
+        "where": "",
         "additional_select_columns": ["cur"]
     },
     {
@@ -48,6 +49,8 @@
     }
 ] -%}
 
+{%- set default_where = "cur = 'Y' AND deactivat IS NULL" -%}
+
 {%- set base_query %}
     SELECT
         -- Identifying columns
@@ -61,15 +64,24 @@
         sales.wen,
         -- Columns to test
         sales.cur,
+        sales.deactivat,
         sales.instrtyp,
         sales.price,
         sales.saledt,
         sales.instruno,
         pardat.parid AS pardat_parid,
-        COUNT(*)
-            OVER (PARTITION BY sales.parid, sales.instruno)
-            AS num_duplicates
-    FROM {{ source('iasworld', 'sales') }} AS sales
+        sales.num_duplicates
+    FROM (
+        -- Compute window functions over the source table alone, partitioned
+        -- by default_where so that records that don't pass the default
+        -- filters can't affect the results for records that do
+        SELECT
+            *,
+            COUNT(*)
+                OVER (PARTITION BY parid, instruno, ({{ default_where }}))
+                AS num_duplicates
+        FROM {{ source('iasworld', 'sales') }}
+    ) AS sales
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
         ON sales.parid = legdat.parid
         AND SUBSTR(sales.saledt, 1, 4) = legdat.taxyr
@@ -82,8 +94,8 @@
             AND deactivat IS NULL
     ) AS pardat
         ON sales.parid = pardat.parid
-    WHERE sales.cur = 'Y'
-        AND sales.deactivat IS NULL
 {% endset %}
 
-{{ generate_iasworld_qc_test_view(base_query, tests, start_year='2011') }}
+{{ generate_iasworld_qc_test_view(
+    base_query, tests, start_year='2011', default_where=default_where
+) }}
