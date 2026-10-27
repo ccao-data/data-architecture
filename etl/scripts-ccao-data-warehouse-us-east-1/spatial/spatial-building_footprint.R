@@ -2,7 +2,7 @@ library(arrow)
 library(aws.s3)
 library(DBI)
 library(dplyr)
-library(geoarrow)
+library(sfarrow)
 library(glue)
 library(here)
 library(noctua)
@@ -143,7 +143,7 @@ if (!aws.s3::object_exists(ms_remote)) {
 
   # The microsoft footprints file includes the whole state of IL
   # We need to clip it to only include Cook County
-  cook_boundary <- read_geoparquet_sf(
+  cook_boundary <- st_read_parquet(
     file.path(
       AWS_S3_WAREHOUSE_BUCKET,
       "spatial/ccao/county/2019.parquet"

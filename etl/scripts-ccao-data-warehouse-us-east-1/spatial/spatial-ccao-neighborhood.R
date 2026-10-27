@@ -1,7 +1,7 @@
 library(arrow)
 library(ccao)
 library(dplyr)
-library(geoarrow)
+library(sfarrow)
 library(geojsonio)
 library(purrr)
 library(sf)
@@ -102,7 +102,7 @@ for (year in 2010:2021) {
   # the boundary of the whole county, divide it into a grid, get the difference
   # between the neighborhoods and the grid, the merge the diff'd grid squares to
   # the neighborhoods
-  cook_boundary <- read_geoparquet_sf(file.path(
+  cook_boundary <- st_read_parquet(file.path(
     AWS_S3_WAREHOUSE_BUCKET,
     "spatial/ccao/county/2019.parquet"
   )) %>%

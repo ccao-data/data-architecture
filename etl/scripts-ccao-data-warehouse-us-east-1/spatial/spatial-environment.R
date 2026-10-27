@@ -1,7 +1,7 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
-library(geoarrow)
+library(sfarrow)
 library(here)
 library(purrr)
 library(readr)
@@ -37,7 +37,7 @@ walk(coastline_years, function(x) {
 
     # We need to clip the coastlines to only include Cook County
     if (!exists("cook_boundary")) {
-      cook_boundary <<- read_geoparquet_sf(
+      cook_boundary <<- st_read_parquet(
         file.path(
           AWS_S3_WAREHOUSE_BUCKET,
           "spatial/ccao/county/2019.parquet"
