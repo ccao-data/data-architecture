@@ -1,5 +1,4 @@
 library(dplyr)
-library(sfarrow)
 library(sf)
 library(stringr)
 library(tidygeocoder)

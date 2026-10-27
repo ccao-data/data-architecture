@@ -1,7 +1,6 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
-library(sfarrow)
 library(here)
 library(sf)
 library(stringr)

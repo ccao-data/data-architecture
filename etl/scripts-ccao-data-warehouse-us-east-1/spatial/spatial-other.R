@@ -1,6 +1,5 @@
 library(aws.s3)
 library(dplyr)
-library(sfarrow)
 library(purrr)
 library(sf)
 library(stringr)
