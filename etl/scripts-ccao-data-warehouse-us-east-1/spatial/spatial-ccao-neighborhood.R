@@ -20,7 +20,7 @@ for (year in 2010:2021) {
   message("Now processing year: ", year)
 
   # Load the parcels file from S3
-  parcels <- geoarrow::geoarrow_collect_sf(arrow::open_dataset(
+  parcels <- sfarrow::read_sf_dataset(arrow::open_dataset(
     paste0("s3://ccao-data-warehouse-us-east-1/spatial/parcel/year=", year)
   ))
 
