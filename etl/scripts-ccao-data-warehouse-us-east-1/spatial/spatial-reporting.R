@@ -20,7 +20,7 @@ output_path <- file.path(
 
 # Ingest county shapefile to make sure we never wander outside its borders
 county <- st_read_parquet(
-  "s3://ccao-data-warehouse-us-east-1/spatial/ccao/county/2019.parquet"
+  file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county/2019.parquet")
 ) %>%
   st_transform(3435) %>%
   select(geometry)
