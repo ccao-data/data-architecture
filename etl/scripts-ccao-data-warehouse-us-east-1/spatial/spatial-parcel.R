@@ -2,7 +2,7 @@ library(arrow)
 library(aws.s3)
 library(data.table)
 library(dplyr)
-library(geoarrow)
+library(sfarrow)
 library(here)
 library(noctua)
 library(purrr)
@@ -410,7 +410,7 @@ process_parcel_file <- function(s3_bucket_uri,
       tictoc::toc()
     } else {
       message("Loading processed parcels from backup for: ", file_year)
-      spatial_df_final <- read_geoparquet_sf(local_backup_file)
+      spatial_df_final <- st_read_parquet(local_backup_file)
     }
 
     # Write final dataframe to dataset on S3, partitioned by town and year
