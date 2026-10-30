@@ -1519,6 +1519,9 @@ models:
         export_template:
           name: assessed_and_market_values
 
+  - name: qc.vw_sale_in_mydec_not_iasworld
+    description: '{{ doc("view_vw_sale_in_mydec_not_iasworld") }}'
+
   - name: qc.vw_sale_mydec_null_values
     description: '{{ doc("view_vw_sale_mydec_null_values") }}'
     config:

@@ -486,6 +486,14 @@ Pulled from the following Inquire queries:
 - `FP Checklist - Vacant Class, bldg value` (#1577) - Will C.
 {% enddocs %}
 
+# vw_sale_in_mydec_not_iasworld
+
+{% docs view_vw_sale_in_mydec_not_iasworld %}
+All sales in `sale.mydec` that do not have a matching sale in
+`iasworld.sales`, joined on document number.
+
+{% enddocs %}
+
 # vw_sale_mydec_null_values
 
 {% docs view_vw_sale_mydec_null_values %}
