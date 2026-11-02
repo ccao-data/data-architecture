@@ -59,7 +59,11 @@ address_match AS (
 SELECT
     mydec.document_number,
     mydec.line_4_instrument_date,
-    mydec.full_address,
+    -- Strip control characters that openpyxl refuses to write to Excel
+    -- worksheets, since this free-text field can contain them
+    REGEXP_REPLACE(
+        mydec.full_address, '[\x{00}-\x{08}\x{0B}\x{0C}\x{0E}-\x{1F}]', ''
+    ) AS full_address,
     mydec.line_1_primary_pin,
     pardat.class,
     address_match.address_matched_pins,
