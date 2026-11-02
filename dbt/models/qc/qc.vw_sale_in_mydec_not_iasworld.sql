@@ -36,15 +36,15 @@ mydec_all AS (
         ) AS doc_row_num
     FROM mydec_clean
     WHERE NOT EXISTS (
-        SELECT 1
-        FROM {{ source('iasworld', 'sales') }} AS sales
-        WHERE sales.deactivat IS NULL
-            AND sales.cur = 'Y'
-            -- Strip non-digit characters (e.g. the "D" suffix) from iasWorld
-            -- instrument numbers too, so both sides are compared as digits
-            AND REGEXP_REPLACE(sales.instruno, '[^0-9]', '')
-            = mydec_clean.document_number_clean
-    )
+            SELECT 1
+            FROM {{ source('iasworld', 'sales') }} AS sales
+            WHERE sales.deactivat IS NULL
+                AND sales.cur = 'Y'
+                -- Strip non-digit characters (e.g. the "D" suffix) from iasWorld
+                -- instrument numbers too, so both sides are compared as digits
+                AND REGEXP_REPLACE(sales.instruno, '[^0-9]', '')
+                = mydec_clean.document_number_clean
+        )
 ),
 
 mydec AS (
