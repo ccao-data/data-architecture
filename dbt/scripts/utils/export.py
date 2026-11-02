@@ -13,6 +13,7 @@ import pandas as pd
 import pyathena
 import pyathena.pandas.cursor
 from dbt.cli.main import dbtRunner
+from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
 from openpyxl.styles import Alignment
 from openpyxl.utils import column_index_from_string, get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
@@ -286,10 +287,21 @@ def save_model_to_workbook(
     writer_kwargs = (
         {"mode": "a", "if_sheet_exists": "overlay"} if template_exists else {}
     )
+    # Strip control characters that openpyxl refuses to write to worksheets,
+    # since free-text fields like MyDec legal descriptions sometimes
+    # contain them
+    df = model.df.copy()
+    for col in df.select_dtypes(include="object").columns:
+        df[col] = df[col].map(
+            lambda val: ILLEGAL_CHARACTERS_RE.sub("", val)
+            if isinstance(val, str)
+            else val
+        )
+
     with pd.ExcelWriter(
         output_path, engine="openpyxl", **writer_kwargs
     ) as writer:
-        model.df.to_excel(
+        df.to_excel(
             writer,
             sheet_name=model.sheet_name,
             header=False if template_exists else True,

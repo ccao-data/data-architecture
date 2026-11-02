@@ -489,7 +489,7 @@ Pulled from the following Inquire queries:
 # vw_sale_in_mydec_not_iasworld
 
 {% docs view_vw_sale_in_mydec_not_iasworld %}
-All sales in `sale.mydec` that do not have a matching sale in
+All sales in `sale.mydec` from 2020 onward that do not have a matching sale in
 `iasworld.sales`, joined on document number.
 
 {% enddocs %}
