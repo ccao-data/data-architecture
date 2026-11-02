@@ -14,8 +14,8 @@ WITH mydec_clean AS (
         mydec.line_11_full_consideration,
         SUBSTR(mydec.year_of_sale, 1, 4) AS year,
         REGEXP_REPLACE(mydec.line_1_primary_pin, '[^0-9]', '') AS pin,
-        -- Normalize addresses so that MyDec unit numbers (e.g. "# 6S")
-        -- match the iasWorld format (e.g. "6S")
+        -- Normalize addresses so that MyDec unit numbers
+        -- match the iasWorld format #54 VS 54.
         TRIM(REGEXP_REPLACE(
             REPLACE(UPPER(mydec.line_1_street), '#', ''), '\s+', ' '
         )) AS address_normalized,
@@ -29,7 +29,7 @@ mydec_all AS (
     SELECT
         mydec_clean.*,
         -- Multi-sales have one row per PIN in MyDec. Keep one row per
-        -- document (the lowest PIN) so the view is unique by document number
+        -- document so the view is unique by document number
         ROW_NUMBER() OVER (
             PARTITION BY mydec_clean.document_number_clean
             ORDER BY mydec_clean.line_1_primary_pin
@@ -40,8 +40,7 @@ mydec_all AS (
             FROM {{ source('iasworld', 'sales') }} AS sales
             WHERE sales.deactivat IS NULL
                 AND sales.cur = 'Y'
-                -- Strip non-digit characters (e.g. the "D" suffix) from iasWorld
-                -- instrument numbers too, so both sides are compared as digits
+                -- Strip non-digit characters from iasWorld
                 AND REGEXP_REPLACE(sales.instruno, '[^0-9]', '')
                 = mydec_clean.document_number_clean
         )
