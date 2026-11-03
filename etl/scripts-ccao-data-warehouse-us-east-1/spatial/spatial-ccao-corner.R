@@ -1,30 +1,29 @@
-library(arrow)
 library(aws.s3)
 library(ccao)
 library(dplyr)
-library(sfarrow)
 library(glue)
 library(here)
-library(osmdata)
 library(purrr)
 library(sf)
 library(tictoc)
+source("utils.R")
 
 # This script detects corner lots in Cook County parcels and saves a boolean
 # indicator as well as the cross used by the corner detection algorithm
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+input_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "ccao", "corner")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "ccao", "corner")
+street_tmp_dir <- here("street-tmp")
 
 # Get the parcel file years for which we should make corner lot indicators
 parcel_path <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
 parcel_years <- open_dataset(parcel_path) %>%
   distinct(year) %>%
   collect() %>%
+  # Drop years before 2014, since OSM data for roads is spotty prior to that
+  filter(year >= 2014) %>%
   pull(year)
-
-# Drop years before 2014, since OSM data for roads is spotty prior to that
-parcel_years <- parcel_years[parcel_years >= 2014]
 
 # Iterate over the years and townships, saving the results to a Parquet file
 # on S3 after each iteration
