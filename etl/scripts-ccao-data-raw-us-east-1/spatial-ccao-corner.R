@@ -1,10 +1,10 @@
-library(arrow)
 library(aws.s3)
 library(dplyr)
 library(glue)
 library(here)
 library(osmdata)
 library(sf)
+library(sfarrow)
 source("utils.R")
 
 # This script grabs OSM street data for Cook County, IL and saves it to S3. The
@@ -23,13 +23,12 @@ parcel_years <- open_dataset(parcel_path) %>%
   pull(year)
 
 # Grab the bounding box for Cook County, which is used to query OSM for streets
-cook_boundary <- read_s3_geoparquet(
+cook_boundary <- st_read_parquet(
   file.path(
     AWS_S3_WAREHOUSE_BUCKET, "spatial/ccao/county/2019.parquet"
   )
 ) %>%
-  select(-geometry_3435) %>%
-  st_transform(3435) %>%
+  st_set_geometry(.$geometry_3435) %>%
   st_as_sfc() %>%
   st_buffer(3000, endCapStyle = "FLAT", joinStyle = "MITRE") %>%
   st_transform(4326) %>%
