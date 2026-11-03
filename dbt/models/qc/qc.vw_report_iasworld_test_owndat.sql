@@ -4,6 +4,7 @@
         "description": 'cur should be "Y" or "D"',
         "category": "incorrect_values",
         "condition": "cur IN ('Y', 'D')",
+        "where": "",
         "additional_select_columns": ["cur"]
     },
     {
@@ -28,6 +29,8 @@
     }
 ] -%}
 
+{%- set default_where = "cur = 'Y' AND deactivat IS NULL" -%}
+
 {%- set base_query %}
     SELECT
         -- Identifying columns
@@ -41,14 +44,27 @@
         owndat.wen,
         -- Columns to test
         owndat.cur,
+        owndat.deactivat,
         owndat.seq,
-        LAG(owndat.seq)
-            OVER (PARTITION BY owndat.parid, owndat.taxyr ORDER BY owndat.seq)
-            AS prev_seq,
-        COUNT(*)
-            OVER (PARTITION BY owndat.parid, owndat.taxyr)
-            AS num_duplicates
-    FROM {{ source('iasworld', 'owndat') }} AS owndat
+        owndat.prev_seq,
+        owndat.num_duplicates
+    FROM (
+        -- Compute window functions over the source table alone, partitioned
+        -- by default_where so that records that don't pass the default
+        -- filters can't affect the results for records that do
+        SELECT
+            *,
+            LAG(seq)
+                OVER (
+                    PARTITION BY parid, taxyr, ({{ default_where }})
+                    ORDER BY seq
+                )
+                AS prev_seq,
+            COUNT(*)
+                OVER (PARTITION BY parid, taxyr, ({{ default_where }}))
+                AS num_duplicates
+        FROM {{ source('iasworld', 'owndat') }}
+    ) AS owndat
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
         ON owndat.parid = legdat.parid
         AND owndat.taxyr = legdat.taxyr
@@ -59,8 +75,8 @@
         AND owndat.taxyr = pardat.taxyr
         AND pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
-    WHERE owndat.cur = 'Y'
-        AND owndat.deactivat IS NULL
 {% endset %}
 
-{{ generate_iasworld_qc_test_view(base_query, tests) }}
+{{ generate_iasworld_qc_test_view(
+    base_query, tests, default_where=default_where
+) }}
