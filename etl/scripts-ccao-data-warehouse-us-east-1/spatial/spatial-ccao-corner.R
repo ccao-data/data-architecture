@@ -30,7 +30,7 @@ parcel_years <- open_dataset(parcel_path) %>%
 # Iterate over the years and townships, saving the results to a Parquet file on
 # S3 after each iteration
 for (iter_year in parcel_years) {
-  # Check to see if year has already been process for *all* townships
+  # Check to see if year has already been processed for *all* townships
   year_townships <- aws.s3::get_bucket_df(
     AWS_S3_WAREHOUSE_BUCKET,
     prefix = file.path("spatial/ccao/corner", glue("year={iter_year}"))
