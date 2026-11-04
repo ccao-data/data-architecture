@@ -1,5 +1,7 @@
 -- View that returns all MyDec sales from 2020 onward that do not have a
 -- matching sale in iasWorld. Output is unique by document_number.
+
+-- MyDec sales from 2020 onward, with the document number, PIN, and address.
 WITH mydec_clean AS (
     SELECT
         mydec.document_number,
@@ -13,72 +15,30 @@ WITH mydec_clean AS (
         mydec.line_5_instrument_type,
         mydec.line_11_full_consideration,
         SUBSTR(mydec.year_of_sale, 1, 4) AS year,
-        REGEXP_REPLACE(mydec.line_1_primary_pin, '[^0-9]', '') AS pin,
-        -- Normalize addresses so that MyDec unit numbers
-        -- match the iasWorld format #54 VS 54.
-        TRIM(REGEXP_REPLACE(
-            REPLACE(UPPER(mydec.line_1_street), '#', ''), '\s+', ' '
-        )) AS address_normalized,
-        UPPER(TRIM(mydec.line_1_city)) AS city,
-        SUBSTR(mydec.line_1_zip_code, 1, 5) AS zip
+        REGEXP_REPLACE(mydec.line_1_primary_pin, '[^0-9]', '') AS pin
     FROM {{ source('sale', 'mydec') }} AS mydec
     WHERE SUBSTR(mydec.year_of_sale, 1, 4) >= '2020'
 ),
 
-mydec_all AS (
+-- MyDec sales with no matching sale in iasWorld, found with a left anti join
+-- on the digits-only document number
+mydec AS (
     SELECT
         mydec_clean.*,
-        -- Multi-sales have one row per PIN in MyDec. Keep one row per
-        -- document so the view is unique by document number
+        -- Multi-sales have one row per PIN in MyDec. Number the rows in each
+        -- document so that we can keep one row per document number
         ROW_NUMBER() OVER (
             PARTITION BY mydec_clean.document_number_clean
             ORDER BY mydec_clean.line_1_primary_pin
         ) AS doc_row_num
     FROM mydec_clean
-    WHERE NOT EXISTS (
-            SELECT 1
-            FROM {{ source('iasworld', 'sales') }} AS sales
-            WHERE sales.deactivat IS NULL
-                AND sales.cur = 'Y'
-                -- Strip non-digit characters from iasWorld
-                AND REGEXP_REPLACE(sales.instruno, '[^0-9]', '')
-                = mydec_clean.document_number_clean
-        )
-),
-
-mydec AS (
-    SELECT *
-    FROM mydec_all
-    WHERE doc_row_num = 1
-),
-
-pin_address AS (
-    SELECT
-        pin,
-        year,
-        TRIM(REGEXP_REPLACE(UPPER(prop_address_full), '\s+', ' '))
-            AS address_normalized,
-        UPPER(TRIM(prop_address_city_name)) AS city,
-        prop_address_zipcode_1 AS zip
-    FROM {{ ref('default.vw_pin_address') }}
-    WHERE year >= '2020'
-),
-
--- PINs whose iasWorld property address matches the MyDec address in the
--- year of sale. More than one PIN can match, e.g. condo units in a building
--- when the MyDec address has no unit number
-address_match AS (
-    SELECT
-        mydec.document_number_clean,
-        ARRAY_JOIN(ARRAY_AGG(DISTINCT pin_address.pin), ', ')
-            AS address_matched_pins
-    FROM mydec
-    INNER JOIN pin_address
-        ON mydec.address_normalized = pin_address.address_normalized
-        AND mydec.city = pin_address.city
-        AND mydec.zip = pin_address.zip
-        AND mydec.year = pin_address.year
-    GROUP BY mydec.document_number_clean
+    LEFT JOIN {{ source('iasworld', 'sales') }} AS sales
+        ON sales.deactivat IS NULL
+        AND sales.cur = 'Y'
+        -- Strip non-digit characters from iasWorld
+        AND REGEXP_REPLACE(sales.instruno, '[^0-9]', '')
+        = mydec_clean.document_number_clean
+    WHERE sales.instruno IS NULL
 )
 
 SELECT
@@ -88,10 +48,9 @@ SELECT
     -- worksheets, since this free-text field can contain them
     REGEXP_REPLACE(
         mydec.full_address, '[\x{00}-\x{08}\x{0B}\x{0C}\x{0E}-\x{1F}]', ''
-    ) AS full_address,
-    mydec.line_1_primary_pin,
+    ) AS mydec_address,
+    mydec.pin AS line_1_primary_pin,
     pardat.class,
-    address_match.address_matched_pins,
     mydec.line_5_instrument_type,
     mydec.line_11_full_consideration
 FROM mydec
@@ -100,5 +59,4 @@ LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
     AND mydec.year = pardat.taxyr
     AND pardat.cur = 'Y'
     AND pardat.deactivat IS NULL
-LEFT JOIN address_match
-    ON mydec.document_number_clean = address_match.document_number_clean
+WHERE mydec.doc_row_num = 1

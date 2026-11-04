@@ -1521,6 +1521,24 @@ models:
 
   - name: qc.vw_sale_in_mydec_not_iasworld
     description: '{{ doc("view_vw_sale_in_mydec_not_iasworld") }}'
+    config:
+      meta:
+        export_format:
+          columns:
+            - name: line_11_full_consideration
+              index: G
+              number_format: "#,##0"
+    data_tests:
+      - unique_combination_of_columns:
+          name: qc_vw_sale_in_mydec_not_iasworld_unique_by_document_number
+          arguments:
+            combination_of_columns:
+              - document_number
+          config:
+            meta:
+              description: |
+                vw_sale_in_mydec_not_iasworld should be unique by
+                document_number
 
   - name: qc.vw_sale_mydec_null_values
     description: '{{ doc("view_vw_sale_mydec_null_values") }}'
