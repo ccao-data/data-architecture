@@ -1,3 +1,4 @@
+library(arrow)
 library(aws.s3)
 library(ccao)
 library(dplyr)
@@ -242,12 +243,16 @@ for (iter_year in parcel_years) {
           relocate(geometry_3435, .after = geometry)
 
         # Write the final results to a Parquet file on S3
-        town_parcels %>%
-          mutate(id = row_number()) %>%
-          st_drop_geometry() %>%
-          select(pin10, id) %>%
-          inner_join(cross_final, by = "id") %>%
+        cross_final %>%
+          inner_join(
+            town_parcels %>%
+              mutate(id = row_number()) %>%
+              st_drop_geometry() %>%
+              select(pin10, id),
+            by = "id"
+          ) %>%
           select(-id) %>%
+          relocate(pin10) %>%
           geoparquet_to_s3(remote_file)
       }
     }
