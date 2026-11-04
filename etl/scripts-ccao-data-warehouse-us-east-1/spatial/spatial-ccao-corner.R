@@ -46,7 +46,7 @@ for (iter_year in parcel_years) {
       filter(year == iter_year) %>%
       read_sf_dataset()
 
-    # Load "main" streets" from the OSM street network for the county
+    # Load "main" streets from the OSM street network for the county
     tmp_file <- file.path(street_tmp_dir, paste0(iter_year, ".geojson"))
     if (!file.exists(tmp_file)) {
       save_s3_to_local(
