@@ -49,7 +49,6 @@ pwalk(gdb_files, function(...) {
 
 # We grab a little high-level data from iasworld to join with spatial parcel
 # data. Stuff like class, township, etc. that's nice to have.
-# Connect to CCAODATA SQL server
 iasworld_years <- unique(2000:format(Sys.Date(), "%Y"))
 parcels_remote_attr <- file.path(
   output_bucket, "parcel",
