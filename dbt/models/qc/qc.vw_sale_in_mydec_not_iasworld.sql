@@ -12,7 +12,13 @@ WITH mydec AS (
         mydec.line_11_full_consideration,
         mydec.line_3_additional_pins,
         SUBSTR(mydec.year_of_sale, 1, 4) AS year,
-        REGEXP_REPLACE(mydec.line_1_primary_pin, '[^0-9]', '') AS pin
+        REGEXP_REPLACE(mydec.line_1_primary_pin, '[^0-9]', '') AS pin,
+        -- we expect that this should be unique by document number
+        -- but we add this just to make sure
+        ROW_NUMBER() OVER (
+            PARTITION BY REGEXP_REPLACE(mydec.document_number, '[^0-9]', '')
+            ORDER BY mydec.line_1_primary_pin
+        ) AS doc_row_num
     FROM {{ source('sale', 'mydec') }} AS mydec
     LEFT JOIN {{ source('iasworld', 'sales') }} AS sales
         ON sales.deactivat IS NULL
@@ -42,3 +48,4 @@ LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
     AND mydec.year = pardat.taxyr
     AND pardat.cur = 'Y'
     AND pardat.deactivat IS NULL
+WHERE mydec.doc_row_num = 1
