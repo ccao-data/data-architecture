@@ -13,7 +13,7 @@ WITH mydec AS (
         mydec.line_3_additional_pins,
         SUBSTR(mydec.year_of_sale, 1, 4) AS year,
         REGEXP_REPLACE(mydec.line_1_primary_pin, '[^0-9]', '') AS pin,
-        -- we expect that this should be unique by document number
+        -- we expect that mydec should be unique by document number
         -- but we add this just to make sure
         ROW_NUMBER() OVER (
             PARTITION BY REGEXP_REPLACE(mydec.document_number, '[^0-9]', '')
