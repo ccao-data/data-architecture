@@ -64,20 +64,22 @@ walk(parcels_remote_attr, function(x) {
 
     dbGetQuery(
       AWS_ATHENA_CONN_NOCTUA, glue("
-        SELECT par.parid AS pin,
-        par.class,
-        leg.taxdist AS tax_code,
-        REGEXP_REPLACE(par.nbhd, '([^0-9])', '') AS nbhd_code,
-        leg.user1 AS town_code,
-        par.taxyr
-      FROM iasworld.pardat AS par
-        LEFT JOIN iasworld.legdat AS leg ON par.parid = leg.parid
-        AND par.taxyr = leg.taxyr
-        AND leg.cur = 'Y'
-        AND leg.deactivat IS NULL
-      WHERE par.cur = 'Y'
-        AND par.deactivat IS NULL
-        AND par.taxyr = '{year}'")
+        SELECT
+          par.parid AS pin,
+          par.class,
+          leg.taxdist AS tax_code,
+          REGEXP_REPLACE(par.nbhd, '([^0-9])', '') AS nbhd_code,
+          leg.user1 AS town_code,
+          par.taxyr
+        FROM iasworld.pardat AS par
+        LEFT JOIN iasworld.legdat AS leg
+          ON par.parid = leg.parid
+          AND par.taxyr = leg.taxyr
+          AND leg.cur = 'Y'
+          AND leg.deactivat IS NULL
+        WHERE par.cur = 'Y'
+          AND par.deactivat IS NULL
+          AND par.taxyr = '{year}'")
     ) %>%
       mutate(
         pin = str_pad(pin, 14, "left", "0"),
