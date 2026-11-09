@@ -7,7 +7,7 @@ library(purrr)
 library(sf)
 source("utils.R")
 
-# This script builds a map of combined tax code agencies.
+# This script builds a map of combined tax code agencies for a given tax year
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 export_path <- file.path(AWS_S3_WAREHOUSE_BUCKET, "export", "geojson")
 output_path <- file.path(
@@ -22,7 +22,8 @@ noctua_options(unload = TRUE)
 AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena(), rstudio_conn_tab = FALSE)
 
 # Aggregate agency names and nums by tax code and rate. This will allow us to
-# build a map of combined tax code agencies for a given tax year.
+# build a map of combined tax code agencies for a given tax year. We can also
+# grab the municipality name for a given taxe code.
 agencies <- dbGetQuery(
   conn = AWS_ATHENA_CONN_NOCTUA,
   glue_sql("
@@ -31,7 +32,9 @@ agencies <- dbGetQuery(
       code.tax_code_rate,
       agency.agency_num,
       info.agency_name,
-      info.minor_type
+      CASE
+        WHEN info.minor_type = 'MUNI' then info.agency_name ELSE NULL
+      END AS municipality
     FROM tax.agency
       LEFT JOIN tax.tax_code as code ON code.agency_num = agency.agency_num
       AND agency.year = code.year
@@ -41,11 +44,11 @@ agencies <- dbGetQuery(
   SELECT tax_code_num,
     tax_code_rate,
     ARRAY_AGG(agency_num ORDER BY agency_num) as agency_nums_list,
-    ARRAY_JOIN(
-      ARRAY_AGG(agency_name ORDER BY agency_name),
-      ', '
-    ) AS agency_names,
-    ARRAY_AGG(agency_name ORDER BY agency_name) as agency_names_list
+    LISTAGG(agency_name, ', ') WITHIN GROUP (ORDER BY agency_name)
+      AS agency_names,
+    ARRAY_AGG(agency_name ORDER BY agency_name) as agency_names_list,
+    LISTAGG(municipality, ', ') WITHIN GROUP (ORDER BY municipality)
+      AS municipality
   FROM tax_codes
   GROUP BY tax_code_num,
     tax_code_rate
@@ -58,8 +61,8 @@ agencies <- dbGetQuery(
   mutate(tax_code_group = cur_group_id(), .by = agency_names) %>%
   select(-agency_names)
 
-# Grab geometry for each pin and join with tax code agencies. This will allow us
-# to join on the combined agency names we built above.
+# Grab geometry and tax code for each pin. This will let us join on the combined
+# agency names we built above.
 pin_geometry <- dbGetQuery(
   conn = AWS_ATHENA_CONN_NOCTUA,
   glue_sql("
@@ -101,14 +104,17 @@ combine_list_elements <- function(x) {
   sort(c(common, if (length(varying) > 0) paste(varying, collapse = "/")))
 }
 
+# Combine parcel geometry and tax code information with the agency names and
+# numbers we built above.
 tax_map <- pin_geometry %>%
   left_join(agencies, by = "tax_code_num", ) %>%
   mutate(township = ccao::town_convert(substr(tax_code_num, 1, 2))) %>%
-  select(-tax_code_num) %>%
+  # Some PINs have multiple tax codes, so here we aggregate our data at the
+  # pin-level.
   summarise(
     tax_code_group = paste(unique(tax_code_group), collapse = "/"),
     tax_code_rate = paste(unique(tax_code_rate), collapse = "/"),
     agency_nums = list(combine_list_elements(agency_nums_list)),
     agency_names = list(combine_list_elements(agency_names_list)),
-    .by = c(pin10, township, geometry)
+    .by = c(pin10, township, municipality, geometry)
   )
