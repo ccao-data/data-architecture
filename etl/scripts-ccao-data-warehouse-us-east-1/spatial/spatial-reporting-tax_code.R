@@ -47,8 +47,8 @@ agencies <- dbGetQuery(
     LISTAGG(agency_name, ', ') WITHIN GROUP (ORDER BY agency_name)
       AS agency_names,
     ARRAY_AGG(agency_name ORDER BY agency_name) as agency_names_list,
-    LISTAGG(municipality, ', ') WITHIN GROUP (ORDER BY municipality)
-      AS municipality
+    COALESCE(LISTAGG(municipality, ', ') WITHIN GROUP
+      (ORDER BY municipality), 'UNINCORPORATED') AS municipality
   FROM tax_codes
   GROUP BY tax_code_num,
     tax_code_rate
@@ -104,17 +104,26 @@ combine_list_elements <- function(x) {
   sort(c(common, if (length(varying) > 0) paste(varying, collapse = "/")))
 }
 
-# Combine parcel geometry and tax code information with the agency names and
-# numbers we built above.
+# Combine parcel geometry and tax code information with the combo agency names
+# and numbers we built above.
 tax_map <- pin_geometry %>%
   left_join(agencies, by = "tax_code_num", ) %>%
   mutate(township = ccao::town_convert(substr(tax_code_num, 1, 2))) %>%
   # Some PINs have multiple tax codes, so here we aggregate our data at the
   # pin-level.
   summarise(
+    # Unfortunately there is one PIN (1230402050) that is partially in a
+    # municipality and unincorporated, so we have aggregate municipality as well
+    municipality = paste(unique(municipality), collapse = "/"),
     tax_code_group = paste(unique(tax_code_group), collapse = "/"),
     tax_code_rate = paste(unique(tax_code_rate), collapse = "/"),
     agency_nums = list(combine_list_elements(agency_nums_list)),
     agency_names = list(combine_list_elements(agency_names_list)),
-    .by = c(pin10, township, municipality, geometry)
+    .by = c(pin10, township, geometry)
+  )
+
+library(sfarrow)
+tax_map %>%
+  sfarrow::st_write_parquet(
+    file.path("tmp", glue("tax_code_map_{tax_year}.parquet")),
   )
