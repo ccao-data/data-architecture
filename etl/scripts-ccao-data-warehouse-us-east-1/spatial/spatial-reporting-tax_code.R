@@ -5,6 +5,8 @@ library(glue)
 library(noctua)
 library(purrr)
 library(sf)
+library(sfarrow)
+library(stringr)
 source("utils.R")
 
 # This script builds a map of combined tax code agencies for a given tax year
@@ -86,7 +88,11 @@ pin_geometry <- dbGetQuery(
     .con = AWS_ATHENA_CONN_NOCTUA
   )
 ) %>%
-  st_as_sf(crs = 4326)
+  st_as_sf(crs = 4326) %>%
+  # The CRS for this data is set to 4326, so that's what we ingest it as, but
+  # working with 3435 is faster and more accurate for buffering and other
+  # spatial operations.
+  st_transform(crs = 3435)
 
 # For a list of vectors (one per row in a group), keep elements common to every
 # row as individual values, and collapse elements that vary across rows into one
@@ -106,24 +112,56 @@ combine_list_elements <- function(x) {
 
 # Combine parcel geometry and tax code information with the combo agency names
 # and numbers we built above.
-tax_map <- pin_geometry %>%
-  left_join(agencies, by = "tax_code_num", ) %>%
-  mutate(township = ccao::town_convert(substr(tax_code_num, 1, 2))) %>%
-  # Some PINs have multiple tax codes, so here we aggregate our data at the
-  # pin-level.
-  summarise(
-    # Unfortunately there is one PIN (1230402050) that is partially in a
-    # municipality and unincorporated, so we have aggregate municipality as well
-    municipality = paste(unique(municipality), collapse = "/"),
-    tax_code_group = paste(unique(tax_code_group), collapse = "/"),
-    tax_code_rate = paste(unique(tax_code_rate), collapse = "/"),
-    agency_nums = list(combine_list_elements(agency_nums_list)),
-    agency_names = list(combine_list_elements(agency_names_list)),
-    .by = c(pin10, township, geometry)
-  )
+tmp_path <- file.path("tmp", glue("tax_code_map_{tax_year}.parquet"))
+if (!file.exists(tmp_path)) {
+  message(glue("Cleaning parcel geometry for {tax_year}..."))
 
-library(sfarrow)
-tax_map %>%
-  sfarrow::st_write_parquet(
-    file.path("tmp", glue("tax_code_map_{tax_year}.parquet")),
-  )
+  pin_geometry_clean <- pin_geometry %>%
+    left_join(agencies, by = "tax_code_num") %>%
+    mutate(township = ccao::town_convert(substr(tax_code_num, 1, 2))) %>%
+    # Some PINs have multiple tax codes, so here we aggregate our data at the
+    # pin-level.
+    summarise(
+      # Unfortunately there is one PIN (1230402050) that is partially in a
+      # municipality and unincorporated, so we have aggregate municipality as
+      # well
+      municipality = paste(unique(municipality), collapse = "/"),
+      tax_code_group = paste(unique(tax_code_group), collapse = "/"),
+      tax_code_rate = paste(unique(tax_code_rate), collapse = "/"),
+      agency_nums = list(combine_list_elements(agency_nums_list)),
+      agency_names = list(combine_list_elements(agency_names_list)),
+      .by = c(pin10, township, geometry)
+    )
+  pin_geometry_clean %>%
+    sfarrow::st_write_parquet(tmp_path)
+} else {
+  message(glue("Reading cleaned parcel geometry for {tax_year}..."))
+  pin_geometry_clean <- sfarrow::st_read_parquet(tmp_path)
+}
+
+tax_code_geometry <- pin_geometry_clean %>%
+  # Collapse agency names and numbers into a single string for each PIN to
+  # speed up summarizing and display better on a map.
+  mutate(across(
+    starts_with("agency_"), ~ map_chr(.x, ~ paste(.x, collapse = "<br>"))
+  )) %>%
+  summarise(
+    .by = c(
+      township,
+      municipality,
+      tax_code_group,
+      tax_code_rate,
+      agency_nums,
+      agency_names,
+    ),
+    across(geometry, st_union)
+  ) %>%
+  mutate(multiple_tax_code_group = str_detect(tax_code_group, "/"))
+
+# Clean up small spaces left between parcels that are part of the same tax code
+# group.
+buffer_dist <- 2
+tax_code_buffered <- tax_code_geometry %>%
+  st_buffer(dist = buffer_dist) %>%
+  st_buffer(dist = -buffer_dist) %>%
+  st_transform(crs = 4326)
