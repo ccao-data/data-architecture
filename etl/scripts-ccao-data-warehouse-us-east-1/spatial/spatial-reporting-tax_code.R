@@ -92,7 +92,8 @@ pin_geometry <- dbGetQuery(
   # The CRS for this data is set to 4326, so that's what we ingest it as, but
   # working with 3435 is faster and more accurate for buffering and other
   # spatial operations.
-  st_transform(crs = 3435)
+  st_transform(crs = 3435) %>%
+  mutate(township = ccao::town_convert(substr(tax_code_num, 1, 2)))
 
 # For a list of vectors (one per row in a group), keep elements common to every
 # row as individual values, and collapse elements that vary across rows into one
@@ -115,10 +116,8 @@ combine_list_elements <- function(x) {
 tmp_path <- file.path("tmp", glue("tax_code_map_{tax_year}.parquet"))
 if (!file.exists(tmp_path)) {
   message(glue("Cleaning parcel geometry for {tax_year}..."))
-
   pin_geometry_clean <- pin_geometry %>%
     left_join(agencies, by = "tax_code_num") %>%
-    mutate(township = ccao::town_convert(substr(tax_code_num, 1, 2))) %>%
     # Some PIN10s have multiple tax codes, there is one PIN10 (1230402050) that
     # is partially in a municipality and unincorporated, and there are a few
     # cases where stacked PIN10s with identical geometry have different tax
@@ -127,14 +126,16 @@ if (!file.exists(tmp_path)) {
     # polygons. Even doing this, we're still going to have some cases where
     # different PIN10s in different tax code groups have overlapping but not
     # identical geometry. That problem needs to be solved using spatial means.
-    group_by(geometry) %>%
+    group_by(township, geometry) %>%
     summarise(
-      across(
-        c(pin10, township, municipality, tax_code_group, tax_code_rate),
-        ~ paste(unique(.x), collapse = "/")
-      ),
-      agency_nums = list(combine_list_elements(agency_nums_list)),
-      agency_names = list(combine_list_elements(agency_names_list))
+      # Unfortunately there is one PIN (1230402050) that is partially in a
+      # municipality and unincorporated, so we have aggregate municipality as
+      # well
+      municipality = paste(unique(municipality), collapse = "/"),
+      tax_code_group = paste(unique(tax_code_group), collapse = "/"),
+      tax_code_rate = paste(unique(tax_code_rate), collapse = "/"),
+      agency_nums = list(tax_code_group = agency_nums_list),
+      agency_names = list(tax_code_group = agency_names_list)
     ) %>%
     ungroup()
   pin_geometry_clean %>%
@@ -150,17 +151,16 @@ tax_code_geometry <- pin_geometry_clean %>%
   mutate(across(
     starts_with("agency_"), ~ map_chr(.x, ~ paste(.x, collapse = "<br>"))
   )) %>%
-  group_by(
-    township,
-    municipality,
-    tax_code_group,
-    tax_code_rate,
-    agency_nums,
-    agency_names,
+  group_by(tax_code_group) %>%
+  summarise(
+    township = paste(unique(township), collapse = "/"),
+    municipality = paste(unique(municipality), collapse = "/"),
+    tax_code_rate = paste(unique(tax_code_rate), collapse = "/"),
+    agency_nums = list(tax_code_group = agency_nums),
+    agency_names = list(tax_code_group = agency_names)
   ) %>%
-  summarise() %>%
-  ungroup()
-mutate(multiple_tax_code_group = str_detect(tax_code_group, "/"))
+  ungroup() %>%
+  mutate(multiple_tax_code_group = str_detect(tax_code_group, "/"))
 
 # Clean up small spaces left between parcels that are part of the same tax code
 # group.
