@@ -111,7 +111,7 @@ pin_geometry_clean <- pin_geometry %>%
     # Unfortunately there is one PIN (1230402050) that is partially in a
     # municipality and unincorporated, so we have aggregate municipality as
     # well
-    tax_code_group = paste(unique(tax_code_group), collapse = ", "),
+    tax_code_group = paste(unique(tax_code_group), collapse = "/"),
     across(
       c(municipality, tax_code_rate), ~ list(unique(.x))
     ),
@@ -131,8 +131,9 @@ tax_code_geometry <- pin_geometry_clean %>%
       agency_nums,
       agency_names
     ),
-    ~ paste(list(unique(unlist(.x))), collapse = "<br>")
-  ), .groups = "drop")
+    ~ paste(sort(unique(unlist(.x))), collapse = "<br>")
+  ), .groups = "drop") %>%
+  mutate(multiple_tax_code = str_detect(tax_code_group, "/"))
 
 # Clean up small spaces left between parcels that are part of the same tax code
 # group.
