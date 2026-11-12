@@ -15,13 +15,14 @@ output_bucket <- file.path(
   AWS_S3_RAW_BUCKET, "ccao", "condominium", "pin_condo_char"
 )
 
-# Get local file addresses
+# Get local file addresses. Shared files for 2025 and later live in
+# "Data - Assessor/General/Collaborative Projects/Condo Chars/Completed Condo Reviews".  # nolint
 source_paths <- c(
   "//fileserver/ocommon/2022 Data Collection/Condo Project/William Approved Layout North Tri Condo Project FINAL COMPLETED/", # nolint
   "//fileserver/ocommon/2023 Data Collection/South Tri Condo Project COMPLETED",
   "//fileserver/ocommon/2024 Data Collection/City Tri Condo Characteristics COMPLETED", # nolint
-  "//fileserver/ocommon/CCAODATA/data/condo_chars/2025_completed", # Local copy of sharepoint file # nolint
-  "//fileserver/ocommon/CCAODATA/data/condo_chars/2026_completed", # Local copy of sharepoint file # nolint
+  "//fileserver/ocommon/CCAODATA/data/condo_chars/2025_completed",
+  "//fileserver/ocommon/CCAODATA/data/condo_chars/2026_completed",
   "//fileserver/ocommon/CCAODATA/data/condo_chars/2027_completed"
 )
 
