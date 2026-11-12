@@ -17,6 +17,11 @@ output_path <- file.path(
 # Declare tax year for which to build the map.
 tax_year <- 2024
 
+# Declare buffer distance for cleaning up small spaces between parcels that are
+# part of the same tax code group. The units are in feet, so 2 feet is a
+# reasonable distance to use here.
+buffer_dist <- 2
+
 # Connect to Athena
 noctua_options(unload = TRUE)
 AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena(), rstudio_conn_tab = FALSE)
@@ -119,9 +124,53 @@ pin_geometry_clean <- pin_geometry %>%
     .groups = "drop"
   )
 
-# Dissolve parcel geometry by tax code group and format all the aggregated
-# fields for better display in the map popup.
+# Dissolve parcel geometry by tax code group
 tax_code_geometry <- pin_geometry_clean %>%
+  group_by(tax_code_group) %>%
+  summarise(across(
+    c(
+      township,
+      municipality,
+      tax_code_rate,
+      agency_nums,
+      agency_names
+    ),
+    ~ list(unique(unlist(.x)))
+  ), .groups = "drop")
+
+# Resolve overlapping polygons: split overlaps into distinct pieces and
+# combine the non-geometry columns of any rows contributing to each piece.
+# township, municipality, tax_code_rate, agency_nums, and agency_names are
+# all list-columns here, so each combined value is also wrapped in a list.
+intersection_file_path <- file.path("tmp", glue("pieces_{tax_year}.parquet"))
+if (!file.exists(intersection_file_path)) {
+  pieces <- st_intersection(tax_code_geometry)
+
+  pieces %>%
+    sfarrow::st_write_parquet(intersection_file_path, compression = "snappy")
+} else {
+  pieces <- sfarrow::st_read_parquet(intersection_file_path)
+}
+
+tax_code_geometry_clean <- pieces %>%
+  mutate(
+    across(
+      c(
+        tax_code_group, township, municipality,
+        tax_code_rate, agency_nums, agency_names
+      ),
+      ~ map(origins, \(i) unique(unlist(geo[[cur_column()]][i])))
+    ),
+    area = as.numeric(st_area(geometry))
+  ) %>%
+  select(-n.overlaps, -origins) %>%
+  mutate(tax_code_group = map_chr(
+    tax_code_group,
+    ~ paste(sort(unique(unlist(strsplit(.x, "/")))), collapse = "/")
+  )) %>%
+  st_collection_extract("POLYGON") %>%
+  st_buffer(dist = -buffer_dist) %>%
+  st_buffer(dist = buffer_dist) %>%
   group_by(tax_code_group) %>%
   summarise(across(
     c(
@@ -133,19 +182,11 @@ tax_code_geometry <- pin_geometry_clean %>%
     ),
     ~ paste(sort(unique(unlist(.x))), collapse = "<br>")
   ), .groups = "drop") %>%
-  mutate(multiple_tax_code = str_detect(tax_code_group, "/"))
-
-# Clean up small spaces left between parcels that are part of the same tax code
-# group.
-buffer_dist <- 2
-tax_code_buffered <- tax_code_geometry %>%
-  st_buffer(dist = buffer_dist) %>%
-  st_buffer(dist = -buffer_dist) %>%
+  mutate(multiple_tax_groups = str_detect(tax_code_group, "/")) %>%
   st_transform(crs = 4326)
 
-# Write output
-tax_code_buffered %>%
-  sfarrow::st_write_parquet(
-    file.path("tmp", glue("tax_code_{tax_year}.parquet")),
-    compression = "snappy"
+tax_code_geometry_clean %>%
+  geoparquet_to_s3(
+    s3_output_path = file.path(output_path, glue("{tax_year}.parquet")),
+    overwrite = TRUE
   )
