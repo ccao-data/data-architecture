@@ -159,7 +159,7 @@ tax_code_geometry_clean <- pieces %>%
         tax_code_group, township, municipality,
         tax_code_rate, agency_nums, agency_names
       ),
-      ~ map(origins, \(i) unique(unlist(geo[[cur_column()]][i])))
+      ~ map(origins, \(i) unique(unlist(tax_code_geometry[[cur_column()]][i])))
     ),
     area = as.numeric(st_area(geometry))
   ) %>%
