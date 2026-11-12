@@ -186,7 +186,4 @@ tax_code_geometry_clean <- pieces %>%
   st_transform(crs = 4326)
 
 tax_code_geometry_clean %>%
-  geoparquet_to_s3(
-    s3_output_path = file.path(output_path, glue("{tax_year}.parquet")),
-    overwrite = TRUE
-  )
+  geoparquet_to_s3(file.path(output_path, glue("{tax_year}.parquet")))
