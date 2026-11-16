@@ -263,15 +263,20 @@ chars <- chars %>%
   ) %>%
   select(!starts_with("new"), -parking_space)
 
-# Each PIN should only appear once per year - duplicate PINs in the updates
-# would multiply rows in the join above
+# PIN 20121140391007 appears twice, keep only one row
+chars <- chars %>%
+  filter(
+    !(pin == "20121140391007" & duplicated(data.frame(pin)))
+  )
+
+# Each PIN should only appear once
 dupes <- chars %>%
-  count(pin, year) %>%
+  count(pin) %>%
   filter(n > 1)
 
 if (nrow(dupes) > 0) {
   stop(
-    "Duplicate PIN/year combinations found before upload: ",
+    "Duplicate PIN found before upload: ",
     paste(unique(dupes$pin), collapse = ", ")
   )
 }
