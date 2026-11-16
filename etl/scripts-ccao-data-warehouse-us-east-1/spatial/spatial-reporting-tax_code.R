@@ -28,6 +28,11 @@ tax_year <- 2024
 # artifacts from the intersection operation. Distance is in feet.
 buffer_dist <- 3
 
+# Choose a mitre distance that is large enough to create sharp corners, but
+# small enough to avoid creating overlaps. After testing, a mitre distance of 5
+# feet seems to be a good balance.
+mitre_dist <- 5
+
 # Connect to Athena
 noctua_options(unload = TRUE)
 AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena(), rstudio_conn_tab = FALSE)
@@ -197,7 +202,7 @@ tax_code_geometry_clean <- pieces %>%
   # Clean up tiny artifacts from the intersection operation.
   st_buffer(dist = -buffer_dist) %>%
   st_buffer(
-    dist = buffer_dist, joinStyle = "MITRE", mitreLimit = buffer_dist
+    dist = buffer_dist, joinStyle = "MITRE", mitreLimit = mitre_dist
   ) %>%
   # Aggregate tax code group one final time after spatial intersection to make
   # sure its values are distinct.
@@ -221,7 +226,7 @@ tax_code_geometry_clean <- pieces %>%
   mutate(multiple_tax_groups = str_detect(tax_code_group, "/")) %>%
   # Fill in any small gaps within polygons
   st_buffer(
-    dist = buffer_dist, joinStyle = "MITRE", mitreLimit = buffer_dist
+    dist = buffer_dist, joinStyle = "MITRE", mitreLimit = mitre_dist
   ) %>%
   st_buffer(dist = -buffer_dist) %>%
   st_make_valid() %>%
