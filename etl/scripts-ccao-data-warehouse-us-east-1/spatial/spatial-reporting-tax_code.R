@@ -29,9 +29,9 @@ tax_year <- 2024
 buffer_dist <- 3
 
 # Choose a mitre distance that is large enough to create sharp corners, but
-# small enough to avoid creating overlaps. After testing, a mitre distance of 5
+# small enough to avoid creating overlaps. After testing, a mitre distance of 3
 # feet seems to be a good balance.
-mitre_dist <- 5
+mitre_dist <- 3
 
 # Connect to Athena
 noctua_options(unload = TRUE)
@@ -204,6 +204,8 @@ tax_code_geometry_clean <- pieces %>%
   st_buffer(
     dist = buffer_dist, joinStyle = "MITRE", mitreLimit = mitre_dist
   ) %>%
+  # Drop any tiny sliver polygons left over after the negative/positive buffer.
+  filter(as.numeric(st_area(geometry)) >= 100) %>%
   # Aggregate tax code group one final time after spatial intersection to make
   # sure its values are distinct.
   mutate(
@@ -228,7 +230,9 @@ tax_code_geometry_clean <- pieces %>%
   st_buffer(
     dist = buffer_dist, joinStyle = "MITRE", mitreLimit = mitre_dist
   ) %>%
-  st_buffer(dist = -buffer_dist) %>%
+  st_buffer(
+    dist = -buffer_dist, joinStyle = "MITRE", mitreLimit = mitre_dist
+  ) %>%
   st_make_valid() %>%
   st_transform(crs = 4326) %>%
   st_make_valid()
