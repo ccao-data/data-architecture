@@ -7,7 +7,14 @@ library(sf)
 library(stringr)
 source("utils.R")
 
-# This script builds a map of combined tax code agencies for a given tax year
+# This script builds a map of combined tax code agencies for a given tax year.
+# At a high level, it pulls parcel geometry and tax code/agency data from
+# Athena, dissolves parcels into combined tax code group polygons, resolves
+# any overlaps between those polygons, and cleans up the resulting geometry
+# for display. Because the script performs many spatial operations in
+# sequence (buffering, intersection, dissolving, etc.), small geometry
+# errors can compound; use sf::st_is_valid() regularly throughout to check
+# that polygons remain valid, and repair with sf::st_make_valid() as needed.
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 export_path <- file.path(AWS_S3_WAREHOUSE_BUCKET, "export", "geojson")
 output_path <- file.path(
@@ -17,10 +24,9 @@ output_path <- file.path(
 # Declare tax year for which to build the map.
 tax_year <- 2024
 
-# Declare buffer distance for cleaning up small spaces between parcels that are
-# part of the same tax code group. The units are in feet, so 2 feet is a
-# reasonable distance to use here.
-buffer_dist <- 2
+# Declare buffer distance for cleaning up small spaces within polygons and
+# artifacts from the intersection operation. Distance is in feet.
+buffer_dist <- 3
 
 # Connect to Athena
 noctua_options(unload = TRUE)
@@ -62,12 +68,15 @@ agencies <- dbGetQuery(
   )
 ) %>%
   # Assign tax code group number based on unique agency names rather than tax
-  # code number.
+  # code number. This process is NOT deterministic, so the group numbers will
+  # change if the underlying data changes.
   mutate(tax_code_group = cur_group_id(), .by = agency_names) %>%
+  # Working with these aggregated columns as lists makes it easier to keep their
+  # elements unique as we continue to aggregate.
   mutate(across(starts_with("agency_"), ~ str_split(.x, ", ")))
 
-# Grab geometry and tax code for each pin. This will let us join on the combined
-# agency names we built above.
+# Grab geometry and tax code for each pin. This will let us join the combined
+# agency names we built above to the geometry for each pin.
 pin_geometry <- dbGetQuery(
   conn = AWS_ATHENA_CONN_NOCTUA,
   glue_sql("
@@ -98,24 +107,18 @@ pin_geometry <- dbGetQuery(
   st_transform(crs = 3435) %>%
   mutate(township = ccao::town_convert(substr(tax_code_num, 1, 2)))
 
-# Combine parcel geometry and tax code information and consolidate by geometry.
-# PIN10s aren't relevant at this point since we only care about where on the map
-# the tax code groups are located.
+# Some PIN10s have multiple tax codes, there is one PIN10 (1230402050) that is
+# partially in a municipality and unincorporated, and there are a few cases
+# where stacked PIN10s with identical geometry have different tax codes
+# (17-10-105-013 - 17-10-105-016). What this all means is that we can only
+# aggregate by geometry in order to avoid overlap for tax code group polygons.
+# Even doing this, we're still going to have some cases where different PIN10s
+# in different tax code groups have overlapping but not identical geometry. That
+# problem needs to be solved using a spatial intersection below.
 pin_geometry_clean <- pin_geometry %>%
   left_join(agencies, by = "tax_code_num") %>%
-  # Some PIN10s have multiple tax codes, there is one PIN10 (1230402050) that
-  # is partially in a municipality and unincorporated, and there are a few
-  # cases where stacked PIN10s with identical geometry have different tax
-  # codes (17-10-105-013 - 17-10-105-016). What this all means is that we can
-  # only aggregate by geometry in order to avoid overlap for tax code group
-  # polygons. Even doing this, we're still going to have some cases where
-  # different PIN10s in different tax code groups have overlapping but not
-  # identical geometry. That problem needs to be solved using spatial means.
   group_by(township, geometry) %>%
   summarise(
-    # Unfortunately there is one PIN (1230402050) that is partially in a
-    # municipality and unincorporated, so we have aggregate municipality as
-    # well
     tax_code_group = paste(unique(tax_code_group), collapse = "/"),
     across(
       c(municipality, tax_code_rate), ~ list(unique(.x))
@@ -124,7 +127,9 @@ pin_geometry_clean <- pin_geometry %>%
     .groups = "drop"
   )
 
-# Dissolve parcel geometry by tax code group
+# Dissolve simplified parcel geometry by tax code group. Make sure to write this
+# to a file so that the tax groups that are used for the intersection are
+# consistent with the groups that will be used for the final aggregation.
 tax_code_geo_path <- file.path("tmp", glue("tax_code_geo_{tax_year}.parquet"))
 if (!file.exists(tax_code_geo_path)) {
   message(glue("Building tax code geometry for {tax_year}..."))
@@ -149,11 +154,7 @@ if (!file.exists(tax_code_geo_path)) {
   tax_code_geometry <- sfarrow::st_read_parquet(tax_code_geo_path)
 }
 
-
-# Resolve overlapping polygons: split overlaps into distinct pieces and
-# combine the non-geometry columns of any rows contributing to each piece.
-# township, municipality, tax_code_rate, agency_nums, and agency_names are
-# all list-columns here, so each combined value is also wrapped in a list.
+# Resolve overlapping polygons: split overlaps into distinct pieces.
 intersection_file_path <- file.path("tmp", glue("pieces_{tax_year}.parquet"))
 if (!file.exists(intersection_file_path)) {
   message(glue("Building tax code pieces for {tax_year}..."))
@@ -166,6 +167,15 @@ if (!file.exists(intersection_file_path)) {
   pieces <- sfarrow::st_read_parquet(intersection_file_path)
 }
 
+# We now need to take these pieces and re-aggregate them by tax code group along
+# with the polygons not included in the intersection. This is a bit tricky
+# because the pieces are the result of a spatial intersection, so we need to
+# figure out which pieces came from which original polygons. At the same time we
+# need to make sure we are aggregating all the combined attributes
+# (tax_code_group, township, municipality, tax_code_rate, agency_nums, and
+# agency_names) for each piece while keeping their values distinct. The result
+# will be a clean set of polygons that represent the combined tax code agencies
+# for the given tax year.
 tax_code_geometry_clean <- pieces %>%
   st_make_valid() %>%
   mutate(
@@ -174,17 +184,23 @@ tax_code_geometry_clean <- pieces %>%
         tax_code_group, township, municipality,
         tax_code_rate, agency_nums, agency_names
       ),
+      # Note that we are using the original tax_code_geometry object here to get
+      # the values for each piece. This is because the pieces object is the
+      # result of a spatial intersection, so we need to figure out which pieces
+      # came from which original polygons.
       ~ map(origins, \(i) unique(unlist(tax_code_geometry[[cur_column()]][i])))
-    ),
-    area = as.numeric(st_area(geometry))
+    )
   ) %>%
   select(-n.overlaps, -origins) %>%
   st_collection_extract("POLYGON") %>%
   st_make_valid() %>%
+  # Clean up tiny artifacts from the intersection operation.
   st_buffer(dist = -buffer_dist) %>%
   st_buffer(
     dist = buffer_dist, joinStyle = "MITRE", mitreLimit = buffer_dist
   ) %>%
+  # Aggregate tax code group one final time after spatial intersection to make
+  # sure its values are distinct.
   mutate(
     tax_code_group = map_chr(
       tax_code_group,
@@ -203,6 +219,11 @@ tax_code_geometry_clean <- pieces %>%
     ~ paste(sort(unique(unlist(.x))), collapse = "<br>")
   ), .groups = "drop") %>%
   mutate(multiple_tax_groups = str_detect(tax_code_group, "/")) %>%
+  # Fill in any small gaps within polygons
+  st_buffer(
+    dist = buffer_dist, joinStyle = "MITRE", mitreLimit = buffer_dist
+  ) %>%
+  st_buffer(dist = -buffer_dist) %>%
   st_make_valid() %>%
   st_transform(crs = 4326) %>%
   st_make_valid()
