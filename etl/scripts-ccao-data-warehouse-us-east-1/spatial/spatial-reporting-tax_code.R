@@ -125,18 +125,30 @@ pin_geometry_clean <- pin_geometry %>%
   )
 
 # Dissolve parcel geometry by tax code group
-tax_code_geometry <- pin_geometry_clean %>%
-  group_by(tax_code_group) %>%
-  summarise(across(
-    c(
-      township,
-      municipality,
-      tax_code_rate,
-      agency_nums,
-      agency_names
-    ),
-    ~ list(unique(unlist(.x)))
-  ), .groups = "drop")
+tax_code_geo_path <- file.path("tmp", glue("tax_code_geo_{tax_year}.parquet"))
+if (!file.exists(tax_code_geo_path)) {
+  message(glue("Building tax code geometry for {tax_year}..."))
+  tax_code_geometry <- pin_geometry_clean %>%
+    group_by(tax_code_group) %>%
+    summarise(across(
+      c(
+        township,
+        municipality,
+        tax_code_rate,
+        agency_nums,
+        agency_names
+      ),
+      ~ list(unique(unlist(.x)))
+    ), .groups = "drop") %>%
+    st_make_valid()
+
+  tax_code_geometry %>%
+    sfarrow::st_write_parquet(tax_code_geo_path, compression = "snappy")
+} else {
+  message(glue("Reading tax code geometry for {tax_year}..."))
+  tax_code_geometry <- sfarrow::st_read_parquet(tax_code_geo_path)
+}
+
 
 # Resolve overlapping polygons: split overlaps into distinct pieces and
 # combine the non-geometry columns of any rows contributing to each piece.
@@ -144,15 +156,18 @@ tax_code_geometry <- pin_geometry_clean %>%
 # all list-columns here, so each combined value is also wrapped in a list.
 intersection_file_path <- file.path("tmp", glue("pieces_{tax_year}.parquet"))
 if (!file.exists(intersection_file_path)) {
+  message(glue("Building tax code pieces for {tax_year}..."))
   pieces <- st_intersection(tax_code_geometry)
 
   pieces %>%
     sfarrow::st_write_parquet(intersection_file_path, compression = "snappy")
 } else {
+  message(glue("Reading tax code pieces for {tax_year}..."))
   pieces <- sfarrow::st_read_parquet(intersection_file_path)
 }
 
 tax_code_geometry_clean <- pieces %>%
+  st_make_valid() %>%
   mutate(
     across(
       c(
@@ -164,13 +179,18 @@ tax_code_geometry_clean <- pieces %>%
     area = as.numeric(st_area(geometry))
   ) %>%
   select(-n.overlaps, -origins) %>%
-  mutate(tax_code_group = map_chr(
-    tax_code_group,
-    ~ paste(sort(unique(unlist(strsplit(.x, "/")))), collapse = "/")
-  )) %>%
   st_collection_extract("POLYGON") %>%
+  st_make_valid() %>%
   st_buffer(dist = -buffer_dist) %>%
-  st_buffer(dist = buffer_dist) %>%
+  st_buffer(
+    dist = buffer_dist, joinStyle = "MITRE", mitreLimit = buffer_dist
+  ) %>%
+  mutate(
+    tax_code_group = map_chr(
+      tax_code_group,
+      ~ paste(sort(unique(unlist(str_split(.x, "/")))), collapse = "/")
+    )
+  ) %>%
   group_by(tax_code_group) %>%
   summarise(across(
     c(
@@ -183,7 +203,9 @@ tax_code_geometry_clean <- pieces %>%
     ~ paste(sort(unique(unlist(.x))), collapse = "<br>")
   ), .groups = "drop") %>%
   mutate(multiple_tax_groups = str_detect(tax_code_group, "/")) %>%
-  st_transform(crs = 4326)
+  st_make_valid() %>%
+  st_transform(crs = 4326) %>%
+  st_make_valid()
 
 tax_code_geometry_clean %>%
   geoparquet_to_s3(file.path(output_path, glue("{tax_year}.parquet")))
