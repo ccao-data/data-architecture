@@ -206,8 +206,8 @@ tax_code_geometry_clean <- pieces %>%
   ) %>%
   # Drop any tiny sliver polygons left over after the negative/positive buffer.
   filter(as.numeric(st_area(geometry)) >= 100) %>%
-  # Aggregate tax code group one final time after spatial intersection to make
-  # sure its values are distinct.
+  # Aggregate by tax code group one final time after the spatial intersection
+  # and make sure it values for non-grouping columns are distinct.
   mutate(
     tax_code_group = map_chr(
       tax_code_group,
@@ -234,8 +234,7 @@ tax_code_geometry_clean <- pieces %>%
     dist = -buffer_dist, joinStyle = "MITRE", mitreLimit = mitre_dist
   ) %>%
   st_make_valid() %>%
-  st_transform(crs = 4326) %>%
-  st_make_valid()
+  st_transform(crs = 4326)
 
 tax_code_geometry_clean %>%
   geoparquet_to_s3(file.path(output_path, glue("{tax_year}.parquet")))
