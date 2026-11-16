@@ -23,7 +23,11 @@ output_bucket <- file.path(
 )
 
 # Connect to Athena
-AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena())
+AWS_ATHENA_CONN_NOCTUA <- dbConnect(
+  noctua::athena(),
+  region_name = "us-east-1",
+  rstudio_conn_tab = FALSE
+)
 
 # Get S3 file addresses
 files <- grep(
@@ -212,8 +216,8 @@ for (i in c("2021", "2022", "2023")) {
   }
 }
 
-# At the end of 2024 and 2025 (tax years 2025 and 2026) valuations revisited
-# some old condos and updated their characteristics
+# We ask valuations to update condo characteristics that we think are
+# unrealistic. This portion of the scripts updates those values.
 updates <- map(
   file.path(
     "s3://ccao-data-raw-us-east-1",
@@ -221,7 +225,7 @@ updates <- map(
       AWS_S3_RAW_BUCKET,
       prefix = "ccao/condominium/pin_condo_char"
     ) %>%
-      filter(str_detect(Key, "2025|2026")) %>%
+      filter(str_detect(Key, "2025|2026|2027")) %>%
       pull(Key)
   ),
   \(x) {
@@ -231,14 +235,19 @@ updates <- map(
 ) %>%
   bind_rows() %>%
   rename_with(~ gsub("\\.", "_", tolower(.x)), .cols = everything()) %>%
-  select("pin", starts_with("new")) %>%
+  # Is.Parking.Space was renamed to Parking.Space
+  mutate(parking_space = coalesce(parking_space, is_parking_space)) %>%
+  select("pin", "parking_space", starts_with("new")) %>%
   mutate(
     pin = gsub("-", "", pin),
-    across(starts_with("new"), as.numeric),
+    # parking space is logical, everything else is numeric
+    across(starts_with("new") & !any_of("new_parking_space"), as.numeric),
+    parking_space = as.logical(coalesce(new_parking_space, parking_space)),
     # Three units with 100 for unit sqft
     new_unit_sf = ifelse(new_unit_sf == 100, 1000, new_unit_sf)
   ) %>%
-  filter(!if_all(starts_with("new"), is.na))
+  select(-new_parking_space) %>%
+  filter(!if_all(c(parking_space, starts_with("new")), is.na))
 
 # Update parcels with new column values
 chars <- chars %>%
@@ -249,9 +258,23 @@ chars <- chars %>%
     unit_sf = coalesce(new_unit_sf, unit_sf),
     bedrooms = coalesce(new_bedrooms, bedrooms),
     full_baths = coalesce(new_full_baths, full_baths),
-    half_baths = coalesce(new_half_baths, half_baths)
+    half_baths = coalesce(new_half_baths, half_baths),
+    parking_pin = coalesce(parking_space, parking_pin)
   ) %>%
-  select(!starts_with("new"))
+  select(!starts_with("new"), -parking_space)
+
+# Each PIN should only appear once per year - duplicate PINs in the updates
+# would multiply rows in the join above
+dupes <- chars %>%
+  count(pin, year) %>%
+  filter(n > 1)
+
+if (nrow(dupes) > 0) {
+  stop(
+    "Duplicate PIN/year combinations found before upload: ",
+    paste(unique(dupes$pin), collapse = ", ")
+  )
+}
 
 # Upload cleaned data to S3
 chars %>%
