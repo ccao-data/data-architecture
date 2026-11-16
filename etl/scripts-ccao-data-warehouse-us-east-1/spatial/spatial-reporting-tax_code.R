@@ -126,7 +126,7 @@ pin_geometry_clean <- pin_geometry %>%
   summarise(
     tax_code_group = paste(unique(tax_code_group), collapse = "/"),
     across(
-      c(municipality, tax_code_rate), ~ list(unique(.x))
+      c(municipality, tax_code_num, tax_code_rate), ~ list(unique(.x))
     ),
     across(starts_with("agency_"), ~ list(unique(unlist(.x)))),
     .groups = "drop"
@@ -144,6 +144,7 @@ if (!file.exists(tax_code_geo_path)) {
       c(
         township,
         municipality,
+        tax_code_num,
         tax_code_rate,
         agency_nums,
         agency_names
@@ -187,7 +188,7 @@ tax_code_geometry_clean <- pieces %>%
     across(
       c(
         tax_code_group, township, municipality,
-        tax_code_rate, agency_nums, agency_names
+        tax_code_num, tax_code_rate, agency_nums, agency_names
       ),
       # Note that we are using the original tax_code_geometry object here to get
       # the values for each piece. This is because the pieces object is the
@@ -197,6 +198,8 @@ tax_code_geometry_clean <- pieces %>%
     )
   ) %>%
   select(-n.overlaps, -origins) %>%
+  # Drop any non-polygon geometries that may have been created during the
+  # intersection operation. We don't want linestrings and points.
   st_collection_extract("POLYGON") %>%
   st_make_valid() %>%
   # Clean up tiny artifacts from the intersection operation.
@@ -219,6 +222,7 @@ tax_code_geometry_clean <- pieces %>%
     c(
       township,
       municipality,
+      tax_code_num,
       tax_code_rate,
       agency_nums,
       agency_names
