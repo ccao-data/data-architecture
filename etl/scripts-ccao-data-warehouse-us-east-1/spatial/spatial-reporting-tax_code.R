@@ -236,5 +236,16 @@ tax_code_geometry_clean <- pieces %>%
   st_make_valid() %>%
   st_transform(crs = 4326)
 
+# Write parquet file for use in Athena
 tax_code_geometry_clean %>%
   geoparquet_to_s3(file.path(output_path, glue("{tax_year}.parquet")))
+
+# Upload geojson to export bucket for tableau usage
+tmp_file <- tempfile(fileext = ".geojson")
+st_write(tax_code_geometry_clean, tmp_file)
+save_local_to_s3(
+  s3_uri = file.path(export_path, "tax_code.geojson"),
+  path = tmp_file,
+  overwrite = TRUE
+)
+file.remove(tmp_file)
