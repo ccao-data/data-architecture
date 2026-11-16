@@ -223,7 +223,7 @@ tax_code_geometry_clean <- pieces %>%
       agency_nums,
       agency_names
     ),
-    ~ paste(sort(unique(unlist(.x))), collapse = "<br>")
+    ~ paste(sort(unique(unlist(.x))), collapse = ", ")
   ), .groups = "drop") %>%
   mutate(multiple_tax_groups = str_detect(tax_code_group, "/")) %>%
   # Fill in any small gaps within polygons
