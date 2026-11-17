@@ -11,14 +11,14 @@ source("utils.R")
 noctua_options(unload = TRUE)
 AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena(), rstudio_conn_tab = FALSE)
 
-# This script builds a map of combined tax code agencies for a given tax year.
-# At a high level, it pulls parcel geometry and tax code/agency data from
-# Athena, dissolves parcels into combined tax code group polygons, resolves
-# any overlaps between those polygons, and cleans up the resulting geometry
-# for display. Because the script performs many spatial operations in
-# sequence (buffering, intersection, dissolving, etc.), small geometry
-# errors can compound; use sf::st_is_valid() regularly throughout to check
-# that polygons remain valid, and repair with sf::st_make_valid() as needed.
+# This script builds a map of tax codes for a given tax year. At a high level,
+# it pulls parcel geometry and tax code data from Athena, dissolves parcels into
+# tax code polygons, resolves any overlaps between those polygons, and cleans up
+# the resulting geometry for display. Because the script performs many spatial
+# operations in sequence (buffering, intersection, dissolving, etc.), small
+# geometry errors can compound; use sf::st_is_valid() regularly throughout to
+# check that polygons remain valid, and repair with sf::st_make_valid() as
+# needed.
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 export_path <- file.path(AWS_S3_WAREHOUSE_BUCKET, "export", "geojson")
 output_path <- file.path(
@@ -38,8 +38,7 @@ buffer_dist <- 3
 mitre_dist <- 3
 
 # Aggregate agency names and nums by tax code and rate. This will allow us to
-# build a map of combined tax code agencies for a given tax year. We can also
-# grab the municipality name for a given taxe code.
+# create tax code "groups" to include in our map.
 agencies <- dbGetQuery(
   conn = AWS_ATHENA_CONN_NOCTUA,
   glue_sql("
@@ -108,10 +107,10 @@ pin_geometry <- dbGetQuery(
 # partially in a municipality and unincorporated, and there are a few cases
 # where stacked PIN10s with identical geometry have different tax codes
 # (17-10-105-013 - 17-10-105-016). What this all means is that we can only
-# aggregate by geometry in order to avoid overlap for tax code group polygons.
-# Even doing this, we're still going to have some cases where different PIN10s
-# in different tax code groups have overlapping but not identical geometry. That
-# problem needs to be solved using a spatial intersection below.
+# aggregate by geometry in order to avoid overlap for tax code polygons. Even
+# doing this, we're still going to have some cases where different PIN10s in
+# different tax codes have overlapping but not identical geometry. That problem
+# needs to be solved using a spatial intersection below.
 pin_geometry_clean <- pin_geometry %>%
   left_join(agencies, by = "tax_code_num") %>%
   group_by(geometry) %>%
@@ -125,9 +124,9 @@ pin_geometry_clean <- pin_geometry %>%
     .groups = "drop"
   )
 
-# Dissolve simplified parcel geometry by tax code group. Make sure to write this
+# Dissolve simplified parcel geometry by tax code. Make sure to write this
 # to a file so that the tax groups that are used for the intersection are
-# consistent with the groups that will be used for the final aggregation.
+# consistent with the groups that will be used in the final aggregation.
 tax_code_geo_path <- file.path("tmp", glue("tax_code_geo_{tax_year}.parquet"))
 if (!file.exists(tax_code_geo_path)) {
   message(glue("Building tax code geometry for {tax_year}..."))
@@ -166,15 +165,14 @@ if (!file.exists(intersection_file_path)) {
   pieces <- sfarrow::st_read_parquet(intersection_file_path)
 }
 
-# We now need to take these pieces and re-aggregate them by tax code group along
-# with the polygons not included in the intersection. This is a bit tricky
-# because the pieces are the result of a spatial intersection, so we need to
-# figure out which pieces came from which original polygons. At the same time we
-# need to make sure we are aggregating all the combined attributes
-# (tax_code_group, township, municipality, tax_code_rate, agency_nums, and
-# agency_names) for each piece while keeping their values distinct. The result
-# will be a clean set of polygons that represent the combined tax code agencies
-# for the given tax year.
+# We now need to take these pieces and re-aggregate them by tax code along with
+# the polygons not included in the intersection. Because the pieces are the
+# result of a spatial intersection, we need to figure out which pieces came from
+# which original polygons. At the same time we need to make sure we are
+# aggregating all the combined attributes (tax_code_group, township,
+# municipality, etc.) for each piece while keeping their values distinct. The
+# result will be a clean set of polygons that represent the tax codes for the
+# given tax year.
 tax_code_geometry_clean <- pieces %>%
   st_make_valid() %>%
   mutate(
@@ -184,9 +182,9 @@ tax_code_geometry_clean <- pieces %>%
         tax_code_num, tax_code_rate, agency_nums, agency_names
       ),
       # Note that we are using the original tax_code_geometry object here to get
-      # the values for each piece. This is because the pieces object is the
-      # result of a spatial intersection, so we need to figure out which pieces
-      # came from which original polygons.
+      # the values for each piece. This is because "pieces" is the result of a
+      # spatial intersection, so we need to figure out which pieces came from
+      # which original polygons.
       ~ map(origins, \(i) unique(unlist(tax_code_geometry[[cur_column()]][i])))
     )
   ) %>%
@@ -202,8 +200,8 @@ tax_code_geometry_clean <- pieces %>%
   ) %>%
   # Drop any tiny sliver polygons left over after the negative/positive buffer.
   filter(as.numeric(st_area(geometry)) >= 100) %>%
-  # Aggregate by tax code group one final time after the spatial intersection
-  # and make sure it values for non-grouping columns are distinct.
+  # Aggregate by tax code one final time after the spatial intersection and make
+  # sure the values for non-grouping columns are distinct.
   mutate(
     tax_code_num = map_chr(
       tax_code_num,
