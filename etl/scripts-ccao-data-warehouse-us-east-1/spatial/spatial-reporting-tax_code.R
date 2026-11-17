@@ -7,6 +7,10 @@ library(sf)
 library(stringr)
 source("utils.R")
 
+# Connect to Athena
+noctua_options(unload = TRUE)
+AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena(), rstudio_conn_tab = FALSE)
+
 # This script builds a map of combined tax code agencies for a given tax year.
 # At a high level, it pulls parcel geometry and tax code/agency data from
 # Athena, dissolves parcels into combined tax code group polygons, resolves
@@ -32,10 +36,6 @@ buffer_dist <- 3
 # small enough to avoid creating overlaps. After testing, a mitre distance of 3
 # feet seems to be a good balance.
 mitre_dist <- 3
-
-# Connect to Athena
-noctua_options(unload = TRUE)
-AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena(), rstudio_conn_tab = FALSE)
 
 # Aggregate agency names and nums by tax code and rate. This will allow us to
 # build a map of combined tax code agencies for a given tax year. We can also
@@ -73,9 +73,10 @@ agencies <- dbGetQuery(
   )
 ) %>%
   # Assign tax code group number based on unique agency names rather than tax
-  # code number. This process is NOT deterministic, so the group numbers will
-  # change if the underlying data changes.
-  mutate(tax_code_group = cur_group_id(), .by = agency_names) %>%
+  # code number. Group numbers CAN change if the underlying data changes.
+  group_by(agency_names) %>%
+  mutate(tax_code_group = cur_group_id()) %>%
+  ungroup() %>%
   # Working with these aggregated columns as lists makes it easier to keep their
   # elements unique as we continue to aggregate.
   mutate(across(starts_with("agency_"), ~ str_split(.x, ", ")))
@@ -85,23 +86,14 @@ agencies <- dbGetQuery(
 pin_geometry <- dbGetQuery(
   conn = AWS_ATHENA_CONN_NOCTUA,
   glue_sql("
-  WITH geo AS (
-    SELECT DISTINCT pin10,
-      geometry,
-      CASE
-        WHEN {tax_year} BETWEEN start_year AND end_year
-        THEN '{tax_year}' ELSE NULL
-      END as year
-    FROM tax.pin_geometry_raw
-  )
   SELECT DISTINCT SUBSTR(pin.pin, 1, 10) AS pin10,
-    pin.tax_code_num,
-    geo.geometry
+	  pin.tax_code_num,
+	  geo.geometry
   FROM tax.pin
-    INNER JOIN geo ON substr(pin.pin, 1, 10) = geo.pin10
-    AND pin.year = geo.year
+	  INNER JOIN spatial.parcel as geo ON substr(pin.pin, 1, 10) = geo.pin10
+	  AND pin.year = geo.year
   WHERE pin.year = '{tax_year}'
-",
+  ",
     .con = AWS_ATHENA_CONN_NOCTUA
   )
 ) %>%
@@ -122,11 +114,12 @@ pin_geometry <- dbGetQuery(
 # problem needs to be solved using a spatial intersection below.
 pin_geometry_clean <- pin_geometry %>%
   left_join(agencies, by = "tax_code_num") %>%
-  group_by(township, geometry) %>%
+  group_by(geometry) %>%
   summarise(
-    tax_code_group = paste(unique(tax_code_group), collapse = "/"),
+    tax_code_num = paste(unique(tax_code_num), collapse = "/"),
     across(
-      c(municipality, tax_code_num, tax_code_rate), ~ list(unique(.x))
+      c(township, municipality, tax_code_rate, tax_code_group),
+      ~ list(unique(.x))
     ),
     across(starts_with("agency_"), ~ list(unique(unlist(.x)))),
     .groups = "drop"
@@ -139,13 +132,13 @@ tax_code_geo_path <- file.path("tmp", glue("tax_code_geo_{tax_year}.parquet"))
 if (!file.exists(tax_code_geo_path)) {
   message(glue("Building tax code geometry for {tax_year}..."))
   tax_code_geometry <- pin_geometry_clean %>%
-    group_by(tax_code_group) %>%
+    group_by(tax_code_num) %>%
     summarise(across(
       c(
         township,
         municipality,
-        tax_code_num,
         tax_code_rate,
+        tax_code_group,
         agency_nums,
         agency_names
       ),
@@ -212,24 +205,24 @@ tax_code_geometry_clean <- pieces %>%
   # Aggregate by tax code group one final time after the spatial intersection
   # and make sure it values for non-grouping columns are distinct.
   mutate(
-    tax_code_group = map_chr(
-      tax_code_group,
+    tax_code_num = map_chr(
+      tax_code_num,
       ~ paste(sort(unique(unlist(str_split(.x, "/")))), collapse = "/")
     )
   ) %>%
-  group_by(tax_code_group) %>%
+  group_by(tax_code_num) %>%
   summarise(across(
     c(
       township,
       municipality,
-      tax_code_num,
       tax_code_rate,
+      tax_code_group,
       agency_nums,
       agency_names
     ),
     ~ paste(sort(unique(unlist(.x))), collapse = ", ")
   ), .groups = "drop") %>%
-  mutate(multiple_tax_groups = str_detect(tax_code_group, "/")) %>%
+  mutate(multiple_tax_nums = str_detect(tax_code_num, "/")) %>%
   # Fill in any small gaps within polygons
   st_buffer(
     dist = buffer_dist, joinStyle = "MITRE", mitreLimit = mitre_dist
