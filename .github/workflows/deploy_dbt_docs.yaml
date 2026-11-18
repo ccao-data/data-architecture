@@ -37,17 +37,20 @@ jobs:
 
       - name: Install docs build dependencies
         run: npm install -g @mermaid-js/mermaid-cli
+        env:
+          # We use the runner's system Chrome instead (see below)
+          PUPPETEER_SKIP_DOWNLOAD: "true"
 
       - name: Prepare Mermaid assets for docs
         run: |
-          # Disable the Chromium sandbox used by Puppeteer (which mermaid uses
-          # under the hood). Ubuntu's AppArmor user namespace restrictions
-          # otherwise prevent the sandbox from launching. This is safe because
-          # we only render trusted diagrams from this repo on an ephemeral
-          # runner. See:
-          # https://github.com/mermaid-js/mermaid-cli/blob/1423a0d7967d275a9d360ba0617f569550827c8b/docs/linux-sandbox-issue.md
+          # Use the runner's system Chrome rather than the one Puppeteer
+          # downloads. Ubuntu's AppArmor user namespace restrictions block the
+          # Chromium sandbox unless Chrome runs under an AppArmor profile that
+          # allows user namespaces. Ubuntu ships such a profile, but it only
+          # attaches automatically to the system Chrome install. See:
+          # https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md
           puppeteer_config="$RUNNER_TEMP/puppeteer-config.json"
-          echo '{"args": ["--no-sandbox"]}' > "$puppeteer_config"
+          echo '{"executablePath": "/usr/bin/google-chrome"}' > "$puppeteer_config"
           for file in assets/*.mmd; do
             mmdc -p "$puppeteer_config" -i "$file" -o "${file/.mmd/.svg}"
           done
