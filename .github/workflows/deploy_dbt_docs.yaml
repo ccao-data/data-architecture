@@ -47,6 +47,9 @@ jobs:
           # https://github.com/mermaid-js/mermaid-cli/blob/master/docs/linux-sandbox-issue.md
           puppeteer_config="$RUNNER_TEMP/puppeteer-config.json"
           echo '{"args": ["--no-sandbox"]}' > "$puppeteer_config"
+          # TODO: Remove once we've confirmed why aa-exec stopped working
+          sysctl kernel.apparmor_restrict_unprivileged_userns \
+            kernel.apparmor_restrict_unprivileged_unconfined || true
           for file in assets/*.mmd; do
             mmdc -p "$puppeteer_config" -i "$file" -o "${file/.mmd/.svg}"
           done
