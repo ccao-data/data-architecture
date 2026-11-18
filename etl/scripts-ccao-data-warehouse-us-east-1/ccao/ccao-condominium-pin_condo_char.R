@@ -235,19 +235,18 @@ updates <- map(
 ) %>%
   bind_rows() %>%
   rename_with(~ gsub("\\.", "_", tolower(.x)), .cols = everything()) %>%
-  # Is.Parking.Space was renamed to Parking.Space
-  mutate(parking_space = coalesce(parking_space, is_parking_space)) %>%
-  select("pin", "parking_space", starts_with("new")) %>%
+  # We have two naming structures for parking
+  mutate(new_parking_space = coalesce(new_parking_space, is_parking_space)) %>%
+  select("pin", starts_with("new")) %>%
   mutate(
     pin = gsub("-", "", pin),
     # parking space is logical, everything else is numeric
     across(starts_with("new") & !any_of("new_parking_space"), as.numeric),
-    parking_space = as.logical(coalesce(new_parking_space, parking_space)),
+    new_parking_space = as.logical(new_parking_space),
     # Three units with 100 for unit sqft
     new_unit_sf = ifelse(new_unit_sf == 100, 1000, new_unit_sf)
   ) %>%
-  select(-new_parking_space) %>%
-  filter(!if_all(c(parking_space, starts_with("new")), is.na))
+  filter(!if_all(starts_with("new"), is.na))
 
 # Update parcels with new column values
 chars <- chars %>%
@@ -259,9 +258,9 @@ chars <- chars %>%
     bedrooms = coalesce(new_bedrooms, bedrooms),
     full_baths = coalesce(new_full_baths, full_baths),
     half_baths = coalesce(new_half_baths, half_baths),
-    parking_pin = coalesce(parking_space, parking_pin)
+    parking_pin = coalesce(new_parking_space, parking_pin)
   ) %>%
-  select(!starts_with("new"), -parking_space)
+  select(!starts_with("new"))
 
 # PIN 20121140391007 appears twice, keep only one row
 chars <- chars %>%
