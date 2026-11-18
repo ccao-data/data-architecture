@@ -5,6 +5,7 @@ library(glue)
 library(noctua)
 library(sf)
 library(stringr)
+library(tidyr)
 source("utils.R")
 
 # Connect to Athena
@@ -103,6 +104,39 @@ pin_geometry <- dbGetQuery(
   st_transform(crs = 3435) %>%
   mutate(township = ccao::town_convert(substr(tax_code_num, 1, 2)))
 
+# Determine which taxing agencies are "core" agencies for each municipality. A
+# core agency taxes *all* pins within a given municipality.
+core_agencies <- pin_geometry %>%
+  st_drop_geometry() %>%
+  left_join(agencies, by = "tax_code_num") %>%
+  select(pin10, municipality, agency_names) %>%
+  unnest(cols = c(agency_names)) %>%
+  mutate(muni_pins = n_distinct(pin10), .by = municipality) %>%
+  summarise(
+    agency_pins = n_distinct(pin10),
+    .by = c("municipality", "muni_pins", "agency_names")
+  ) %>%
+  mutate(core_agency = muni_pins == agency_pins) %>%
+  summarise(
+    core_agency_names = list(sort(unique(agency_names[core_agency]))),
+    .by = municipality
+  )
+
+# Create lists of which agencies are core or peripheral for each tax code.
+agencies <- agencies %>%
+  left_join(core_agencies, by = "municipality") %>%
+  mutate(
+    core_agencies = map2(
+      agency_names, core_agency_names,
+      ~ sort(unique(.x[.x %in% .y]))
+    ),
+    peripheral_agencies = map2(
+      agency_names, core_agency_names,
+      ~ sort(unique(.x[!.x %in% .y]))
+    )
+  ) %>%
+  select(-core_agency_names)
+
 # Some PIN10s have multiple tax codes, there is one PIN10 (1230402050) that is
 # partially in a municipality and unincorporated, and there are a few cases
 # where stacked PIN10s with identical geometry have different tax codes
@@ -117,7 +151,10 @@ pin_geometry_clean <- pin_geometry %>%
   summarise(
     tax_code_num = paste(unique(tax_code_num), collapse = "/"),
     across(
-      c(township, municipality, tax_code_rate, tax_code_group),
+      c(
+        township, municipality, tax_code_rate, tax_code_group,
+        core_agencies, peripheral_agencies
+      ),
       ~ list(unique(.x))
     ),
     across(starts_with("agency_"), ~ list(unique(unlist(.x)))),
@@ -134,12 +171,8 @@ if (!file.exists(tax_code_geo_path)) {
     group_by(tax_code_num) %>%
     summarise(across(
       c(
-        township,
-        municipality,
-        tax_code_rate,
-        tax_code_group,
-        agency_nums,
-        agency_names
+        township, municipality, tax_code_rate, tax_code_group,
+        agency_nums, agency_names, core_agencies, peripheral_agencies
       ),
       ~ list(unique(unlist(.x)))
     ), .groups = "drop") %>%
@@ -178,8 +211,8 @@ tax_code_geometry_clean <- pieces %>%
   mutate(
     across(
       c(
-        tax_code_group, township, municipality,
-        tax_code_num, tax_code_rate, agency_nums, agency_names
+        tax_code_group, township, municipality, tax_code_num, tax_code_rate,
+        agency_nums, agency_names, core_agencies, peripheral_agencies
       ),
       # Note that we are using the original tax_code_geometry object here to get
       # the values for each piece. This is because "pieces" is the result of a
@@ -211,12 +244,8 @@ tax_code_geometry_clean <- pieces %>%
   group_by(tax_code_num) %>%
   summarise(across(
     c(
-      township,
-      municipality,
-      tax_code_rate,
-      tax_code_group,
-      agency_nums,
-      agency_names
+      township, municipality, tax_code_rate, tax_code_group,
+      agency_nums, agency_names, core_agencies, peripheral_agencies
     ),
     ~ paste(sort(unique(unlist(.x))), collapse = ", ")
   ), .groups = "drop") %>%
