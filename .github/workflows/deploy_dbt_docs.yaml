@@ -40,12 +40,15 @@ jobs:
 
       - name: Prepare Mermaid assets for docs
         run: |
+          # Disable the Chromium sandbox used by Puppeteer (which mermaid uses
+          # under the hood). Ubuntu's AppArmor userns restrictions otherwise
+          # prevent the sandbox from launching. This is safe because we only
+          # render trusted diagrams from this repo on an ephemeral runner. See:
+          # https://github.com/mermaid-js/mermaid-cli/blob/master/docs/linux-sandbox-issue.md
+          puppeteer_config="$RUNNER_TEMP/puppeteer-config.json"
+          echo '{"args": ["--no-sandbox"]}' > "$puppeteer_config"
           for file in assets/*.mmd; do
-            # Confine the mermaid process to an AppArmor profile, necessary on
-            # Ubuntu >= 23.10 to work around new AppArmor rules that block the
-            # Puppeteer sandbox (used by mermaid) from working. See:
-            # https://github.com/mermaid-js/mermaid-cli/issues/730#issuecomment-2408615110
-            aa-exec --profile=chrome mmdc -i "$file" -o "${file/.mmd/.svg}"
+            mmdc -p "$puppeteer_config" -i "$file" -o "${file/.mmd/.svg}"
           done
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
