@@ -254,7 +254,18 @@ tax_code_geometry_clean <- pieces %>%
     ),
     ~ paste(sort(unique(unlist(.x))), collapse = ", ")
   ), .groups = "drop") %>%
-  mutate(multiple_tax_nums = str_detect(tax_code_num, "/")) %>%
+  mutate(
+    min_tax_code_rate = map_dbl(
+      tax_code_rate,
+      ~ min(as.numeric(unlist(str_split(.x, ", "))))
+    ),
+    max_tax_code_rate = map_dbl(
+      tax_code_rate,
+      ~ max(as.numeric(unlist(str_split(.x, ", "))))
+    ),
+    multiple_tax_nums = str_detect(tax_code_num, "/")
+  ) %>%
+  relocate(c(min_tax_code_rate, max_tax_code_rate), .after = tax_code_rate) %>%
   # Regrow then erode polygons (opposite order from the buffer pair above) to
   # fill in small gaps left between adjacent pieces after dissolving by
   # tax_code_num, without reintroducing the slivers removed earlier.
