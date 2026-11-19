@@ -111,8 +111,8 @@ core_agencies <- pin_geometry %>%
   st_drop_geometry() %>%
   left_join(agencies, by = "tax_code_num") %>%
   select(pin10, municipality, agency_names) %>%
-  unnest(cols = c(agency_names)) %>%
   mutate(muni_pins = n_distinct(pin10), .by = municipality) %>%
+  unnest(cols = c(agency_names)) %>%
   summarise(
     agency_pins = n_distinct(pin10),
     .by = c("municipality", "muni_pins", "agency_names")
