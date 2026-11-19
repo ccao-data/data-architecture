@@ -13,9 +13,8 @@ source("utils.R")
 # tax code polygons, resolves any overlaps between those polygons, and cleans up
 # the resulting geometry for display. Because the script performs many spatial
 # operations in sequence (buffering, intersection, dissolving, etc.), small
-# geometry errors can compound; use sf::st_is_valid() regularly throughout to
-# check that polygons remain valid, and repair with sf::st_make_valid() as
-# needed.
+# geometry errors can compound; use sf::st_make_valid() regularly throughout to
+# ensure polygon validity.
 
 # Connect to Athena
 noctua_options(unload = TRUE)
