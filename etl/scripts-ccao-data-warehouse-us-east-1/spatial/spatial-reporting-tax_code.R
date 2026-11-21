@@ -17,6 +17,12 @@ source("utils.R")
 # geometry errors can compound; use sf::st_make_valid() regularly throughout to
 # ensure polygon validity.
 
+# We save two artifacts during construction of the tax code map to avoid
+# repeating expensive operations: a parquet file of the tax code geometry before
+# resolving overlaps, and a parquet file of the pieces created by the
+# intersection operation. If these files exist, we read them instead of
+# rebuilding them from scratch.
+
 # Connect to Athena
 noctua_options(unload = TRUE)
 AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena(), rstudio_conn_tab = FALSE)
